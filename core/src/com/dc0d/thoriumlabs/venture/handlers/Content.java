@@ -16,8 +16,15 @@ import com.dc0d.thoriumlabs.venture.Constants;
  */
 public class Content {
 	
+	/**
+	 * Stores generic textures such as branding and overlays
+	 */
 	private HashMap<String, Texture> textures;
-	private HashMap<String, HashMap<Integer, TextureRegion>> randtextures;
+	/**
+	 * @deprecated
+	 * Stored textures to be used randomly. We now use individual arrays to for this
+	 */
+	private HashMap<String, ArrayList<TextureRegion>> randtextures;
 	private ArrayList<Texture> tiletextures;
 	private HashMap<String, Music> music;
 	private HashMap<String, Sound> sounds;
@@ -25,15 +32,16 @@ public class Content {
 	
 	public Content() {
 		textures = new HashMap<String, Texture>();
-		randtextures = new HashMap<String, HashMap<Integer, TextureRegion>>();
+		randtextures = new HashMap<String, ArrayList<TextureRegion>>();
 		tiletextures = new ArrayList<Texture>();
 		music = new HashMap<String, Music>();
 		sounds = new HashMap<String, Sound>();
 	}
 	
-	/***********/
-	/* Texture */
-	/***********/
+	/**
+	 * Loads generic textures such as branding into a hashmap to be used later.
+	 * @param path
+	 */
 	
 	public void loadTexture(String path) {
 		int slashIndex = path.lastIndexOf('/');
@@ -47,7 +55,68 @@ public class Content {
 		loadTexture(path, key);
 	}
 	
-	public void loadTexture(String path, int numtextures) {
+	/**
+	 * Loads generic textures such as branding into a hashmap to be used later.
+	 * @param path
+	 * @param key
+	 */
+	
+	public void loadTexture(String path, String key) {
+		Texture tex = new Texture(Gdx.files.internal(path));
+		textures.put(key, tex);
+	}
+	
+	/**
+	 * Returns Texture from main Texture hashmap
+	 * @param key
+	 * @return
+	 */
+	
+	public Texture getTexture(String key) {
+		return textures.get(key);
+	}
+	
+	/**
+	 * Removes Texture from main texture hashmap
+	 * @param key
+	 */
+	
+	public void removeTexture(String key) {
+		Texture tex = textures.get(key);
+		if(tex != null) {
+			textures.remove(key);
+			tex.dispose();
+		}
+	}
+	
+	/**
+	 * Loads all tile textures from tiles directory into com.badlogic.gdx.graphics.Texture hashmap
+	 */
+	
+	public void loadTileTextures() {
+		for (int i = 1; i <= Constants.TILES; i++){
+		Texture tex = new Texture(Gdx.files.internal(Constants.TILEDIR+"/tile_"+i+".png"));
+		tiletextures.add(tex);
+		}
+	}
+	
+	/**
+	 * Returns tile texture from texture hashmap
+	 * @param id
+	 * @return
+	 */
+	
+	public Texture getTileTexture(int id) {
+		return tiletextures.get(id);
+	}
+	
+	/**
+	 * @deprecated Previously used to add textures to a two dimensional array. We use individual handlers now.
+	 * @param path
+	 * @param numtextures
+	 */
+	
+	public void loadRandTexture(String path, int numtextures) {
 		int slashIndex = path.lastIndexOf('/');
 		String key;
 		if(slashIndex == -1) {
@@ -58,47 +127,31 @@ public class Content {
 		}
 		loadTexture(path, key, numtextures);
 	}
+	
+	/**
+	 * @deprecated Previously used to add textures to a two dimensional array. We use individual handlers now.
+	 * @param path
+	 * @param key
+	 * @param numtextures
+	 */
+	
 	public void loadTexture(String path, String key, int numtextures) {
 		Texture tex = new Texture(Gdx.files.internal(path));
-		HashMap<Integer, TextureRegion> regions = new HashMap<Integer, TextureRegion>();
+		ArrayList<TextureRegion> regions = new ArrayList<TextureRegion>();
 		for(int i = 0; i < numtextures; i++){
 			TextureRegion randtex = new TextureRegion(tex, i*8+2*(i+1),2,8,8);
-			regions.put(i, randtex);
+			regions.add(i, randtex);
 		}
 		randtextures.put(key, regions);
 	}
 	
-	public void loadTexture(String path, String key) {
-		Texture tex = new Texture(Gdx.files.internal(path));
-		textures.put(key, tex);
-	}
-	
-	public void loadTileTextures() {
-		for (int i = 0; i <= Constants.TILES; i++){
-		Texture tex = new Texture(Gdx.files.internal(Constants.TILEDIR+"/tile_"+i+".png"));
-		tiletextures.add(tex);
-		}
-	}
-	
-	public Texture getTexture(String key) {
-		return textures.get(key);
-	}
-	
+	/**
+	 * @deprecated Was used to return random textures from an array. Textures are now handled individually. 
+	 * @param key
+	 * @return
+	 */
 	public TextureRegion getRandTexture(String key) {
-		//Texture randtex;
 		return randtextures.get(key).get(rand.nextInt(randtextures.get(key).size()));
-	}
-	
-	public Texture getTileTexture(int id) {
-		return tiletextures.get(id);
-	}
-	
-	public void removeTexture(String key) {
-		Texture tex = textures.get(key);
-		if(tex != null) {
-			textures.remove(key);
-			tex.dispose();
-		}
 	}
 	
 	/*********/

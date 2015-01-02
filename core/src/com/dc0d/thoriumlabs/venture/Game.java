@@ -4,36 +4,27 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.dc0d.thoriumlabs.venture.handlers.Content;
-import com.dc0d.thoriumlabs.venture.physics.PhysicsEntity;
-import com.dc0d.thoriumlabs.venture.states.MainMenuScreen;
 
 public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	
     private SpriteBatch batch;
-    private Sprite player;
+    //TODO Work on Player Object.
+    private World world;
     private SpriteBatch bgbatch;
     private Viewport viewport;
     private TextureRegion bg;
 	private OrthographicCamera camera;
-	private float speed = 10F;
-	private int range = 1;
-	private float zoom = 0.25F;
+	private float zoom = 0.5F;
 	private ArrayList<Sprite> sprites;
 	Content res;
     boolean movingx;
@@ -46,27 +37,20 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		// Setting up Textures
 		sprites = new ArrayList<Sprite>();
 		res = new Content();
-		res.loadTexture("assets/images/tiles/tile_1.png", 4);
-		res.loadTexture("assets/images/tiles/bg.png");
+		res.loadTileTextures();
+		res.loadTexture("assets/images/backgrounds/bg.png");
 		bg = new TextureRegion(res.getTexture("bg"),80,40);
-		
+		world = new World("alpha", (byte)1);
         batch = new SpriteBatch();
         bgbatch = new SpriteBatch();
-        for(int x = 0; x <= 50; x++){
-        for(int y = 0; y <= 50; y++){
-        Sprite sprite = new Sprite(res.getRandTexture("tile_1"));
-        sprite.setPosition(x*8,y*8);
-        sprites.add(sprite);
-        }
-        }
+        world.generate();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.x = 0;
-        camera.position.y = 0;
+        camera.position.x = 800;
+        camera.position.y = 800;
         camera.update();
         viewport = new ScreenViewport(camera);
         Gdx.input.setInputProcessor(new GameInput());
-        camera.unproject(new Vector3(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 0));
 	}
 
 	
@@ -102,13 +86,13 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
     	}
 		camera.zoom = zoom;
 		camera.update();
-		System.out.println(camera.position.x + ":" + camera.position.y);
+		//System.out.println(camera.position.x + ":" + camera.position.y);
 		bgbatch.begin();
 		bgbatch.draw(bg,0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		bgbatch.end();
 		batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        for(int i = 0; i <= 50*50; i++){
+        for(int i = 0; i < sprites.size(); i++){
         sprites.get(i).draw(batch);
         }
         batch.end();
@@ -119,7 +103,22 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	 */
 	
 	public void update(){
-		
+		//world.update((int) (camera.position.x-(camera.viewportWidth/2)),(int) (camera.position.y-(camera.viewportHeight/2)),(int)camera.viewportWidth,(int) camera.viewportHeight);
+		sprites.clear();
+        for(int x = 0; x < world.tiles.size(); x++){
+	        for(int y = 0; y < world.tiles.get(x).size(); y++){
+	        	if(!(x*8 > (camera.position.x+(camera.viewportWidth/2))||x*8<camera.position.x-(camera.viewportWidth/2))
+        			&&!(y*8 > (camera.position.y+(camera.viewportHeight/2))||y*8<camera.position.y-(camera.viewportHeight/2))){
+	        		if(world.tileAt(x, y).getType()>0){
+	        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(0),world.tileTexX(x, y)*9,world.tileTexY(x, y)*9,8,8));
+	        		sprite.setPosition(x*8,y*8);
+	        		sprites.add(sprite);
+	        		world.updateTile(x,y);
+	        		//System.out.println(x+" "+y);
+	        		}
+	        	}
+	        } 
+        }
 	}
 
 	@Override

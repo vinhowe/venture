@@ -36,8 +36,8 @@ public class PhysicsEngine {
 				
 			}
 		}
-		//TODO Find out where player fits in here. I probably also need an array of dynamic entities
-		//FIXME These types don't match because I don't have inputs. :P
+		//Find out where player fits in here. I probably also need an array of dynamic entities
+		//These types don't match because I don't have inputs. :P
 		//ArrayList<PhysicsEntity> collisions = CollisionSolver.detectCollisions(dynamicEntity, collidables);
 	}
 	

@@ -45,7 +45,7 @@ public class PhysicsEntity {
 		this.collisionType = collisionType;
 		
 		// Setting the entity's width and height
-		// TODO Make this variable
+		// Make this variable
 		
 		this.width = 20;
 		this.height = 20;
