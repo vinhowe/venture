@@ -9,6 +9,5 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "Project Venture";
 		new LwjglApplication(new Game(), config);
-		System.setProperty("org.lwjgl.opengl.Display.allowSoftwareOpenGL", "true");
 	}
 }
