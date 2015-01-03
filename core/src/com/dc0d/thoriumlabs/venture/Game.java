@@ -32,6 +32,8 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
     boolean directiony;
     boolean directionx;
     
+    //TODO Set up backgrounds
+    
 	@Override
 	public void create() {
 		// Setting up Textures
@@ -67,21 +69,21 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         if(movingx){
             if(directionx)
             {
-            	camera.position.x -=5;
+            	camera.position.x -=10;
         	}
             else
             {
-            	camera.position.x +=5;
+            	camera.position.x +=10;
             }
         }
         if(movingy){
             if (directiony)
             {
-            	camera.position.y +=5;
+            	camera.position.y +=10;
         	}
             else
             {
-            	camera.position.y -=5;
+            	camera.position.y -=10;
             }
     	}
 		camera.zoom = zoom;

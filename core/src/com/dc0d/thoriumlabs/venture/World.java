@@ -49,10 +49,10 @@ public class World {
 	    }
 	 
 	 public Tile tileAt(int x, int y){
-		 if(x>0&&y>0){
+		 if(x>0&&y>0&&x<(int)Constants.mediumMapDimesions.x&&y<(int)Constants.mediumMapDimesions.y){
 		 return tiles.get(x).get(y);
 	 	}
-		 else return new Tile((short)0,(byte)0,0,0);
+		 else return new Tile((short)-1,(byte)0,(byte)0,(byte)0);
 	 }
 	 
 	 public Vector2 tileTex(int x, int y){
@@ -70,9 +70,9 @@ public class World {
 	 public void generate(){
 	 //TODO Add a constant for world dimensions
 	 //TODO Replace 1000 with world dimension constant
-		 for(int x = 0; x < 500; x++){
+		 for(int x = 0; x < (int)Constants.mediumMapDimesions.x; x++){
 			 tiles.add(x, new ArrayList<Tile>());
-			 for(int y = 0; y < 500; y++){
+			 for(int y = 0; y < (int)Constants.mediumMapDimesions.y; y++){
 				 tiles.get(x).add(y, new Tile((short)1,(byte)0,(byte)new Random().nextInt(5),(byte)new Random().nextInt(5)));
 			 }
 		 }
@@ -88,19 +88,85 @@ public class World {
 	}
 	
 	public void updateTile(int x, int y){
-		if(tileAt(x,y) == null){
-			return;
-		} else {
-		 if(tileAt(x, y).getType() > 0){
-			 if(tileAt(x+1,y).getType()>0&&
-				 tileAt(x-1,y).getType()>0&&
-				 tileAt(x,y+1).getType()>0&&
-				 tileAt(x,y-1).getType()>0){
-				 tileAt(x, y).setTexCoords(new Vector2(2,2));
-			 }
-		 }
+		//TODO Getting out of bounds exception when viewing over top
+		if(x > 0&&y >0&&x<(int)Constants.mediumMapDimesions.x&&y<(int)Constants.mediumMapDimesions.y){
+			if(tileAt(x,y) == null){
+				return;
+			} else {
+				
+					 //Left
+					 if(tileAt(x+1,y).getType()>0&&
+							 tileAt(x-1,y).getType()<1&&
+							 tileAt(x,y+1).getType()>0&&
+							 tileAt(x,y-1).getType()>0)
+					 {
+							 tileAt(x, y).setTexCoords(new Vector2(0,1));
+				 	 } 
+					 //Upper left corner
+					 else if(tileAt(x+1,y).getType()>0&&
+							 tileAt(x-1,y).getType()<1&&
+							 tileAt(x,y+1).getType()<1&&
+							 tileAt(x,y-1).getType()>0)
+					 {
+							 tileAt(x, y).setTexCoords(new Vector2(0,3));
+				 	 } 
+					 //Upper
+					 else if(tileAt(x+1,y).getType()>0&&
+							 tileAt(x-1,y).getType()>0&&
+							 tileAt(x,y+1).getType()<1&&
+							 tileAt(x,y-1).getType()>0)
+					 {
+							 tileAt(x, y).setTexCoords(new Vector2(2,0));
+				 	 }
+					 //Upper right corner
+					 else if(tileAt(x+1,y).getType()<1&&
+							 tileAt(x-1,y).getType()>0&&
+							 tileAt(x,y+1).getType()<1&&
+							 tileAt(x,y-1).getType()>0)
+					 {
+							 tileAt(x, y).setTexCoords(new Vector2(1,3));
+				 	 }
+					 //Right
+					 else if(tileAt(x+1,y).getType()<1&&
+							 tileAt(x-1,y).getType()>0&&
+							 tileAt(x,y+1).getType()>0&&
+							 tileAt(x,y-1).getType()>0)
+					 {
+							 tileAt(x, y).setTexCoords(new Vector2(4,0));
+				 	 } 
+					 //Lower right corner
+					 else if(tileAt(x+1,y).getType()<1&&
+							 tileAt(x-1,y).getType()>0&&
+							 tileAt(x,y+1).getType()>0&&
+							 tileAt(x,y-1).getType()<1)
+					 {
+							 tileAt(x, y).setTexCoords(new Vector2(1,4));
+				 	 }
+					 //Lower
+					 else if(tileAt(x+1,y).getType()>0&&
+							 tileAt(x-1,y).getType()>0&&
+							 tileAt(x,y+1).getType()>0&&
+							 tileAt(x,y-1).getType()<1)
+					 {
+							 tileAt(x, y).setTexCoords(new Vector2(1,2));
+				 	 }
+					 //Lower left corner
+					 else if(tileAt(x+1,y).getType()>0&&
+							 tileAt(x-1,y).getType()<1&&
+							 tileAt(x,y+1).getType()>0&&
+							 tileAt(x,y-1).getType()<1)
+					 {
+							 tileAt(x, y).setTexCoords(new Vector2(0,4));
+				 	 }
+					 //Middle block and undefined locations
+					 else
+					 {
+						 tileAt(x, y).setTexCoords(new Vector2(1,1));
+						 //TODO Set weighted chance of textures
+					 } 
+				}
+			}
 		}
-	}
 
 	public String getName() {
 		return name;

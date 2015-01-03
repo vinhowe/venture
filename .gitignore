@@ -1,6 +1,6 @@
 ## Java
 
-*.class
+##*.class
 *.war
 *.ear
 hs_err_pid*
@@ -56,8 +56,8 @@ nb-configuration.xml
 
 ## Gradle
 
-.gradle
-build/
+##.gradle
+##build/
 
 ## OS Specific
 .DS_Store
