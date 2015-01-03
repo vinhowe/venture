@@ -7,7 +7,8 @@ import com.dc0d.thoriumlabs.venture.*;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.title = "Project Keyhole";
+		config.title = "Project Venture";
 		new LwjglApplication(new Game(), config);
+		System.setProperty("org.lwjgl.opengl.Display.allowSoftwareOpenGL", "true");
 	}
 }
