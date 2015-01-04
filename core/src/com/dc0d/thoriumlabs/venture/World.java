@@ -88,7 +88,6 @@ public class World {
 	}
 	
 	public void updateTile(int x, int y){
-		//TODO Getting out of bounds exception when viewing over top
 		if(x > 0&&y >0&&x<(int)Constants.mediumMapDimesions.x&&y<(int)Constants.mediumMapDimesions.y){
 			if(tileAt(x,y) == null){
 				return;
