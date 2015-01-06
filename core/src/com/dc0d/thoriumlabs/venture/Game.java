@@ -6,19 +6,21 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.dc0d.thoriumlabs.venture.handlers.Content;
 
 public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	
+    //TODO Work on player object
     private SpriteBatch batch;
-    //TODO Work on Player Object.
     private World world;
     private SpriteBatch bgbatch;
     private Viewport viewport;
@@ -31,66 +33,76 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
     boolean movingy;
     boolean directiony;
     boolean directionx;
+    FPSLogger fps;
+    boolean oddFrame = true;
     
     //TODO Set up backgrounds
     
 	@Override
 	public void create() {
 		// Setting up Textures
+		fps = new FPSLogger();
 		sprites = new ArrayList<Sprite>();
 		res = new Content();
 		res.loadTileTextures();
 		res.loadTexture("assets/images/backgrounds/bg.png");
-		bg = new TextureRegion(res.getTexture("bg"),80,40);
+		bg = new TextureRegion(res.getTexture("bg"),0,0,80,40);
 		world = new World("alpha", (byte)1);
         batch = new SpriteBatch();
         bgbatch = new SpriteBatch();
         world.generate();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.x = 800;
-        camera.position.y = 800;
+        //camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.update();
-        viewport = new ScreenViewport(camera);
+        viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
         Gdx.input.setInputProcessor(new GameInput());
+        Gdx.graphics.setVSync(true);
 	}
 
 	
 	@Override
 	public void resize(int width, int height) {
 		viewport.update(width, height);
+	    camera = new OrthographicCamera(width, height);
+	    camera.translate(width/2, height/2, 0);
+	    Gdx.graphics.setDisplayMode(width,height, false);
+	    //TODO Remove these and use debug tools :P
+	    System.out.println("x:"+camera.viewportWidth+" y: "+camera.viewportHeight);
+	    System.out.println("x:"+width+" y: "+height);
+	    System.out.println("x:"+Gdx.graphics.getWidth()+" y: "+Gdx.graphics.getHeight());
 	}
 
 	@Override
 	public void render() {
-		update();
+		update(Gdx.graphics.getDeltaTime());
+		fps.log();
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if(movingx){
             if(directionx)
             {
-            	camera.position.x -=10;
+             camera.position.x -= Gdx.graphics.getDeltaTime() * 50;
         	}
             else
             {
-            	camera.position.x +=10;
+            	camera.position.x += Gdx.graphics.getDeltaTime() * 50;
             }
         }
         if(movingy){
             if (directiony)
             {
-            	camera.position.y +=10;
+            	camera.position.y += Gdx.graphics.getDeltaTime() * 50;
         	}
             else
             {
-            	camera.position.y -=10;
+            	camera.position.y -= Gdx.graphics.getDeltaTime() * 50;
             }
     	}
 		camera.zoom = zoom;
 		camera.update();
 		//System.out.println(camera.position.x + ":" + camera.position.y);
 		bgbatch.begin();
-		bgbatch.draw(bg,0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		bgbatch.draw(bg,0,0);
 		bgbatch.end();
 		batch.setProjectionMatrix(camera.combined);
         batch.begin();
@@ -104,9 +116,15 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	 * Runs game logic, updates tile states, physics, lighting, input, entity logic, etc.
 	 */
 	
-	public void update(){
+	public void update(float delta){
 		//world.update((int) (camera.position.x-(camera.viewportWidth/2)),(int) (camera.position.y-(camera.viewportHeight/2)),(int)camera.viewportWidth,(int) camera.viewportHeight);
+		if(!oddFrame){
+			oddFrame = true;
+			return;
+		}
+		oddFrame = false;
 		sprites.clear();
+		
         for(int x = 0; x < world.tiles.size(); x++){
 	        for(int y = 0; y < world.tiles.get(x).size(); y++){
 	        	if(!(x*8 > (camera.position.x+(camera.viewportWidth/2))||x*8<camera.position.x-(camera.viewportWidth/2))
@@ -114,8 +132,9 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	        		if(world.tileAt(x, y).getType()>0){
 	        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(0),world.tileTexX(x, y)*9,world.tileTexY(x, y)*9,8,8));
 	        		sprite.setPosition(x*8,y*8);
+	        		sprite.setScale(1.05F);
 	        		sprites.add(sprite);
-	        		world.updateTile(x,y);
+	        		//world.updateTile(x,y);
 	        		//System.out.println(x+" "+y);
 	        		}
 	        	}

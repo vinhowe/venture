@@ -28,6 +28,10 @@ public class Tile {
 		this.setWallType(wallType);
 		this.setTexX((byte) texCoords.x);
 		this.setTexY((byte) texCoords.y);
+		byte1 = 0;
+		byte2 = 0;
+		byte3 = 0;
+		setRandom((byte)1);
 	}
 	
 	/**
@@ -108,6 +112,15 @@ public class Tile {
 	
 	public Vector2 getTexCoords() {
 		return new Vector2(this.texX, this.texY);
+	}
+	
+	public int getRandom(){
+		return ((byte)((byte1 & 0xFF)&3));
+	}
+	
+	public void setRandom(int rand){
+		byte1 = (byte) (byte1 & ~(0x3));
+		byte1 = (byte) (byte1 | rand);
 	}
 	
 }
