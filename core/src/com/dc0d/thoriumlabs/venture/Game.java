@@ -26,6 +26,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
     private Viewport viewport;
     private TextureRegion bg;
 	private OrthographicCamera camera;
+	private OrthographicCamera bgcamera;
 	private float zoom = 0.5F;
 	private ArrayList<Sprite> sprites;
 	Content res;
@@ -46,14 +47,16 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		res = new Content();
 		res.loadTileTextures();
 		res.loadTexture("assets/images/backgrounds/bg.png");
-		bg = new TextureRegion(res.getTexture("bg"),0,0,80,40);
+		bg = new TextureRegion(res.getTexture("bg"),80,40);
 		world = new World("alpha", (byte)1);
         batch = new SpriteBatch();
         bgbatch = new SpriteBatch();
         world.generate();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        bgcamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         //camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.update();
+        bgcamera.update();
         viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
         Gdx.input.setInputProcessor(new GameInput());
         Gdx.graphics.setVSync(true);
@@ -101,6 +104,8 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		camera.zoom = zoom;
 		camera.update();
 		//System.out.println(camera.position.x + ":" + camera.position.y);
+		bgcamera.zoom = 0.2F;
+		bgbatch.setProjectionMatrix(bgcamera.combined);
 		bgbatch.begin();
 		bgbatch.draw(bg,0,0);
 		bgbatch.end();
@@ -134,7 +139,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	        		sprite.setPosition(x*8,y*8);
 	        		sprite.setScale(1.05F);
 	        		sprites.add(sprite);
-	        		//world.updateTile(x,y);
+	        		world.updateTile(x,y);
 	        		//System.out.println(x+" "+y);
 	        		}
 	        	}

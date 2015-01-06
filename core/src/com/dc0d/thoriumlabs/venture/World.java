@@ -72,7 +72,7 @@ public class World {
 		 for(int x = 0; x < (int)Constants.mediumMapDimesions.x; x++){
 			 tiles.add(x, new ArrayList<Tile>());
 			 for(int y = 0; y < (int)Constants.mediumMapDimesions.y; y++){
-				 tiles.get(x).add(y, new Tile((short)1,(byte)0,(byte)new Random().nextInt(5),(byte)new Random().nextInt(5)));
+				 tiles.get(x).add(y, new Tile((short)new Random().nextInt(2),(byte)0,(byte)new Random().nextInt(5),(byte)new Random().nextInt(5)));
 				 tiles.get(x).get(y).setRandom(Utilities.randInt(0, 2));
 			 }
 		 }
