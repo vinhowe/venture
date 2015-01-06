@@ -107,7 +107,7 @@ public class Content {
 	 */
 	
 	public Texture getTileTexture(int id) {
-		return tiletextures.get(id);
+		return tiletextures.get(id-1);
 	}
 	
 	/**

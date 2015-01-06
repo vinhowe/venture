@@ -72,18 +72,19 @@ public class World {
 		 for(int x = 0; x < (int)Constants.mediumMapDimesions.x; x++){
 			 tiles.add(x, new ArrayList<Tile>());
 			 for(int y = 0; y < (int)Constants.mediumMapDimesions.y; y++){
-				 tiles.get(x).add(y, new Tile((short)new Random().nextInt(2),(byte)0,(byte)new Random().nextInt(5),(byte)new Random().nextInt(5)));
+				 tiles.get(x).add(y, new Tile((short)1,(byte)0,(byte)new Random().nextInt(5),(byte)new Random().nextInt(5)));
 				 tiles.get(x).get(y).setRandom(Utilities.randInt(0, 2));
+				 tiles.get(x).get(y);
 			 }
 		 }
+		 updateAllTiles();
 	}
 	 
-	public void update(int startX, int startY, int width, int height){
-		for(int x = startX/8; x < width/8; x++){
-			 for(int y = startX/8; y < width/8; y++){
-				 tiles.get(x).get(y).setTexX((byte)new Random().nextInt(5));
-				 tiles.get(x).get(y).setTexY((byte)new Random().nextInt(5));
-			 }
+	public void updateAllTiles(){
+		for(int x = 0; x < Constants.mediumMapDimesions.x; x++){
+			for(int y = 0; y < Constants.mediumMapDimesions.y; y++){
+				 updateTile(x,y);
+			}
 		 }
 	}
 	

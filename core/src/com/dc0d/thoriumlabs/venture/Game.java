@@ -9,10 +9,15 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.dc0d.thoriumlabs.venture.handlers.Content;
@@ -25,9 +30,10 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
     private SpriteBatch bgbatch;
     private Viewport viewport;
     private TextureRegion bg;
+    private TextureRegion bg2;
 	private OrthographicCamera camera;
-	private OrthographicCamera bgcamera;
-	private float zoom = 0.5F;
+	private OrthographicCamera scamera;
+	private float zoom = 1F;
 	private ArrayList<Sprite> sprites;
 	Content res;
     boolean movingx;
@@ -36,6 +42,10 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
     boolean directionx;
     FPSLogger fps;
     boolean oddFrame = true;
+    TiledDrawable background;
+	TiledDrawable background2;
+	Vector2 bgpos = new Vector2(0,0);
+	Vector2 bg2pos = new Vector2(0,0);
     
     //TODO Set up backgrounds
     
@@ -44,19 +54,21 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		// Setting up Textures
 		fps = new FPSLogger();
 		sprites = new ArrayList<Sprite>();
+		background = new TiledDrawable();
 		res = new Content();
 		res.loadTileTextures();
 		res.loadTexture("assets/images/backgrounds/bg.png");
-		bg = new TextureRegion(res.getTexture("bg"),80,40);
+		bg = new TextureRegion(res.getTexture("bg"),80,50);
+		bg2 = new TextureRegion(res.getTexture("bg"),0,50,80,50);
+		background = new TiledDrawable(bg);
+		background2 = new TiledDrawable(bg2); 
 		world = new World("alpha", (byte)1);
         batch = new SpriteBatch();
         bgbatch = new SpriteBatch();
         world.generate();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        bgcamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         //camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.update();
-        bgcamera.update();
         viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
         Gdx.input.setInputProcessor(new GameInput());
         Gdx.graphics.setVSync(true);
@@ -68,6 +80,8 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		viewport.update(width, height);
 	    camera = new OrthographicCamera(width, height);
 	    camera.translate(width/2, height/2, 0);
+	    scamera = new OrthographicCamera(width, height);
+	    scamera.translate(width/2, height/2, 0);
 	    Gdx.graphics.setDisplayMode(width,height, false);
 	    //TODO Remove these and use debug tools :P
 	    System.out.println("x:"+camera.viewportWidth+" y: "+camera.viewportHeight);
@@ -84,30 +98,42 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         if(movingx){
             if(directionx)
             {
-             camera.position.x -= Gdx.graphics.getDeltaTime() * 50;
+            	camera.position.x -= Gdx.graphics.getDeltaTime() * 100*8;
+            	bgpos.x += Gdx.graphics.getDeltaTime() * 5;
+            	bg2pos.x += Gdx.graphics.getDeltaTime() * 10;
         	}
             else
             {
-            	camera.position.x += Gdx.graphics.getDeltaTime() * 50;
+            	camera.position.x += Gdx.graphics.getDeltaTime() * 100*8;
+            	bgpos.x -= Gdx.graphics.getDeltaTime() * 5;
+            	bg2pos.x -= Gdx.graphics.getDeltaTime() * 10;
             }
         }
         if(movingy){
             if (directiony)
             {
-            	camera.position.y += Gdx.graphics.getDeltaTime() * 50;
+            	camera.position.y += Gdx.graphics.getDeltaTime() * 100*8;
+            	bgpos.y -= Gdx.graphics.getDeltaTime() * 5;
+            	bg2pos.y -= Gdx.graphics.getDeltaTime() * 10;
         	}
             else
             {
-            	camera.position.y -= Gdx.graphics.getDeltaTime() * 50;
+            	camera.position.y -= Gdx.graphics.getDeltaTime() * 100*8;
+            	bgpos.y += Gdx.graphics.getDeltaTime() * 5;
+            	bg2pos.y += Gdx.graphics.getDeltaTime() * 10;
             }
     	}
 		camera.zoom = zoom;
+		scamera.zoom = 0.07f;
 		camera.update();
+		scamera.update();
 		//System.out.println(camera.position.x + ":" + camera.position.y);
-		bgcamera.zoom = 0.2F;
-		bgbatch.setProjectionMatrix(bgcamera.combined);
+		bgbatch.setProjectionMatrix(scamera.combined);
 		bgbatch.begin();
-		bgbatch.draw(bg,0,0);
+		//bgbatch.draw(bg,-scamera.viewportWidth/2,-scamera.viewportHeight/2,scamera.viewportWidth,scamera.viewportHeight);
+		background.draw(bgbatch, 0+bgpos.x,0+bgpos.y,5000,5000);
+		background2.draw(bgbatch, 0+bg2pos.x,0+bg2pos.y,5000,5000);
+		//.setWrap(TextureWrap.Repeat, TextureWrap.Repeat)
 		bgbatch.end();
 		batch.setProjectionMatrix(camera.combined);
         batch.begin();
@@ -132,12 +158,12 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		
         for(int x = 0; x < world.tiles.size(); x++){
 	        for(int y = 0; y < world.tiles.get(x).size(); y++){
-	        	if(!(x*8 > (camera.position.x+(camera.viewportWidth/2))||x*8<camera.position.x-(camera.viewportWidth/2))
-        			&&!(y*8 > (camera.position.y+(camera.viewportHeight/2))||y*8<camera.position.y-(camera.viewportHeight/2))){
+	        	if(!(x*16 > (camera.position.x+(camera.viewportWidth/2))+16||x*16<camera.position.x-(camera.viewportWidth/2)-16)
+        			&&!(y*16 > (camera.position.y+(camera.viewportHeight/2)+16)||y*16<camera.position.y-(camera.viewportHeight/2)-16)){
 	        		if(world.tileAt(x, y).getType()>0){
-	        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(0),world.tileTexX(x, y)*9,world.tileTexY(x, y)*9,8,8));
-	        		sprite.setPosition(x*8,y*8);
-	        		sprite.setScale(1.05F);
+	        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(world.tileAt(x,y).getType()),world.tileTexX(x, y)*9,world.tileTexY(x, y)*9,8,8));
+	        		sprite.setPosition(x*16,y*16);
+	        		sprite.setScale(2.05F);
 	        		sprites.add(sprite);
 	        		world.updateTile(x,y);
 	        		//System.out.println(x+" "+y);
