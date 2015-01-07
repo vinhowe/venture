@@ -4,56 +4,49 @@ import java.awt.Color;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class PhysicsEntity {
+public class PhysicsBody {
 	
 	// Height and width values
 	
-	int width;
-	int height;
+	Vector2 dimensions = new Vector2(0, 0);
 	
 	// Half width and half height values for faster calculation
 	
-	float halfWidth;
-	float halfHeight;
+	Vector2 halfDimensions = new Vector2(0, 0);
 	
 	// Position values
 	
-	int x;
-	int y;
+	Vector2 position = new Vector2(0, 0);
 	
 	// Velocity values - current speed in each direction - can be negative
 	
-	int vx;
-	int vy;
+	public Vector2 velocity = new Vector2(0, 0);
 	
 	// Acceleration values - velocity added each loop in each direction - can be negative
 	
-	int ax;
-	int ay;
+	public Vector2 acceleration = new Vector2(0, 0);
 	
 	// Collision solver and body types
 	
-	SolverType collisionType;
 	BodyType bodyType;
 	
 	// Restitution, or "bounciness" of entity
 	
 	private int restitution;
 	
-	public PhysicsEntity(SolverType collisionType, BodyType bodyType){
+	public PhysicsBody(BodyType bodyType){
 		this.bodyType = bodyType;
-		this.collisionType = collisionType;
 		
 		// Setting the entity's width and height
 		// Make this variable
 		
-		this.width = 20;
-		this.height = 20;
+		this.dimensions.x = 32;
+		this.dimensions.y = 48;
 		
 		// Setting half sizes
 		
-		this.halfWidth = this.width / 2;
-		this.halfHeight = this.height / 2;
+		this.halfDimensions.x = this.dimensions.x / 2;
+		this.halfDimensions.y = this.dimensions.y / 2;
 		
 		
 	}
@@ -80,7 +73,7 @@ public class PhysicsEntity {
 	 */
 	
 	public Vector2 getPosition() {
-		return new Vector2(x,y);
+		return position;
 	}
 	
 	/**
@@ -90,8 +83,7 @@ public class PhysicsEntity {
 	 */
 	
 	public void setPosition(int x, int y) {
-		this.x = x;
-		this.y = y;
+		position.set(x, y);
 	}
 	
 	/**
@@ -99,38 +91,37 @@ public class PhysicsEntity {
 	 * @param pos
 	 */
 	
-	public void setPosition(Vector2 pos) {
-		this.x = (int)pos.x;
-		this.y = (int)pos.y;
+	public void setPosition(Vector2 position) {
+		this.position = position;
 	}
 	
-	public int getTop(){
-		return this.y;
+	public float getTop(){
+		return this.position.y;
 	}
 	
-	public int getLeft(){
-		return this.x;
+	public float getLeft(){
+		return this.position.x;
 	}
 	
-	public int getRight(){
-		return this.x + this.width;
+	public float getRight(){
+		return this.position.x + this.dimensions.x;
 	}
 	
-	public int getBottom(){
-		return this.y + this.height;
+	public float getBottom(){
+		return this.position.y + this.dimensions.y;
 	}
 	
 	public float getMidX(){
-		return this.halfWidth + this.x;
+		return this.halfDimensions.x + this.position.x;
 	}
 	
 	public float getMidY(){
-		return this.halfHeight + this.y;
+		return this.halfDimensions.y + this.position.y;
 	}
 	
 	public void updateBounds(){
-        this.halfWidth = (float) (this.width * .5);
-        this.halfHeight = (float) (this.height * .5);
+        this.halfDimensions.x = (float) (this.dimensions.x * .5);
+        this.halfDimensions.y = (float) (this.dimensions.y * .5);
 	}
 
 		public enum BodyType {
@@ -139,20 +130,6 @@ public class PhysicsEntity {
 			private int value;
 	
 			private BodyType (int value) {
-				this.value = value;
-			}
-	
-			public int getValue () {
-				return value;
-			}
-		};
-		
-		public enum SolverType {
-			Displace(0), Elastic(1);
-	
-			private int value;
-	
-			private SolverType (int value) {
 				this.value = value;
 			}
 	

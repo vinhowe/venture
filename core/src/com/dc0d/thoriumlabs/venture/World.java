@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.thoriumlabs.venture.handlers.Utilities;
+import com.dc0d.thoriumlabs.venture.physics.PhysicsBody;
 import com.dc0d.thoriumlabs.venture.tiles.Tile;
 
 /**
@@ -72,7 +74,7 @@ public class World {
 		 for(int x = 0; x < (int)Constants.mediumMapDimesions.x; x++){
 			 tiles.add(x, new ArrayList<Tile>());
 			 for(int y = 0; y < (int)Constants.mediumMapDimesions.y; y++){
-				 tiles.get(x).add(y, new Tile((short)new Random().nextInt(2),(byte)0,(byte)new Random().nextInt(5),(byte)new Random().nextInt(5)));
+				 tiles.get(x).add(y, new Tile((short)/*new Random().nextInt(2)*/1,(byte)0,(byte)new Random().nextInt(5),(byte)new Random().nextInt(5)));
 				 tiles.get(x).get(y).setRandom(Utilities.randInt(0, 2));
 				 tiles.get(x).get(y);
 			 }
@@ -236,7 +238,34 @@ public class World {
 				}
 			}
 		}
+	
+	public void updatePlayer(Player player){
+		PhysicsBody body = (PhysicsBody)player; // Body is a class storing position, velocity, bounds and so on.
 
+        int tileDimensions = 8;
+
+        int leftTile = (int)body.getLeft() / tileDimensions;
+        int topTile = (int)body.getTop() / tileDimensions;
+        int rightTile = (int)Math.ceil((float)body.getRight() / tileDimensions - 1);
+        int bottomTile = (int)Math.ceil(((float)body.getBottom() / tileDimensions) - 1);
+
+        if (body.velocity.y > 0)
+        {
+            for (int x = leftTile; x <= rightTile; x++)
+            {
+                for (int y = bottomTile + 1; y <= (bottomTile + 1) + (body.velocity.y / tileDimensions); y++)
+                {
+                    if (tiles.get(x).get(y) != null && !(tiles.get(x).get(y).getType() > 0))
+                    {
+                        Vector2 newVelocity = new Vector2(body.velocity.x, MathUtils.clamp(body.velocity.y, 0F, (float)tiles.get(x).get(y).getType()));
+                        body.velocity = newVelocity;
+                        break;
+                    }
+                }
+            }
+        }
+	}
+	
 	public String getName() {
 		return name;
 	}

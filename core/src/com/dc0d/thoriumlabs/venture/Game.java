@@ -21,16 +21,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.dc0d.thoriumlabs.venture.handlers.Content;
+import com.dc0d.thoriumlabs.venture.physics.PhysicsEngine;
 
 public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	
-    //TODO Work on player object
+	private Player player;
     private SpriteBatch batch;
     private World world;
     private SpriteBatch bgbatch;
     private Viewport viewport;
-    private TextureRegion bg;
-    private TextureRegion bg2;
+    private TextureRegion[] bg;
 	private OrthographicCamera camera;
 	private OrthographicCamera scamera;
 	private float zoom = 1F;
@@ -42,10 +42,11 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
     boolean directionx;
     FPSLogger fps;
     boolean oddFrame = true;
-    TiledDrawable background;
-	TiledDrawable background2;
-	Vector2 bgpos = new Vector2(0,0);
+    TiledDrawable[] background;
+	Vector2 bg1pos = new Vector2(0,0);
 	Vector2 bg2pos = new Vector2(0,0);
+	Vector2 bg3pos = new Vector2(0,0);
+	PhysicsEngine physicsEngine = new PhysicsEngine();
     
     //TODO Set up backgrounds
     
@@ -54,24 +55,19 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		// Setting up Textures
 		fps = new FPSLogger();
 		sprites = new ArrayList<Sprite>();
-		background = new TiledDrawable();
 		res = new Content();
 		res.loadTileTextures();
 		res.loadTexture("assets/images/backgrounds/bg.png");
-		bg = new TextureRegion(res.getTexture("bg"),80,50);
-		bg2 = new TextureRegion(res.getTexture("bg"),0,50,80,50);
-		background = new TiledDrawable(bg);
-		background2 = new TiledDrawable(bg2); 
+		bg = new TextureRegion[]{new TextureRegion(res.getTexture("bg"),80,50), new TextureRegion(res.getTexture("bg"),0,51,80,50),new TextureRegion(res.getTexture("bg"),0,51*2,80,50)};
+		background = new TiledDrawable[]{new TiledDrawable(bg[0]), new TiledDrawable(bg[1]), new TiledDrawable(bg[2])};
 		world = new World("alpha", (byte)1);
         batch = new SpriteBatch();
         bgbatch = new SpriteBatch();
         world.generate();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        //camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.update();
         viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
         Gdx.input.setInputProcessor(new GameInput());
-        Gdx.graphics.setVSync(true);
 	}
 
 	
@@ -99,30 +95,37 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
             if(directionx)
             {
             	camera.position.x -= Gdx.graphics.getDeltaTime() * 100*8;
-            	bgpos.x += Gdx.graphics.getDeltaTime() * 5;
-            	bg2pos.x += Gdx.graphics.getDeltaTime() * 10;
+            	bg1pos.x += Gdx.graphics.getDeltaTime() * 5;
+            	bg2pos.x += Gdx.graphics.getDeltaTime() * 7.5;
+            	bg3pos.x += Gdx.graphics.getDeltaTime() * 10;
         	}
             else
             {
             	camera.position.x += Gdx.graphics.getDeltaTime() * 100*8;
-            	bgpos.x -= Gdx.graphics.getDeltaTime() * 5;
-            	bg2pos.x -= Gdx.graphics.getDeltaTime() * 10;
+            	bg1pos.x -= Gdx.graphics.getDeltaTime() * 5;
+            	bg2pos.x -= Gdx.graphics.getDeltaTime() * 7.5;
+            	bg3pos.x -= Gdx.graphics.getDeltaTime() * 10;
             }
         }
         if(movingy){
             if (directiony)
             {
             	camera.position.y += Gdx.graphics.getDeltaTime() * 100*8;
-            	bgpos.y -= Gdx.graphics.getDeltaTime() * 5;
-            	bg2pos.y -= Gdx.graphics.getDeltaTime() * 10;
+            	bg1pos.y -= Gdx.graphics.getDeltaTime() * 5;
+            	bg2pos.y -= Gdx.graphics.getDeltaTime() * 7.5;
+            	bg3pos.y -= Gdx.graphics.getDeltaTime() * 10;
         	}
             else
             {
             	camera.position.y -= Gdx.graphics.getDeltaTime() * 100*8;
-            	bgpos.y += Gdx.graphics.getDeltaTime() * 5;
-            	bg2pos.y += Gdx.graphics.getDeltaTime() * 10;
+            	bg1pos.y += Gdx.graphics.getDeltaTime() * 5;
+            	bg2pos.y += Gdx.graphics.getDeltaTime() * 7.5;
+            	bg3pos.y += Gdx.graphics.getDeltaTime() * 10;
             }
     	}
+        bg3pos.x += Gdx.graphics.getDeltaTime() * 1.5;
+        bg2pos.x += Gdx.graphics.getDeltaTime() * 1;
+        bg1pos.x += Gdx.graphics.getDeltaTime() * 0.5;
 		camera.zoom = zoom;
 		scamera.zoom = 0.07f;
 		camera.update();
@@ -131,8 +134,9 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		bgbatch.setProjectionMatrix(scamera.combined);
 		bgbatch.begin();
 		//bgbatch.draw(bg,-scamera.viewportWidth/2,-scamera.viewportHeight/2,scamera.viewportWidth,scamera.viewportHeight);
-		background.draw(bgbatch, 0+bgpos.x,0+bgpos.y,5000,5000);
-		background2.draw(bgbatch, 0+bg2pos.x,0+bg2pos.y,5000,5000);
+		background[0].draw(bgbatch, 0+bg1pos.x,0+bg1pos.y,10000,10000);
+		background[1].draw(bgbatch, 0+bg2pos.x,0+bg2pos.y,10000,10000);
+		background[2].draw(bgbatch, 0+bg3pos.x,0+bg3pos.y,10000,10000);
 		//.setWrap(TextureWrap.Repeat, TextureWrap.Repeat)
 		bgbatch.end();
 		batch.setProjectionMatrix(camera.combined);
@@ -171,6 +175,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	        	}
 	        } 
         }
+       
 	}
 
 	@Override
