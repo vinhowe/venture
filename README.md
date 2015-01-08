@@ -1,11 +1,11 @@
 # README #
 
-The Venture Game project by Oxide Arts
+Repository for the Venture game project by Oxide Arts.
 
 ### What is this repository for? ###
 
 * Quick summary
-* Version
+* Venture is currently in pre-alpha version 0.1.5.0
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ### How do I get set up? ###
