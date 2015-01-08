@@ -2,15 +2,15 @@
 
 Repository for the Venture game project by Oxide Arts.
 
-### What is this repository for? ###
+### Project Venture ###
 
-* Quick summary
-* Venture is currently in pre-alpha version 0.1.5.0
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* Venture is a two dimensional tile based adventure game.
+* Current version is pre-alpha version 0.1.5.0
 
-### How do I get set up? ###
+### Get Started ###
 
-* Summary of set up
+* 
+    1. You'll need to have the latest version of [Eclipse](www.eclipse.org) and [SourceTree](www.sourcetreeapp.com) installed.
 * Configuration
 * Dependencies
 * Database configuration
