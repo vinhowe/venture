@@ -1,11 +1,11 @@
-package com.dc0d.thoriumlabs.tl1;
+package com.dc0d.oxidearts.venture.ios;
 
 import org.robovm.apple.foundation.NSAutoreleasePool;
 import org.robovm.apple.uikit.UIApplication;
 
 import com.badlogic.gdx.backends.iosrobovm.IOSApplication;
 import com.badlogic.gdx.backends.iosrobovm.IOSApplicationConfiguration;
-import com.dc0d.thoriumlabs.venture.Game;
+import com.dc0d.oxidearts.venture.Game;
 
 public class IOSLauncher extends IOSApplication.Delegate {
     @Override

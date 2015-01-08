@@ -1,4 +1,10 @@
-package com.dc0d.thoriumlabs.venture.handlers;
+/* Copyright (C) Thomas Howe - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Thomas Howe <thomas@dc0d.com>, January 2015
+ */
+
+package com.dc0d.oxidearts.venture.handlers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +15,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.dc0d.thoriumlabs.venture.Constants;
+import com.dc0d.oxidearts.venture.Constants;
 
 /**
  * Contains HashMaps for game resources.

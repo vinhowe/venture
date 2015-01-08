@@ -1,4 +1,10 @@
-package com.dc0d.thoriumlabs.venture;
+/* Copyright (C) Thomas Howe - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Thomas Howe <thomas@dc0d.com>, January 2015
+ */
+
+package com.dc0d.oxidearts.venture;
 
 import java.util.ArrayList;
 
@@ -20,8 +26,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.dc0d.thoriumlabs.venture.handlers.Content;
-import com.dc0d.thoriumlabs.venture.physics.PhysicsEngine;
+import com.dc0d.oxidearts.venture.handlers.Content;
+import com.dc0d.oxidearts.venture.physics.PhysicsEngine;
 
 public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	

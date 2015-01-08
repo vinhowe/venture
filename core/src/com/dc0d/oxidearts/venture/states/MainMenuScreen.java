@@ -1,11 +1,17 @@
-package com.dc0d.thoriumlabs.venture.states;
+/* Copyright (C) Thomas Howe - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Thomas Howe <thomas@dc0d.com>, January 2015
+ */
+
+package com.dc0d.oxidearts.venture.states;
 
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-//import com.dc0d.thoriumlabs.venture.Game;
+//import com.dc0d.oxidearts.venture.Game;
 
 public class MainMenuScreen implements Screen {
 	

@@ -1,4 +1,4 @@
-package com.dc0d.thoriumlabs.tl1.android;
+package com.dc0d.oxidearts.venture.android;
 
 import android.os.Bundle;
 

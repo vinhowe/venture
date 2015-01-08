@@ -1,6 +1,12 @@
-package com.dc0d.thoriumlabs.venture;
+/* Copyright (C) Thomas Howe - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Thomas Howe <thomas@dc0d.com>, January 2015
+ */
 
-import com.dc0d.thoriumlabs.venture.physics.PhysicsBody;
+package com.dc0d.oxidearts.venture;
+
+import com.dc0d.oxidearts.venture.physics.PhysicsBody;
 
 /**
  * Handler for sentient/dynamic things
