@@ -64,6 +64,13 @@ public class World {
 		 else return new Tile((short)-1,(byte)0,(byte)0,(byte)0);
 	 }
 	 
+	 public Tile tileAt(Vector2 pos){
+		 if(pos.x>0&&pos.y>0&&pos.x<(int)Constants.mediumMapDimesions.x&&pos.y<(int)Constants.mediumMapDimesions.y){
+		 return tiles.get((int) pos.x).get((int) pos.y);
+	 	}
+		 else return new Tile((short)-1,(byte)0,(byte)0,(byte)0);
+	 }
+	 
 	 public Vector2 tileTex(int x, int y){
 		 return tileAt(x,y).getTexCoords();
 	 }
@@ -96,141 +103,123 @@ public class World {
 		 }
 	}
 	
+	/**
+	 * Updates tile at specified coordinates
+	 * @param x
+	 * @param y
+	 */
 	public void updateTile(int x, int y){
+		
+		//TODO Remove or implement debug variables in updateTile()
+		int debugUpdatee1 = (int) (tileAt(x,y).getTexCoords().x+tileAt(x,y).getTexCoords().y);
+		int debugUpdatee2 = 0;
+		
+		float time1 = System.nanoTime();
+		
+		boolean top = tileAt(x,y+1).getType()>0;
+		boolean bottom = tileAt(x,y-1).getType()>0;
+		boolean left = tileAt(x-1,y).getType()>0;
+		boolean right = tileAt(x+1,y).getType()>0;
+		
+		boolean topleft = tileAt(x-1,y+1).getType()>0;
+		boolean topright = tileAt(x+1,y+1).getType()>0;
+		boolean bottomleft = tileAt(x-1,y-1).getType()>0;
+		boolean bottomright = tileAt(x+1,y-1).getType()>0;
+		
+		
+		
+		float time2 = System.nanoTime();
+		//x+ is right
+		//y+ is up
 		if(x > 0&&y >0&&x<(int)Constants.mediumMapDimesions.x&&y<(int)Constants.mediumMapDimesions.y){
 			if(tileAt(x,y) == null){
 				return;
 			} else {
 				
 					 //Left
-					 if(tileAt(x+1,y).getType()>0&&
-							 tileAt(x-1,y).getType()<1&&
-							 tileAt(x,y+1).getType()>0&&
-							 tileAt(x,y-1).getType()>0)
+					 if(top&& !left&& bottom&& right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(0,tileAt(x, y).getRandom()));
 				 	 } 
 					 //Upper left corner
-					 else if(tileAt(x+1,y).getType()>0&&
-							 tileAt(x-1,y).getType()<1&&
-							 tileAt(x,y+1).getType()<1&&
-							 tileAt(x,y-1).getType()>0)
+					 else if(!top && !left && bottom && right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(tileAt(x, y).getRandom(), 3));
 				 	 } 
 					 //Upper
-					 else if(tileAt(x+1,y).getType()>0&&
-							 tileAt(x-1,y).getType()>0&&
-							 tileAt(x,y+1).getType()<1&&
-							 tileAt(x,y-1).getType()>0)
+					 else if(!top && bottom && left && right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(1+tileAt(x, y).getRandom(),0));
 				 	 }
 					 //Upper right corner
-					 else if(tileAt(x+1,y).getType()<1&&
-							 tileAt(x-1,y).getType()>0&&
-							 tileAt(x,y+1).getType()<1&&
-							 tileAt(x,y-1).getType()>0)
+					 else if(!top && bottom && left && !right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(3+tileAt(x, y).getRandom(),3));
 				 	 }
 					 //Right
-					 else if(tileAt(x+1,y).getType()<1&&
-							 tileAt(x-1,y).getType()>0&&
-							 tileAt(x,y+1).getType()>0&&
-							 tileAt(x,y-1).getType()>0)
+					 else if(top && bottom && left && !right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(4,tileAt(x, y).getRandom()));
 				 	 } 
 					 //Lower right corner
-					 else if(tileAt(x+1,y).getType()<1&&
-							 tileAt(x-1,y).getType()>0&&
-							 tileAt(x,y+1).getType()>0&&
-							 tileAt(x,y-1).getType()<1)
+					 else if(top && !bottom && left && !right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(3+tileAt(x, y).getRandom(),4));
 				 	 }
 					 //Lower
-					 else if(tileAt(x+1,y).getType()>0&&
-							 tileAt(x-1,y).getType()>0&&
-							 tileAt(x,y+1).getType()>0&&
-							 tileAt(x,y-1).getType()<1)
+					 else if(top && !bottom && left && right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(1+tileAt(x, y).getRandom(),2));
 				 	 }
 					 //Lower left corner
-					 else if(tileAt(x+1,y).getType()>0&&
-							 tileAt(x-1,y).getType()<1&&
-							 tileAt(x,y+1).getType()>0&&
-							 tileAt(x,y-1).getType()<1)
+					 else if(top && !bottom && !left && right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(tileAt(x, y).getRandom(),4));
 				 	 }
 					 //Floating position
-					 else if(tileAt(x+1,y).getType()<1&&
-							 tileAt(x-1,y).getType()<1&&
-							 tileAt(x,y+1).getType()<1&&
-							 tileAt(x,y-1).getType()<1)
+					 else if(!top && !bottom && !left && !right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(6+tileAt(x, y).getRandom(),1));
 				 	 }
 					 //  .
 					 // o.
 					 //  .
-					 else if(tileAt(x+1,y).getType()>0&&
-							 tileAt(x-1,y).getType()<1&&
-							 tileAt(x,y+1).getType()<1&&
-							 tileAt(x,y-1).getType()<1)
+					 else if(!top && !bottom && !left && right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(5,tileAt(x, y).getRandom()));
 				 	 }
 					 //.  
 					 //.o
 					 //.  
-					 else if(tileAt(x+1,y).getType()<1&&
-							 tileAt(x-1,y).getType()>0&&
-							 tileAt(x,y+1).getType()<1&&
-							 tileAt(x,y-1).getType()<1)
+					 else if(!top && !bottom && left && !right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(9,tileAt(x, y).getRandom()));
 				 	 }
 					 //
 					 // o
 					 //...
-					 else if(tileAt(x+1,y).getType()<1&&
-							 tileAt(x-1,y).getType()<1&&
-							 tileAt(x,y+1).getType()<1&&
-							 tileAt(x,y-1).getType()>0)
+					 else if(!top && bottom && !left && !right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(6+tileAt(x, y).getRandom(),0));
 				 	 }
 					 //...
 					 // o
 					 //
-					 else if(tileAt(x+1,y).getType()<1&&
-							 tileAt(x-1,y).getType()<1&&
-							 tileAt(x,y+1).getType()>0&&
-							 tileAt(x,y-1).getType()<1)
+					 else if(top && !bottom && !left && !right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(6+tileAt(x, y).getRandom(),2));
 				 	 }
 					 //
 					 //.o.
 					 //
-					 else if(tileAt(x+1,y).getType()>0&&
-							 tileAt(x-1,y).getType()>0&&
-							 tileAt(x,y+1).getType()<1&&
-							 tileAt(x,y-1).getType()<1)
+					 else if(!top && !bottom && left && right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(6+tileAt(x, y).getRandom(),3));
 				 	 }
 					 // .
 					 // o 
 					 // .
-					 else if(tileAt(x+1,y).getType()<1&&
-							 tileAt(x-1,y).getType()<1&&
-							 tileAt(x,y+1).getType()>0&&
-							 tileAt(x,y-1).getType()>0)
+					 else if(top && bottom && !left && !right)
 					 {
 							 tileAt(x, y).setTexCoords(new Vector2(6+tileAt(x, y).getRandom(),4));
 				 	 }
@@ -242,6 +231,11 @@ public class World {
 						 //TODO Add inner corner textures
 					 } 
 				}
+			}
+			float time3 = System.nanoTime();
+			debugUpdatee2 = (int) (tileAt(x,y).getTexCoords().x+tileAt(x,y).getTexCoords().y);
+			if(!(debugUpdatee1 == debugUpdatee2)){
+			System.out.println((time3 - time1) / 1000000.0f);
 			}
 		}
 	

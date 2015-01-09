@@ -23,8 +23,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.dc0d.oxidearts.venture.handlers.Content;
 import com.dc0d.oxidearts.venture.physics.PhysicsEngine;
@@ -53,6 +55,9 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	Vector2 bg2pos = new Vector2(0,0);
 	Vector2 bg3pos = new Vector2(0,0);
 	PhysicsEngine physicsEngine = new PhysicsEngine();
+	//TODO Remove touchPos and touch variables. These exist for testing
+	Vector2 touchPos = new Vector2(0,0);
+	boolean touch = false;
     
     //TODO Set up backgrounds
     
@@ -72,7 +77,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         world.generate();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.update();
-        viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
+        viewport = new ScreenViewport(camera);
         Gdx.input.setInputProcessor(new GameInput());
 	}
 
@@ -80,12 +85,12 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	@Override
 	public void resize(int width, int height) {
 		viewport.update(width, height);
-	    camera = new OrthographicCamera(width, height);
-	    camera.translate(width/2, height/2, 0);
+	    //camera = new OrthographicCamera(width, height);
+	    //camera.translate(width/2, height/2, 0);
 	    scamera = new OrthographicCamera(width, height);
 	    scamera.translate(width/2, height/2, 0);
-	    Gdx.graphics.setDisplayMode(width,height, false);
-	    //TODO Remove these and use debug tools :P
+	    //Gdx.graphics.setDisplayMode(width,height, false);
+	    //TODO Remove console coordinate output and use debug tools :P
 	    System.out.println("x:"+camera.viewportWidth+" y: "+camera.viewportHeight);
 	    System.out.println("x:"+width+" y: "+height);
 	    System.out.println("x:"+Gdx.graphics.getWidth()+" y: "+Gdx.graphics.getHeight());
@@ -97,6 +102,9 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		fps.log();
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        if(touch){
+        	world.tileAt((int)camera.unproject(new Vector3(touchPos,0)).x/16,(int) camera.unproject(new Vector3(touchPos,0)).y/16).setType((short)0);
+        }
         if(movingx){
             if(directionx)
             {
@@ -132,7 +140,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         bg3pos.x += Gdx.graphics.getDeltaTime() * 1.5;
         bg2pos.x += Gdx.graphics.getDeltaTime() * 1;
         bg1pos.x += Gdx.graphics.getDeltaTime() * 0.5;
-		camera.zoom = zoom;
+		camera.zoom = 1 - 0.05F;
 		scamera.zoom = 0.07f;
 		camera.update();
 		scamera.update();
@@ -273,16 +281,20 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		@Override
 		public boolean touchDown(int screenX, int screenY, int pointer,
 				int button) {
+			touchPos.set(screenX, screenY);
+			touch = true;
 			return false;
 		}
 
 		@Override
 		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+			touch = false;
 			return false;
 		}
 
 		@Override
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
+			touchPos.set(screenX, screenY);
 			return false;
 		}
 
