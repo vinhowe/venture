@@ -9,21 +9,20 @@ Repository for the Venture game project by Oxide Arts.
 
 ### Get Started ###
 
-* 
-    1. You'll need to have the latest version of [Eclipse](www.eclipse.org) and [SourceTree](www.sourcetreeapp.com) installed.
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+* Installation:
+    1. Install [Eclipse](www.eclipse.org) and [SourceTree](www.sourcetreeapp.com)
+	2. Clone this repository (https://thomashowe@bitbucket.org/oxidearts/venture.git) into SourceTree
+	3. Open command line and run 'gradlew eclipse' from the local repository directory. This will generate necessary project files and make life a whole lot easier.
+	3. Import projects from local directory into Eclipse
+* Configuration and dependencies are automatically handled by Gradle
 
 ### Contribution guidelines ###
 
-* Writing tests
-* Code review
-* Other guidelines
+* Write javadoc headers on all classes and functions
+* Add tasks to our "to do" list by writing '//TODO (task)' around the area that needs work
+    * '//FIXME' is a high priority tag and '//CLEANUP' is a low-priority tag
+* Only commit code that won't throw errors in Eclipse
 
-### Who do I talk to? ###
+### Contact ###
 
-* Repo owner or admin
-* Other community or team contact
+Thomas Howe - Project Manager and Developer [thomas@dc0d.com](mailto:thomas@dc0d.com)
