@@ -16,5 +16,6 @@ public interface Constants {
 	public static final String ASSETSDIR = "assets";
 	public static final String IMAGEDIR = ASSETSDIR+"/images";
 	public static final String TILEDIR = IMAGEDIR+"/tiles";
-	public static final Vector2 mediumMapDimesions = new Vector2(1000,1000);
+	public static final Vector2 mediumMapDimesions = new Vector2(128,128);
+	public static final Vector2 chunkSize = new Vector2(128,128);
 }

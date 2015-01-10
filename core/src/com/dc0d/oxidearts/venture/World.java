@@ -103,6 +103,10 @@ public class World {
 		 }
 	}
 	
+	public void updateTile(Vector2 pos){
+		updateTile((int)pos.x,(int)pos.y);
+	}
+	
 	/**
 	 * Updates tile at specified coordinates
 	 * @param x
@@ -235,7 +239,7 @@ public class World {
 			float time3 = System.nanoTime();
 			debugUpdatee2 = (int) (tileAt(x,y).getTexCoords().x+tileAt(x,y).getTexCoords().y);
 			if(!(debugUpdatee1 == debugUpdatee2)){
-			System.out.println((time3 - time1) / 1000000.0f);
+			//System.out.println((time3 - time1) / 1000000.0f);
 			}
 		}
 	

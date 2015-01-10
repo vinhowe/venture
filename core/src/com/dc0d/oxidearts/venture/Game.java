@@ -15,17 +15,12 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.dc0d.oxidearts.venture.handlers.Content;
@@ -42,7 +37,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	private OrthographicCamera camera;
 	private OrthographicCamera scamera;
 	private float zoom = 1F;
-	private ArrayList<Sprite> sprites;
+	private ArrayList<ArrayList<Sprite>> sprites;
 	Content res;
     boolean movingx;
     boolean movingy;
@@ -58,6 +53,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	//TODO Remove touchPos and touch variables. These exist for testing
 	Vector2 touchPos = new Vector2(0,0);
 	boolean touch = false;
+	boolean rightclick = false;
     
     //TODO Set up backgrounds
     
@@ -65,7 +61,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	public void create() {
 		// Setting up Textures
 		fps = new FPSLogger();
-		sprites = new ArrayList<Sprite>();
+		sprites = new ArrayList<ArrayList<Sprite>>();
 		res = new Content();
 		res.loadTileTextures();
 		res.loadTexture("assets/images/backgrounds/bg.png");
@@ -103,7 +99,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if(touch){
-        	world.tileAt((int)camera.unproject(new Vector3(touchPos,0)).x/16,(int) camera.unproject(new Vector3(touchPos,0)).y/16).setType((short)0);
+        	world.tileAt((int)camera.unproject(new Vector3(touchPos,0)).x/16,(int) camera.unproject(new Vector3(touchPos,0)).y/16).setType((short)((rightclick == true) ? 0 : 1));
         }
         if(movingx){
             if(directionx)
@@ -131,7 +127,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         	}
             else
             {
-            	camera.position.y -= Gdx.graphics.getDeltaTime() * 100*8;
+            	camera.position.y = Math.max(0, Math.min(500, camera.position.y - Gdx.graphics.getDeltaTime() * 100*8));
             	bg1pos.y += Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.y += Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.y += Gdx.graphics.getDeltaTime() * 10;
@@ -155,8 +151,10 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		bgbatch.end();
 		batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        for(int i = 0; i < sprites.size(); i++){
-        sprites.get(i).draw(batch);
+        for(int x = 0; x < sprites.size(); x++){
+        	for(int y = 0; y < sprites.get(x).size(); y++){
+        		sprites.get(x).get(y).draw(batch);
+        	}
         }
         batch.end();
 	}
@@ -172,25 +170,28 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 			return;
 		}
 		oddFrame = false;
-		sprites.clear();
+		sprites = new ArrayList<ArrayList<Sprite>>(500);
 		
-        for(int x = 0; x < world.tiles.size(); x++){
-	        for(int y = 0; y < world.tiles.get(x).size(); y++){
-	        	if(!(x*16 > (camera.position.x+(camera.viewportWidth/2))+16||x*16<camera.position.x-(camera.viewportWidth/2)-16)
-        			&&!(y*16 > (camera.position.y+(camera.viewportHeight/2)+16)||y*16<camera.position.y-(camera.viewportHeight/2)-16)){
-	        		if(world.tileAt(x, y).getType()>0){
-	        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(world.tileAt(x,y).getType()),world.tileTexX(x, y)*9,world.tileTexY(x, y)*9,8,8));
-	        		sprite.setPosition(x*16,y*16);
-	        		sprite.setScale(2.05F);
-	        		sprites.add(sprite);
-	        		world.updateTile(x,y);
-	        		//System.out.println(x+" "+y);
-	        		}
-	        	}
-	        } 
+        for(int x = 0; x < camera.viewportWidth/16; x++){
+        	if(x>=0){
+        	sprites.add(x/16,new ArrayList<Sprite>());
+		        for(int y = (int)(camera.unproject(new Vector3(0,camera.viewportHeight,0)).y)/16; y < world.tiles.get(x/16).size(); y++){
+		        	if(!(x*16 > (camera.position.x+(camera.viewportWidth/2))+16||x*16<camera.position.x-(camera.viewportWidth/2)-16)
+	        			&&!(y*16 > (camera.position.y+(camera.viewportHeight/2)+16)||y*16<camera.position.y-(camera.viewportHeight/2)-16)){
+		        		if(world.tileAt(x, y).getType()>0){
+			        	world.updateTile(x,y);
+		        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(world.tileAt(x,y).getType()),world.tileTexX(x, y)*9,world.tileTexY(x, y)*9,8,8));
+		        		sprite.setPosition(x*16,y*16);
+		        		sprite.setScale(2.05F);
+		        		sprites.get(x).add(sprite);
+		        		//System.out.println(x+" "+y);
+		        		}
+		        	}
+		        } 
+	        }
+            System.out.println(x);
         }
-       
-	}
+   }
 
 	@Override
 	public void pause() {
@@ -283,6 +284,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 				int button) {
 			touchPos.set(screenX, screenY);
 			touch = true;
+			rightclick = (button == 1) ? true: false;
 			return false;
 		}
 
