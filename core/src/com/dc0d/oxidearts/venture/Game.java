@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
@@ -37,7 +38,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	private OrthographicCamera camera;
 	private OrthographicCamera scamera;
 	private float zoom = 1F;
-	private ArrayList<ArrayList<Sprite>> sprites;
+	private ArrayList<Sprite> sprites;
 	Content res;
     boolean movingx;
     boolean movingy;
@@ -60,8 +61,8 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	@Override
 	public void create() {
 		// Setting up Textures
-		fps = new FPSLogger();
-		sprites = new ArrayList<ArrayList<Sprite>>();
+		//fps = new FPSLogger();
+		sprites = new ArrayList<Sprite>();
 		res = new Content();
 		res.loadTileTextures();
 		res.loadTexture("assets/images/backgrounds/bg.png");
@@ -72,6 +73,8 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         bgbatch = new SpriteBatch();
         world.generate();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        //camera.position.x = 500;
+        //camera.position.y = 500;
         camera.update();
         viewport = new ScreenViewport(camera);
         Gdx.input.setInputProcessor(new GameInput());
@@ -81,6 +84,8 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	@Override
 	public void resize(int width, int height) {
 		viewport.update(width, height);
+		camera.position.x = MathUtils.clamp(camera.position.x, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
+		camera.position.y = MathUtils.clamp(camera.position.y, camera.viewportHeight/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
 	    //camera = new OrthographicCamera(width, height);
 	    //camera.translate(width/2, height/2, 0);
 	    scamera = new OrthographicCamera(width, height);
@@ -95,7 +100,6 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	@Override
 	public void render() {
 		update(Gdx.graphics.getDeltaTime());
-		fps.log();
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if(touch){
@@ -104,30 +108,30 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         if(movingx){
             if(directionx)
             {
-            	camera.position.x -= Gdx.graphics.getDeltaTime() * 100*8;
-            	bg1pos.x += Gdx.graphics.getDeltaTime() * 5;
-            	bg2pos.x += Gdx.graphics.getDeltaTime() * 7.5;
-            	bg3pos.x += Gdx.graphics.getDeltaTime() * 10;
-        	}
-            else
-            {
-            	camera.position.x += Gdx.graphics.getDeltaTime() * 100*8;
+            	camera.position.x = Math.min(camera.position.x + Gdx.graphics.getDeltaTime() * 200*8, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.x -= Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.x -= Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.x -= Gdx.graphics.getDeltaTime() * 10;
+        	}
+            else
+            {
+            	camera.position.x = Math.max(camera.position.x - Gdx.graphics.getDeltaTime() * 200*8, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN);
+            	bg1pos.x += Gdx.graphics.getDeltaTime() * 5;
+            	bg2pos.x += Gdx.graphics.getDeltaTime() * 7.5;
+            	bg3pos.x += Gdx.graphics.getDeltaTime() * 10;
             }
         }
         if(movingy){
             if (directiony)
             {
-            	camera.position.y += Gdx.graphics.getDeltaTime() * 100*8;
+            	camera.position.y = Math.min(camera.position.y + Gdx.graphics.getDeltaTime() * 100*8, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.y -= Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.y -= Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.y -= Gdx.graphics.getDeltaTime() * 10;
         	}
             else
             {
-            	camera.position.y = Math.max(0, Math.min(500, camera.position.y - Gdx.graphics.getDeltaTime() * 100*8));
+            	camera.position.y = Math.max(camera.position.y - Gdx.graphics.getDeltaTime() * 100*8, camera.viewportHeight/2+Constants.WORLDEDGEMARGIN);
             	bg1pos.y += Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.y += Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.y += Gdx.graphics.getDeltaTime() * 10;
@@ -140,21 +144,17 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		scamera.zoom = 0.07f;
 		camera.update();
 		scamera.update();
-		//System.out.println(camera.position.x + ":" + camera.position.y);
 		bgbatch.setProjectionMatrix(scamera.combined);
 		bgbatch.begin();
-		//bgbatch.draw(bg,-scamera.viewportWidth/2,-scamera.viewportHeight/2,scamera.viewportWidth,scamera.viewportHeight);
 		background[0].draw(bgbatch, 0+bg1pos.x,0+bg1pos.y,10000,10000);
 		background[1].draw(bgbatch, 0+bg2pos.x,0+bg2pos.y,10000,10000);
 		background[2].draw(bgbatch, 0+bg3pos.x,0+bg3pos.y,10000,10000);
-		//.setWrap(TextureWrap.Repeat, TextureWrap.Repeat)
+		//TODO Generate clouds and other floating object randomly using textures
 		bgbatch.end();
 		batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        for(int x = 0; x < sprites.size(); x++){
-        	for(int y = 0; y < sprites.get(x).size(); y++){
-        		sprites.get(x).get(y).draw(batch);
-        	}
+        for(int i = 0; i < sprites.size(); i++){
+        		sprites.get(i).draw(batch);
         }
         batch.end();
 	}
@@ -170,28 +170,27 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 			return;
 		}
 		oddFrame = false;
-		sprites = new ArrayList<ArrayList<Sprite>>(500);
+		sprites = new ArrayList<Sprite>(500);
 		
-        for(int x = 0; x < camera.viewportWidth/16; x++){
-        	if(x>=0){
-        	sprites.add(x/16,new ArrayList<Sprite>());
-		        for(int y = (int)(camera.unproject(new Vector3(0,camera.viewportHeight,0)).y)/16; y < world.tiles.get(x/16).size(); y++){
-		        	if(!(x*16 > (camera.position.x+(camera.viewportWidth/2))+16||x*16<camera.position.x-(camera.viewportWidth/2)-16)
-	        			&&!(y*16 > (camera.position.y+(camera.viewportHeight/2)+16)||y*16<camera.position.y-(camera.viewportHeight/2)-16)){
+		Vector2 startingTile = new Vector2((int)(camera.position.x-camera.viewportWidth)/16,
+				(int)(camera.position.y-camera.viewportHeight)/16);
+		
+		Vector2 lastTile = new Vector2((int)startingTile.x+((camera.viewportWidth*2)/16),
+				(int)startingTile.y+((camera.viewportHeight*2)/16));
+		
+		for(int x = (int) startingTile.x; x <= lastTile.x; x++){
+			for(int y = (int) startingTile.y; y <= lastTile.y; y++)
 		        		if(world.tileAt(x, y).getType()>0){
 			        	world.updateTile(x,y);
 		        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(world.tileAt(x,y).getType()),world.tileTexX(x, y)*9,world.tileTexY(x, y)*9,8,8));
 		        		sprite.setPosition(x*16,y*16);
 		        		sprite.setScale(2.05F);
-		        		sprites.get(x).add(sprite);
+		        		sprites.add(sprite);
 		        		//System.out.println(x+" "+y);
 		        		}
-		        	}
-		        } 
-	        }
-            System.out.println(x);
-        }
-   }
+           // System.out.println(x);
+		}
+    }
 
 	@Override
 	public void pause() {
@@ -236,7 +235,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	            break;
 	        case Keys.RIGHT:
 	        	movingx = true;
-	        	directionx = false;
+	        	directionx = true;
 	            break;
 	        case Keys.DOWN:
 	        	movingy = true;
@@ -244,7 +243,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	            break;
 		    case Keys.LEFT:
 		    	movingx = true;
-		    	directionx = true;
+		    	directionx = false;
 		        break;
 		    }
 	        return true;

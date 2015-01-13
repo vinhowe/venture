@@ -92,6 +92,14 @@ public class World {
 				 tiles.get(x).get(y);
 			 }
 		 }
+		 
+		 for(int x = 0; x < (int)Constants.mediumMapDimesions.x; x++){
+			 for(int y = 500; y < Constants.mediumMapDimesions.y; y++){
+				 tiles.get(x).add(y, new Tile((short)/*new Random().nextInt(2)*/0,(byte)0,(byte)new Random().nextInt(5),(byte)new Random().nextInt(5)));
+				 tiles.get(x).get(y).setRandom(Utilities.randInt(0, 2));
+				 tiles.get(x).get(y);
+			 }
+		 }
 		 updateAllTiles();
 	}
 	 
@@ -248,16 +256,16 @@ public class World {
 
         int tileDimensions = 8;
 
-        int leftTile = (int)body.getLeft() / tileDimensions;
-        int topTile = (int)body.getTop() / tileDimensions;
-        int rightTile = (int)Math.ceil((float)body.getRight() / tileDimensions - 1);
-        int bottomTile = (int)Math.ceil(((float)body.getBottom() / tileDimensions) - 1);
+        int leftX = (int)body.getLeft() / tileDimensions;
+        int topY = (int)body.getTop() / tileDimensions;
+        int rightX = (int)Math.ceil((float)body.getRight() / tileDimensions - 1);
+        int bottomY = (int)Math.ceil(((float)body.getBottom() / tileDimensions) - 1);
 
         if (body.velocity.y > 0)
         {
-            for (int x = leftTile; x <= rightTile; x++)
+            for (int x = leftX; x <= rightX; x++)
             {
-                for (int y = bottomTile + 1; y <= (bottomTile + 1) + (body.velocity.y / tileDimensions); y++)
+                for (int y = bottomY + 1; y <= (bottomY + 1) + (body.velocity.y / tileDimensions); y++)
                 {
                     if (tiles.get(x).get(y) != null && !(tiles.get(x).get(y).getType() > 0))
                     {
