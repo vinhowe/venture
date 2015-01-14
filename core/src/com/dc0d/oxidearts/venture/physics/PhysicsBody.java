@@ -22,7 +22,7 @@ public class PhysicsBody {
 	
 	// Position values
 	
-	Vector2 position = new Vector2(0, 0);
+	public Vector2 position = new Vector2(0, 0);
 	
 	// Velocity values - current speed in each direction - can be negative
 	
@@ -32,6 +32,8 @@ public class PhysicsBody {
 	
 	public Vector2 acceleration = new Vector2(0, 0);
 	
+	public float force = 0; 
+	
 	// Collision solver and body types
 	
 	BodyType bodyType;
@@ -39,6 +41,8 @@ public class PhysicsBody {
 	// Restitution, or "bounciness" of entity
 	
 	private int restitution;
+	
+	public float mass = 1F;
 	
 	public PhysicsBody(BodyType bodyType){
 		this.bodyType = bodyType;

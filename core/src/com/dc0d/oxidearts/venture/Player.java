@@ -6,6 +6,7 @@
 
 package com.dc0d.oxidearts.venture;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.dc0d.oxidearts.venture.physics.PhysicsBody;
 
 /**
@@ -14,9 +15,13 @@ import com.dc0d.oxidearts.venture.physics.PhysicsBody;
  *
  */
 public class Player extends Entity {
-
-	public Player() {
+	
+	public Sprite sprite;
+	
+	public Player(World world) {
+		sprite = new Sprite(world.game.res.getTexture("player_male"));
 		//TODO Work on Player stuff
+		this.setPosition(400*16, 500*16);
 	}
 	
 }

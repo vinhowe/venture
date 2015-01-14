@@ -26,8 +26,10 @@ public class World {
 	ArrayList<ArrayList<Tile>> tiles;
 	private String name;
 	private final byte type;
+	Game game;
 	
-	public World(String name, byte type){
+	public World(String name, byte type, Game game){
+		this.game = game;
 		this.setName(name);
 		this.type = type;
 		tiles = new ArrayList<ArrayList<Tile>>();
@@ -251,7 +253,7 @@ public class World {
 			}
 		}
 	
-	public void updatePlayer(Player player){
+	public void updatePlayer(Player player, float delta){
 		PhysicsBody body = (PhysicsBody)player; // Body is a class storing position, velocity, bounds and so on.
 
         int tileDimensions = 8;
@@ -260,8 +262,13 @@ public class World {
         int topY = (int)body.getTop() / tileDimensions;
         int rightX = (int)Math.ceil((float)body.getRight() / tileDimensions - 1);
         int bottomY = (int)Math.ceil(((float)body.getBottom() / tileDimensions) - 1);
-
-        if (body.velocity.y > 0)
+        
+		body.velocity.x += body.acceleration.x * delta;
+        body.velocity.y += body.acceleration.y * delta;
+        body.getPosition().x  += body.velocity.x * delta;
+        body.getPosition().y  += body.velocity.y * delta;
+        
+        /*if (body.velocity.y > 0)
         {
             for (int x = leftX; x <= rightX; x++)
             {
@@ -275,8 +282,21 @@ public class World {
                     }
                 }
             }
-        }
+        }*/
 	}
+	
+	  boolean collideable(int x, int y)
+	  {
+	    switch(tileAt(x,y).getType())
+	    {
+	      case 0:
+	        return false;
+
+	      case 1:
+	        return true;
+	    } 
+	    return false;
+	  }
 	
 	public String getName() {
 		return name;

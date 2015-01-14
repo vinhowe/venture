@@ -66,17 +66,19 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		res = new Content();
 		res.loadTileTextures();
 		res.loadTexture("assets/images/backgrounds/bg.png");
+		res.loadTexture("assets/images/player/player_male.png");
 		bg = new TextureRegion[]{new TextureRegion(res.getTexture("bg"),80,50), new TextureRegion(res.getTexture("bg"),0,51,80,50),new TextureRegion(res.getTexture("bg"),0,51*2,80,50)};
 		background = new TiledDrawable[]{new TiledDrawable(bg[0]), new TiledDrawable(bg[1]), new TiledDrawable(bg[2])};
-		world = new World("alpha", (byte)1);
+		world = new World("alpha", (byte)1, this);
         batch = new SpriteBatch();
         bgbatch = new SpriteBatch();
         world.generate();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        //camera.position.x = 500;
-        //camera.position.y = 500;
+        camera.position.x = 400*16;
+        camera.position.y = 500*16;
         camera.update();
         viewport = new ScreenViewport(camera);
+        player = new Player(world);
         Gdx.input.setInputProcessor(new GameInput());
 	}
 
@@ -108,14 +110,14 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         if(movingx){
             if(directionx)
             {
-            	camera.position.x = Math.min(camera.position.x + Gdx.graphics.getDeltaTime() * 200*8, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
+            	camera.position.x = Math.min(camera.position.x + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.x -= Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.x -= Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.x -= Gdx.graphics.getDeltaTime() * 10;
         	}
             else
             {
-            	camera.position.x = Math.max(camera.position.x - Gdx.graphics.getDeltaTime() * 200*8, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN);
+            	camera.position.x = Math.max(camera.position.x - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN);
             	bg1pos.x += Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.x += Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.x += Gdx.graphics.getDeltaTime() * 10;
@@ -124,14 +126,14 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         if(movingy){
             if (directiony)
             {
-            	camera.position.y = Math.min(camera.position.y + Gdx.graphics.getDeltaTime() * 100*8, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
+            	camera.position.y = Math.min(camera.position.y + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.y -= Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.y -= Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.y -= Gdx.graphics.getDeltaTime() * 10;
         	}
             else
             {
-            	camera.position.y = Math.max(camera.position.y - Gdx.graphics.getDeltaTime() * 100*8, camera.viewportHeight/2+Constants.WORLDEDGEMARGIN);
+            	camera.position.y = Math.max(camera.position.y - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportHeight/2+Constants.WORLDEDGEMARGIN);
             	bg1pos.y += Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.y += Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.y += Gdx.graphics.getDeltaTime() * 10;
@@ -140,7 +142,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         bg3pos.x += Gdx.graphics.getDeltaTime() * 1.5;
         bg2pos.x += Gdx.graphics.getDeltaTime() * 1;
         bg1pos.x += Gdx.graphics.getDeltaTime() * 0.5;
-		camera.zoom = 1 - 0.05F;
+		//camera.zoom = 1 - 0.05F;
 		scamera.zoom = 0.07f;
 		camera.update();
 		scamera.update();
@@ -184,12 +186,17 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 			        	world.updateTile(x,y);
 		        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(world.tileAt(x,y).getType()),world.tileTexX(x, y)*9,world.tileTexY(x, y)*9,8,8));
 		        		sprite.setPosition(x*16,y*16);
-		        		sprite.setScale(2.05F);
+		        		sprite.setScale(2.0F);
 		        		sprites.add(sprite);
 		        		//System.out.println(x+" "+y);
 		        		}
            // System.out.println(x);
 		}
+		world.updatePlayer(player, delta);
+		player.sprite.setPosition(player.getPosition().x, player.getPosition().y);
+		sprites.add(player.sprite);
+		camera.position.x = player.position.x;
+		camera.position.y = player.position.y;
     }
 
 	@Override

@@ -9,6 +9,7 @@ package com.dc0d.oxidearts.venture.handlers;
 import java.util.Random;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 
 public class Utilities {
 
@@ -45,5 +46,11 @@ public class Utilities {
 		region.setRegion((x + .5f) * invTexWidth, (y+.5f) * invTexHeight, (x + width - .5f) * invTexWidth, (y + height - .5f) * invTexHeight);  
 		return region;
 	}
+	
+	  int lerp(int start, int end, float t)
+	  {
+	    t = MathUtils.clamp(t, 0, 1); // prevent our interpolations from over-shooting
+	    return (int) (start + (end - start) * t);
+	  }
 	
 }
