@@ -255,18 +255,34 @@ public class World {
 	
 	public void updatePlayer(Player player, float delta){
 		PhysicsBody body = (PhysicsBody)player; // Body is a class storing position, velocity, bounds and so on.
-
+		
+		float gx = Constants.GRAVITY_X * (delta);
+		float gy = Constants.GRAVITY_Y * (delta);
+		float rho = 1.2F;
+		
+		Vector2 oldAcceleration = new Vector2(body.acceleration);
+		Vector2 avgAcceleration  = new Vector2();
+		
+		float maxVelocity = 200;
+		
         int tileDimensions = 8;
 
         int leftX = (int)body.getLeft() / tileDimensions;
         int topY = (int)body.getTop() / tileDimensions;
         int rightX = (int)Math.ceil((float)body.getRight() / tileDimensions - 1);
         int bottomY = (int)Math.ceil(((float)body.getBottom() / tileDimensions) - 1);
-        
-		body.velocity.x += body.acceleration.x * delta;
-        body.velocity.y += body.acceleration.y * delta;
-        body.getPosition().x  += body.velocity.x * delta;
-        body.getPosition().y  += body.velocity.y * delta;
+	        for(int i = 0; i < body.forces.size(); i++){
+		        body.force.y += body.forces.get(i).x * 0.2;
+		        body.force.y += body.forces.get(i).y * 0.2;
+	        }
+        body.force.x = body.mass * Constants.GRAVITY_X;   
+        body.force.y = body.mass * Constants.GRAVITY_Y;
+        body.acceleration.x = body.force.x / body.mass;
+        body.acceleration.y = body.force.y / body.mass;
+		body.velocity.x = MathUtils.clamp(body.velocity.x + body.acceleration.x * (delta), -maxVelocity, maxVelocity);
+        body.velocity.y = MathUtils.clamp(body.velocity.y + body.acceleration.y * (delta), -maxVelocity, maxVelocity);
+        body.getPosition().x += body.velocity.x * (delta);
+        body.getPosition().y += body.velocity.y * (delta);
         
         /*if (body.velocity.y > 0)
         {
