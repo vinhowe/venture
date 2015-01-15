@@ -15,11 +15,11 @@ public class PhysicsBody {
 	
 	// Height and width values
 	
-	Vector2 dimensions = new Vector2(0, 0);
+	public Vector2 dimensions = new Vector2(0, 0);
 	
 	// Half width and half height values for faster calculation
 	
-	Vector2 halfDimensions = new Vector2(0, 0);
+	public Vector2 halfDimensions = new Vector2(0, 0);
 	
 	// Position values
 	
@@ -53,14 +53,14 @@ public class PhysicsBody {
 	
 	public ArrayList<Vector2> forces;
 	
-	public PhysicsBody(BodyType bodyType){
+	public PhysicsBody(BodyType bodyType, int width, int height){
 		this.bodyType = bodyType;
 		
 		// Setting the entity's width and height
 		// Make this variable
 		
-		this.dimensions.x = 32;
-		this.dimensions.y = 48;
+		this.dimensions.x = width;
+		this.dimensions.y = height;
 		
 		// Setting half sizes
 		

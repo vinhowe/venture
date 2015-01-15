@@ -21,8 +21,8 @@ public class Entity extends PhysicsBody {
 	int health; // We use an int so we can bit shift and find special debuffs.
 	int jumpHeight = 5; //Default jump height
 	
-	public Entity() {
-		super(PhysicsBody.BodyType.DynamicBody); // All entities should be dynamic unless rocks count as living
+	public Entity(int width, int height) {
+		super(PhysicsBody.BodyType.DynamicBody, width, height); // All entities should be dynamic unless rocks count as living
 		//TODO Work on entity stuff
 	}
 

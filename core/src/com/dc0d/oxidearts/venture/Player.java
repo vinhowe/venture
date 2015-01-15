@@ -22,10 +22,13 @@ public class Player extends Entity {
 	private World world;
 	
 	public Player(World world) {
+		super(32, 48*2);
 		sprite = new Sprite(world.game.res.getTexture("player_male"));
+		sprite.setSize(this.dimensions.x,this.dimensions.y);
 		//TODO Work on Player stuff
 		this.setPosition(400*16, 501*16);
 		this.world = world;
+		sprite.setScale(1.25f,1.25f);
 	}
 	
 	public void updatePlayer(float delta){
@@ -34,7 +37,7 @@ public class Player extends Entity {
 		
 		float gx = Constants.GRAVITY_X * (timestep);
 		float gy = Constants.GRAVITY_Y * (timestep);
-		float drag = 0.001F;
+		float drag = 0.005F;
 		
 		Vector2 oldAcceleration = new Vector2(acceleration);
 		Vector2 avgAcceleration  = new Vector2();
@@ -56,11 +59,11 @@ public class Player extends Entity {
         forces.clear();
         acceleration.x = force.x / mass;
         acceleration.y = force.y / mass;
-        if(world.tileAt((int)position.x/16, (int)position.y/16).getType() > 0||world.tileAt(((int)position.x/16+1), (int)position.y/16).getType() > 0){
-        velocity.x = MathUtils.clamp(velocity.x + acceleration.x * (timestep), -maxVelocity, maxVelocity);
-        velocity.y = MathUtils.clamp(velocity.y + acceleration.y * (timestep), -maxVelocity, maxVelocity);
+        if(world.tileAt((int)position.x/16, (int)(position.y/16)+1).getType() > 0||world.tileAt(((int)position.x/16), (int)(position.y/16)+1).getType() > 0){
+        velocity.x = MathUtils.clamp(velocity.x + acceleration.x * (timestep), 0, maxVelocity);
+        velocity.y = MathUtils.clamp(velocity.y + acceleration.y * (timestep), 0, maxVelocity);
         position.x = MathUtils.clamp(position.x + (velocity.x * (timestep)), world.game.camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*16)-Constants.WORLDEDGEMARGIN);
-        position.y = (float)((int)(position.y/16)*16);//MathUtils.clamp(position.y + (velocity.y * (timestep)),(float)((int)(position.y/16)*16)+16, (Constants.mediumMapDimesions.y*16)-(world.game.camera.viewportHeight)-Constants.WORLDEDGEMARGIN);
+        position.y = MathUtils.clamp(position.y + (velocity.y * (timestep)), (float)((int)(((position.y)/16))*16), (Constants.mediumMapDimesions.y*16)-(world.game.camera.viewportHeight)-Constants.WORLDEDGEMARGIN);//MathUtils.clamp(position.y + (velocity.y * (timestep)),(float)((int)(position.y/16)*16)+16, (Constants.mediumMapDimesions.y*16)-(world.game.camera.viewportHeight)-Constants.WORLDEDGEMARGIN);
         } else {
 		velocity.x = MathUtils.clamp(velocity.x + acceleration.x * (timestep), -maxVelocity, maxVelocity);
         velocity.y = MathUtils.clamp(velocity.y + acceleration.y * (timestep), -maxVelocity, maxVelocity);
