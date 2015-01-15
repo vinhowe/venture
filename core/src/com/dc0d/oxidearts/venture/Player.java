@@ -21,7 +21,7 @@ public class Player extends Entity {
 	public Player(World world) {
 		sprite = new Sprite(world.game.res.getTexture("player_male"));
 		//TODO Work on Player stuff
-		this.setPosition(400*16, 500*16);
+		this.setPosition(400*16, 501*16);
 	}
 	
 }

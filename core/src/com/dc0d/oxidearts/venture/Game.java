@@ -35,8 +35,8 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
     private SpriteBatch bgbatch;
     private Viewport viewport;
     private TextureRegion[] bg;
-	private OrthographicCamera camera;
-	private OrthographicCamera scamera;
+    public OrthographicCamera camera;
+	public OrthographicCamera scamera;
 	private float zoom = 1F;
 	private ArrayList<Sprite> sprites;
 	Content res;
@@ -110,14 +110,16 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         if(movingx){
             if(directionx)
             {
-            	camera.position.x = Math.min(camera.position.x + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
+            	player.applyImpulse(2f*16, 0);
+            	//camera.position.x = Math.min(camera.position.x + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.x -= Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.x -= Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.x -= Gdx.graphics.getDeltaTime() * 10;
         	}
             else
             {
-            	camera.position.x = Math.max(camera.position.x - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN);
+            	player.applyImpulse(-2f*16, 0);
+            	//camera.position.x = Math.max(camera.position.x - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN);
             	bg1pos.x += Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.x += Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.x += Gdx.graphics.getDeltaTime() * 10;
@@ -126,7 +128,8 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         if(movingy){
             if (directiony)
             {
-            	camera.position.y = Math.min(camera.position.y + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
+            	player.applyImpulse(0, 7.5f*16);
+            	//camera.position.y = Math.min(camera.position.y + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.y -= Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.y -= Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.y -= Gdx.graphics.getDeltaTime() * 10;
@@ -195,8 +198,8 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		world.updatePlayer(player, delta);
 		player.sprite.setPosition(player.getPosition().x, player.getPosition().y);
 		sprites.add(player.sprite);
-		camera.position.x = player.position.x;
-		camera.position.y = player.position.y;
+		camera.position.x = MathUtils.clamp(player.position.x,camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
+		camera.position.y = MathUtils.clamp(player.position.y,camera.viewportHeight/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
     }
 
 	@Override

@@ -47,7 +47,7 @@ public class PhysicsBody {
 	
 	// Object mass for faster math and flexibility
 	
-	public float mass = 1F;
+	public float mass = 0.1F;
 	
 	// Force array - Add these up
 	
@@ -146,19 +146,27 @@ public class PhysicsBody {
         this.halfDimensions.y = (float) (this.dimensions.y * .5);
 	}
 
-		public enum BodyType {
-			KinematicBody(0), DynamicBody(1);
+	public enum BodyType {
+		KinematicBody(0), DynamicBody(1);
+
+		private int value;
+
+		private BodyType (int value) {
+			this.value = value;
+		}
+
+		public int getValue () {
+			return value;
+		}
+	}
 	
-			private int value;
+	public void applyImpulse(Vector2 force){
+		applyImpulse(force.x, force.y);
+	}
 	
-			private BodyType (int value) {
-				this.value = value;
-			}
-	
-			public int getValue () {
-				return value;
-			}
-		};
+	public void applyImpulse(float forceX, float forceY){
+		forces.add(new Vector2(forceX, forceY));
+	}
 }
 
 

@@ -256,14 +256,16 @@ public class World {
 	public void updatePlayer(Player player, float delta){
 		PhysicsBody body = (PhysicsBody)player; // Body is a class storing position, velocity, bounds and so on.
 		
-		float gx = Constants.GRAVITY_X * (delta);
-		float gy = Constants.GRAVITY_Y * (delta);
+		float timestep = 0.3f;
+		
+		float gx = Constants.GRAVITY_X * (timestep);
+		float gy = Constants.GRAVITY_Y * (timestep);
 		float rho = 1.2F;
 		
 		Vector2 oldAcceleration = new Vector2(body.acceleration);
 		Vector2 avgAcceleration  = new Vector2();
 		
-		float maxVelocity = 200;
+		float maxVelocity = 125;
 		
         int tileDimensions = 8;
 
@@ -271,18 +273,26 @@ public class World {
         int topY = (int)body.getTop() / tileDimensions;
         int rightX = (int)Math.ceil((float)body.getRight() / tileDimensions - 1);
         int bottomY = (int)Math.ceil(((float)body.getBottom() / tileDimensions) - 1);
-	        for(int i = 0; i < body.forces.size(); i++){
-		        body.force.y += body.forces.get(i).x * 0.2;
-		        body.force.y += body.forces.get(i).y * 0.2;
-	        }
         body.force.x = body.mass * Constants.GRAVITY_X;   
         body.force.y = body.mass * Constants.GRAVITY_Y;
+        for(int i = 0; i < body.forces.size(); i++){
+	        body.force.x += body.forces.get(i).x * timestep;
+	        body.force.y += body.forces.get(i).y * timestep;
+        }
+        body.forces.clear();
         body.acceleration.x = body.force.x / body.mass;
         body.acceleration.y = body.force.y / body.mass;
-		body.velocity.x = MathUtils.clamp(body.velocity.x + body.acceleration.x * (delta), -maxVelocity, maxVelocity);
-        body.velocity.y = MathUtils.clamp(body.velocity.y + body.acceleration.y * (delta), -maxVelocity, maxVelocity);
-        body.getPosition().x += body.velocity.x * (delta);
-        body.getPosition().y += body.velocity.y * (delta);
+        if(tileAt((int)player.position.x/16, (int)player.position.y/16).getType() > 0||tileAt(((int)player.position.x/16+1), (int)player.position.y/16).getType() > 0){
+        body.velocity.x = MathUtils.clamp(body.velocity.x + body.acceleration.x * (timestep), -maxVelocity, maxVelocity);
+        body.velocity.y = MathUtils.clamp(body.velocity.y + body.acceleration.y * (timestep), 0, maxVelocity);
+        body.getPosition().x = MathUtils.clamp(body.getPosition().x + (body.velocity.x * (timestep)),((int)player.position.x/16)*16, (Constants.mediumMapDimesions.x*16)-Constants.WORLDEDGEMARGIN);
+        body.getPosition().y = MathUtils.clamp(body.getPosition().y + (body.velocity.y * (timestep)),((int)player.position.y/16)*16, (Constants.mediumMapDimesions.y*16)-(game.camera.viewportHeight)-Constants.WORLDEDGEMARGIN);
+        } else {
+		body.velocity.x = MathUtils.clamp(body.velocity.x + body.acceleration.x * (timestep), -maxVelocity, maxVelocity);
+        body.velocity.y = MathUtils.clamp(body.velocity.y + body.acceleration.y * (timestep), -maxVelocity, maxVelocity);
+        body.getPosition().x = MathUtils.clamp(body.getPosition().x + (body.velocity.x * (timestep)),game.camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*16)-Constants.WORLDEDGEMARGIN);
+        body.getPosition().y = MathUtils.clamp(body.getPosition().y + (body.velocity.y * (timestep)),Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*16)-(game.camera.viewportHeight)-Constants.WORLDEDGEMARGIN);
+        }
         
         /*if (body.velocity.y > 0)
         {
