@@ -102,7 +102,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	@Override
 	public void render() {
 		update(Gdx.graphics.getDeltaTime());
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if(touch){
         	world.tileAt((int)camera.unproject(new Vector3(touchPos,0)).x/16,(int) camera.unproject(new Vector3(touchPos,0)).y/16).setType((short)((rightclick == true) ? 0 : 1));
@@ -256,6 +256,11 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		    case Keys.LEFT:
 		    	movingx = true;
 		    	directionx = false;
+		        break;
+		    case Keys.SPACE:
+		    	player.jump = true;
+		    	player.jumpspeed = player.jumpstart;
+		    	player.jump(5f);
 		        break;
 		    }
 	        return true;

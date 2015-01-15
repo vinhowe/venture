@@ -33,10 +33,6 @@ public class PhysicsBody {
 	
 	public Vector2 acceleration = new Vector2(0, 0);
 	
-	// Force values - used for changing acceleration
-	
-	public Vector2 force = new  Vector2(0,0); 
-	
 	// Collision solver and body types
 	
 	BodyType bodyType;
@@ -48,10 +44,6 @@ public class PhysicsBody {
 	// Object mass for faster math and flexibility
 	
 	public float mass = 0.1F;
-	
-	// Force array - Add these up
-	
-	public ArrayList<Vector2> forces;
 	
 	public PhysicsBody(BodyType bodyType, int width, int height){
 		this.bodyType = bodyType;
@@ -66,10 +58,6 @@ public class PhysicsBody {
 		
 		this.halfDimensions.x = this.dimensions.x / 2;
 		this.halfDimensions.y = this.dimensions.y / 2;
-		
-		// Setting up force array
-		
-		forces = new ArrayList<Vector2>();
 		
 	}
 	
@@ -161,11 +149,11 @@ public class PhysicsBody {
 	}
 	
 	public void applyImpulse(Vector2 force){
-		applyImpulse(force.x, force.y);
+		//applyImpulse(force.x, force.y);
 	}
 	
 	public void applyImpulse(float forceX, float forceY){
-		forces.add(new Vector2(forceX, forceY));
+	//	forces.add(new Vector2(forceX, forceY));
 	}
 }
 

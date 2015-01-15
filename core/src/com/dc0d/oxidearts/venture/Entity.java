@@ -20,6 +20,9 @@ public class Entity extends PhysicsBody {
 	boolean isDead = false; //We dispose of dead things. Sorry.
 	int health; // We use an int so we can bit shift and find special debuffs.
 	int jumpHeight = 5; //Default jump height
+	boolean jump = false;
+	float jumpspeed;
+	float jumpstart = -18;
 	
 	public Entity(int width, int height) {
 		super(PhysicsBody.BodyType.DynamicBody, width, height); // All entities should be dynamic unless rocks count as living
