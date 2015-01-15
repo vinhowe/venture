@@ -13,11 +13,13 @@ import com.dc0d.oxidearts.venture.physics.PhysicsBody;
  * @author Thomas
  *
  */
+
 public class Entity extends PhysicsBody {
 	
 	short type;
 	boolean isDead = false; //We dispose of dead things. Sorry.
 	int health; // We use an int so we can bit shift and find special debuffs.
+	int jumpHeight = 5; //Default jump height
 	
 	public Entity() {
 		super(PhysicsBody.BodyType.DynamicBody); // All entities should be dynamic unless rocks count as living

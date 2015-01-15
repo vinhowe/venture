@@ -112,15 +112,15 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
             {
             	player.applyImpulse(2f*16, 0);
             	//camera.position.x = Math.min(camera.position.x + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
-            	bg1pos.x -= Gdx.graphics.getDeltaTime() * 5;
+            	bg1pos.x = camera.position.x / 60 * Gdx.graphics.getDeltaTime();
             	bg2pos.x -= Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.x -= Gdx.graphics.getDeltaTime() * 10;
         	}
             else
             {
-            	player.applyImpulse(-2f*16, 0);
+            	player.applyImpulse(-(2f*16), 0);
             	//camera.position.x = Math.max(camera.position.x - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN);
-            	bg1pos.x += Gdx.graphics.getDeltaTime() * 5;
+            	bg1pos.x = camera.position.x / 60;
             	bg2pos.x += Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.x += Gdx.graphics.getDeltaTime() * 10;
             }
@@ -128,7 +128,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         if(movingy){
             if (directiony)
             {
-            	player.applyImpulse(0, 7.5f*16);
+            	player.applyImpulse(0,10);
             	//camera.position.y = Math.min(camera.position.y + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.y -= Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.y -= Gdx.graphics.getDeltaTime() * 7.5;
@@ -148,14 +148,14 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		//camera.zoom = 1 - 0.05F;
 		scamera.zoom = 0.07f;
 		camera.update();
-		scamera.update();
-		bgbatch.setProjectionMatrix(scamera.combined);
-		bgbatch.begin();
-		background[0].draw(bgbatch, 0+bg1pos.x,0+bg1pos.y,10000,10000);
-		background[1].draw(bgbatch, 0+bg2pos.x,0+bg2pos.y,10000,10000);
-		background[2].draw(bgbatch, 0+bg3pos.x,0+bg3pos.y,10000,10000);
+		//scamera.update();
+		//bgbatch.setProjectionMatrix(scamera.combined);
+		//bgbatch.begin();
+		//background[0].draw(bgbatch, 0,0,10000,10000);
+		//background[1].draw(bgbatch, 0,0,10000,10000);
+		//background[2].draw(bgbatch, 0,0,10000,10000);
 		//TODO Generate clouds and other floating object randomly using textures
-		bgbatch.end();
+		//bgbatch.end();
 		batch.setProjectionMatrix(camera.combined);
         batch.begin();
         for(int i = 0; i < sprites.size(); i++){
@@ -195,11 +195,13 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		        		}
            // System.out.println(x);
 		}
-		world.updatePlayer(player, delta);
+		player.updatePlayer(delta);
 		player.sprite.setPosition(player.getPosition().x, player.getPosition().y);
 		sprites.add(player.sprite);
 		camera.position.x = MathUtils.clamp(player.position.x,camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
 		camera.position.y = MathUtils.clamp(player.position.y,camera.viewportHeight/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
+		scamera.position.x = MathUtils.clamp(player.position.x,camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
+		scamera.position.y = MathUtils.clamp(player.position.y,camera.viewportHeight/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
     }
 
 	@Override
