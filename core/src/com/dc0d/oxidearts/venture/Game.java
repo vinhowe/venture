@@ -110,6 +110,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         if(movingx){
             if(directionx)
             {
+            	player.velocity.x += 2.5;
             	player.applyImpulse(2f*16, 0);
             	//camera.position.x = Math.min(camera.position.x + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.x = camera.position.x / 60 * Gdx.graphics.getDeltaTime();
@@ -118,7 +119,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         	}
             else
             {
-            	player.applyImpulse(-(2f*16), 0);
+            	player.velocity.x -= 2.5;
             	//camera.position.x = Math.max(camera.position.x - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN);
             	bg1pos.x = camera.position.x / 60;
             	bg2pos.x += Gdx.graphics.getDeltaTime() * 7.5;
@@ -189,7 +190,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 			        	world.updateTile(x,y);
 		        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(world.tileAt(x,y).getType()),world.tileTexX(x, y)*9,world.tileTexY(x, y)*9,8,8));
 		        		sprite.setPosition(x*16,y*16);
-		        		sprite.setScale(2.0F);
+		        		sprite.setSize(16,16);
 		        		sprites.add(sprite);
 		        		//System.out.println(x+" "+y);
 		        		}
