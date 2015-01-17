@@ -43,7 +43,7 @@ public class Player extends Entity {
 		//sprite.setScale(1.25f,1.25f);
 		animationSheet = new Texture(world.game.res.getTexture("player_male").getTextureData());
 		animationFrames = new TextureRegion[4];
-		TextureRegion[][] tmp = TextureRegion.split(animationSheet, animationSheet.getWidth()/FRAME_COLS, animationSheet.getHeight()-1);    
+		TextureRegion[][] tmp = TextureRegion.split(animationSheet, animationSheet.getWidth()/FRAME_COLS, animationSheet.getHeight());    
 		int index = 0;
 		for (int i = 0; i < 1; i++) {
             for (int j = 0; j < 4; j++) {
@@ -72,7 +72,7 @@ public class Player extends Entity {
         int topY = (int)getTop() / tileDimensions;
         int rightX = (int)Math.ceil((float)getRight() / tileDimensions - 1);
         int bottomY = (int)Math.ceil(((float)getBottom() / tileDimensions) - 1);
-        if(world.tileAt((int)position.x/16, (int)(position.y/16)+1).getType() < 1&&world.tileAt(((int)position.x/16), (int)(position.y/16)-1).getType() > 0){
+        if(world.tileAt((int)position.x/16, (int)(position.y/16)+1).getType() > 0){
         velocity.x = MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity);
         velocity.y = MathUtils.clamp(velocity.y + Constants.GRAVITY_Y * (timestep), 0, maxVelocity);
         position.x = MathUtils.clamp(position.x + (velocity.x * (timestep)), world.game.camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*16)-Constants.WORLDEDGEMARGIN);
