@@ -129,4 +129,8 @@ public class Tile {
 		byte1 = (byte) (byte1 | rand);
 	}
 	
+	public boolean isSolid() {
+		return type > 0;
+	}
+	
 }

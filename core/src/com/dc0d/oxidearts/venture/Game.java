@@ -111,7 +111,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
             if(directionx)
             {
             	player.velocity.x += 2.5;
-            	player.applyImpulse(2f*16, 0);
+            	//player.applyImpulse(2f*16, 0);
             	//camera.position.x = Math.min(camera.position.x + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.x*16)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.x = camera.position.x / 60 * Gdx.graphics.getDeltaTime();
             	bg2pos.x -= Gdx.graphics.getDeltaTime() * 7.5;
@@ -129,7 +129,9 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         if(movingy){
             if (directiony)
             {
+            	//if(player.jump){
             	player.applyImpulse(0,10);
+            	//}
             	//camera.position.y = Math.min(camera.position.y + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.y -= Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.y -= Gdx.graphics.getDeltaTime() * 7.5;
@@ -137,7 +139,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         	}
             else
             {
-            	camera.position.y = Math.max(camera.position.y - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportHeight/2+Constants.WORLDEDGEMARGIN);
+            	//camera.position.y = Math.max(camera.position.y - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportHeight/2+Constants.WORLDEDGEMARGIN);
             	bg1pos.y += Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.y += Gdx.graphics.getDeltaTime() * 7.5;
             	bg3pos.y += Gdx.graphics.getDeltaTime() * 10;
@@ -259,9 +261,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		    	directionx = false;
 		        break;
 		    case Keys.SPACE:
-		    	player.jump = true;
-		    	player.jumpspeed = player.jumpstart;
-		    	player.jump(5f);
+		    	//player.jump(5f);
 		        break;
 		    }
 	        return true;

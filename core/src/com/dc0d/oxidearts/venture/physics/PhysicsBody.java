@@ -106,7 +106,7 @@ public class PhysicsBody {
 	}
 	
 	public float getTop(){
-		return this.position.y;
+		return this.position.y + this.dimensions.y;
 	}
 	
 	public float getLeft(){
@@ -118,7 +118,7 @@ public class PhysicsBody {
 	}
 	
 	public float getBottom(){
-		return this.position.y + this.dimensions.y;
+		return this.position.y;
 	}
 	
 	public float getMidX(){
@@ -149,11 +149,11 @@ public class PhysicsBody {
 	}
 	
 	public void applyImpulse(Vector2 force){
-		//applyImpulse(force.x, force.y);
+		applyImpulse(force.x, force.y);
 	}
 	
 	public void applyImpulse(float forceX, float forceY){
-	//	forces.add(new Vector2(forceX, forceY));
+	    velocity.add(forceX, forceY);
 	}
 }
 

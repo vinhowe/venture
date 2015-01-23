@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.dc0d.oxidearts.venture.physics.PhysicsBody;
 
 /**
  * Holds information for player
@@ -64,26 +63,34 @@ public class Player extends Entity {
 		Vector2 oldAcceleration = new Vector2(acceleration);
 		Vector2 avgAcceleration  = new Vector2();
 		
-		float maxVelocity = 75;
+	    int leftX = (int)getLeft() / Constants.TILESIZE;
+	    int topY = (int)getTop() / Constants.TILESIZE;
+	    int rightX = (int)Math.ceil((float)getRight() / Constants.TILESIZE - 1);
+	    int bottomY = (int)Math.ceil(((float)getBottom() / Constants.TILESIZE) - 1);
+		
+		float maxVelocity = 125;
 		
         int tileDimensions = 8;
 
-        int leftX = (int)getLeft() / tileDimensions;
-        int topY = (int)getTop() / tileDimensions;
-        int rightX = (int)Math.ceil((float)getRight() / tileDimensions - 1);
-        int bottomY = (int)Math.ceil(((float)getBottom() / tileDimensions) - 1);
-        if(world.tileAt((int)position.x/16, (int)(position.y/16)+1).getType() > 0){
-        velocity.x = MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity);
-        velocity.y = MathUtils.clamp(velocity.y + Constants.GRAVITY_Y * (timestep), 0, maxVelocity);
-        position.x = MathUtils.clamp(position.x + (velocity.x * (timestep)), world.game.camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*16)-Constants.WORLDEDGEMARGIN);
-        position.y = MathUtils.clamp(position.y + (velocity.y * (timestep)), (float)((int)(((position.y)/16))*16), (Constants.mediumMapDimesions.y*16)-(world.game.camera.viewportHeight)-Constants.WORLDEDGEMARGIN);//MathUtils.clamp(position.y + (velocity.y * (timestep)),(float)((int)(position.y/16)*16)+16, (Constants.mediumMapDimesions.y*16)-(world.game.camera.viewportHeight)-Constants.WORLDEDGEMARGIN);
-        } else {
-		velocity.x = MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity);
-        velocity.y = MathUtils.clamp(velocity.y + Constants.GRAVITY_Y * (timestep), -maxVelocity, maxVelocity);
+    	jump = true;
+        //if(world.tileAt((int)position.x/16, (int)(position.y/16)-1).getType() > 0 || world.tileAt(((int)position.x/16)+1, (int)(position.y/16)-1).getType() > 0){
+	    //    jump = true;
+	    //    velocity.x = (float) (MathUtils.clamp(velocity.x + Constants.GRAVITY_X, -maxVelocity, maxVelocity) * 0.25);
+	    //    velocity.y = MathUtils.clamp(velocity.y + Constants.GRAVITY_Y, 0, maxVelocity);
+	    //    position.x = MathUtils.clamp(position.x + (velocity.x * (timestep)), world.game.camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*16)-Constants.WORLDEDGEMARGIN);
+	    //    position.y += (float)((int)(((position.y)/16))*16) - position.y;
+	    //    if(world.tileAt((int)position.x/16, (int)(position.y/16)).getType() > 0 || world.tileAt(((int)position.x/16)+1, (int)(position.y/16)).getType() > 0){
+	        	position.y += 16;
+	     //   }
+        //} else {
+        	jump = false;
+			velocity.x = (float) (MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity) * 0.95);
+	        velocity.y = MathUtils.clamp(velocity.y + Constants.GRAVITY_Y * (timestep), -maxVelocity, maxVelocity);
+        //}
         position.x = MathUtils.clamp(position.x + (velocity.x * (timestep)), world.game.camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*16)-Constants.WORLDEDGEMARGIN);
         position.y = MathUtils.clamp(position.y + (velocity.y * (timestep)), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*16)-(world.game.camera.viewportHeight)-Constants.WORLDEDGEMARGIN);
         
-        }
+        checkToMap();
         
         stateTime += Gdx.graphics.getDeltaTime();
         
@@ -112,17 +119,136 @@ public class Player extends Entity {
 		//position.x
 	}
 	
-	public void jump(float height){
-		jumpspeed += Constants.GRAVITY_Y * 0.2;
-		if(jumpspeed > 16-dimensions.y){
-			jumpspeed = 16-dimensions.y;
-		}
-		if(0>jumpspeed){
-			this.velocity.y -= jumpspeed;
-		}
-		else if(jumpspeed>0){
-			this.velocity.y += jumpspeed;
-		}
+	public void checkToMap() {
+		int i, x1, x2, y1, y2;
+		i = (int) (dimensions.y > Constants.TILESIZE ? Constants.TILESIZE : dimensions.y);  
+		
+		// Test the horizontal movement first
+		
+		for (;;)
+	    {
+	        x1 = (int) ((position.x + velocity.x ) / Constants.TILESIZE);
+	        x2 = (int) ((position.x + velocity.x + dimensions.x - 1) / Constants.TILESIZE);
+	    
+	        y1 = (int) ((position.y) / Constants.TILESIZE);
+	        y2 = (int) ((position.y + dimensions.y - 1) / Constants.TILESIZE);
+	        
+	        System.out.println(x1 + " " + x2 + " " + y1 + " " + y2);
+	        
+	        if (x1 >= 0 && x2 < Constants.mediumMapDimesions.x && y1 >= 0 && y2 < Constants.mediumMapDimesions.y)
+	        {
+	            if (this.velocity.x > 0)
+	            {
+	                /* Trying to move right */
+	        
+	                if ((world.tileAt(y1,x2).isSolid()) || (world.tileAt(y2,x2).isSolid()))
+	                {
+	                    /* Place the player as close to the solid tile as possible */
+	        
+	                    position.x = x2 * Constants.TILESIZE;
+	                    
+	                    position.x -= dimensions.x + 1;
+	        
+	                    velocity.x = 0;
+	                }
+	            }
+	        
+	            else if (this.velocity.x < 0)
+	            {
+	                /* Trying to move left */
+	        
+	                if ((world.tileAt(y1,x1).isSolid()) || (world.tileAt(y2,x1).isSolid()))
+	                {
+	                    /* Place the player as close to the solid tile as possible */
+	                    
+	                    position.x = (x1 + 1) * Constants.TILESIZE;
+	        
+	                    velocity.x = 0;
+	                }
+	            }
+	        }
+	        
+	        if (i == dimensions.y)
+	        {
+	            break;
+	        }
+	        
+	        i += Constants.TILESIZE;
+	        
+	        if (i > dimensions.y)
+	        {
+	            i = (int) dimensions.y;
+	        }
+	    }
+		
+		/* Now test the vertical movement */
+	    
+	    i = (int) (dimensions.x > Constants.TILESIZE ? Constants.TILESIZE : dimensions.x);
+	    
+	    for (;;)
+	    {
+	        x1 = (int) ((position.x) / Constants.TILESIZE);
+	        x2 = (int) ((position.x + dimensions.x) / Constants.TILESIZE);
+	    
+	        y1 = (int) ((position.y + velocity.y) / Constants.TILESIZE);
+	        y2 = (int) ((position.y + velocity.y + dimensions.y) / Constants.TILESIZE);
+	        
+	        if (x1 >= 0 && x2 < Constants.mediumMapDimesions.x && y1 >= 0 && y2 < Constants.mediumMapDimesions.y)
+	        {
+	            if (velocity.y < 0)
+	            {
+	                /* Trying to move down */
+	                
+	                if ((world.tileAt(y1, x1).isSolid()) || (world.tileAt(y2, x2).isSolid()))
+	                {
+	                    /* Place the player as close to the solid tile as possible */
+	                    
+	                    position.y = y2 * Constants.TILESIZE;
+	                    position.y -= dimensions.y;
+	        
+	                    velocity.y = 0;
+	                    
+	                    jump = true;
+	                }
+	            }
+	        
+	            else if (velocity.y > 0)
+	            {
+	                /* Trying to move up */
+	        
+	                if ((world.tileAt(y1, x1).isSolid()) || (world.tileAt(y1, x2).isSolid()))
+	                {
+	                    /* Place the player as close to the solid tile as possible */
+	        
+	                    position.y = (y2 + 1) * Constants.TILESIZE;
+	        
+	                    velocity.y = 0;
+	                }
+	            }
+	        }
+	        
+	        if (i == dimensions.x)
+	        {
+	            break;
+	        }
+	        
+	        i += Constants.TILESIZE;
+	        
+	        if (i > dimensions.x)
+	        {
+	            i = (int) dimensions.x;
+	        }
+	    }
+
+	    /* Now apply the movement */
+
+	    position.x += velocity.x;
+	    position.y += velocity.y;
+	    
+	    if (position.x < 0)
+	    {
+	        position.x = 0;
+	    }
 	}
 	
 }
