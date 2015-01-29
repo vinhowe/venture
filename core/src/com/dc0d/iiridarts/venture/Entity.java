@@ -4,9 +4,9 @@
  * Written by Thomas Howe <thomas@dc0d.com>, January 2015
  */
 
-package com.dc0d.oxidearts.venture;
+package com.dc0d.iiridarts.venture;
 
-import com.dc0d.oxidearts.venture.physics.PhysicsBody;
+import com.dc0d.iiridarts.venture.physics.PhysicsBody;
 
 /**
  * Handler for sentient/dynamic things
@@ -23,6 +23,7 @@ public class Entity extends PhysicsBody {
 	boolean jump = false;
 	float jumpspeed;
 	float jumpstart = -18;
+	byte thinktime;
 	
 	public Entity(int width, int height) {
 		super(PhysicsBody.BodyType.DynamicBody, width, height); // All entities should be dynamic unless rocks count as living

@@ -4,11 +4,11 @@
  * Written by Thomas Howe <thomas@dc0d.com>, January 2015
  */
 
-package com.dc0d.oxidearts.venture.physics;
+package com.dc0d.iiridarts.venture.physics;
 
 import java.util.ArrayList;
 
-import com.dc0d.oxidearts.venture.Constants;
+import com.dc0d.iiridarts.venture.Constants;
 
 public class CollisionSolver {
 	

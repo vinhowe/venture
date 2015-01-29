@@ -4,7 +4,7 @@
  * Written by Thomas Howe <thomas@dc0d.com>, January 2015
  */
 
-package com.dc0d.oxidearts.venture;
+package com.dc0d.iiridarts.venture;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -12,9 +12,9 @@ import java.util.Random;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.dc0d.oxidearts.venture.handlers.Utilities;
-import com.dc0d.oxidearts.venture.physics.PhysicsBody;
-import com.dc0d.oxidearts.venture.tiles.Tile;
+import com.dc0d.iiridarts.venture.handlers.Utilities;
+import com.dc0d.iiridarts.venture.physics.PhysicsBody;
+import com.dc0d.iiridarts.venture.tiles.Tile;
 
 /**
  * The World class contains world information including tiles and entities.

@@ -5,7 +5,7 @@ import org.robovm.apple.uikit.UIApplication;
 
 import com.badlogic.gdx.backends.iosrobovm.IOSApplication;
 import com.badlogic.gdx.backends.iosrobovm.IOSApplicationConfiguration;
-import com.dc0d.oxidearts.venture.Game;
+import com.dc0d.iiridarts.venture.Game;
 
 public class IOSLauncher extends IOSApplication.Delegate {
     @Override

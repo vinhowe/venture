@@ -4,7 +4,7 @@
  * Written by Thomas Howe <thomas@dc0d.com>, January 2015
  */
 
-package com.dc0d.oxidearts.venture;
+package com.dc0d.iiridarts.venture;
 
 import java.util.ArrayList;
 
@@ -24,8 +24,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.dc0d.oxidearts.venture.handlers.Content;
-import com.dc0d.oxidearts.venture.physics.PhysicsEngine;
+import com.dc0d.iiridarts.venture.handlers.Content;
+import com.dc0d.iiridarts.venture.physics.PhysicsEngine;
 
 public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	
@@ -178,7 +178,6 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 			return;
 		}
 		oddFrame = false;
-		sprites = new ArrayList<Sprite>(500);
 		
 		Vector2 startingTile = new Vector2((int)(camera.position.x-camera.viewportWidth)/16,
 				(int)(camera.position.y-camera.viewportHeight)/16);

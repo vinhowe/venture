@@ -4,7 +4,7 @@
  * Written by Thomas Howe <thomas@dc0d.com>, January 2015
  */
 
-package com.dc0d.oxidearts.venture.handlers;
+package com.dc0d.iiridarts.venture.handlers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.dc0d.oxidearts.venture.Constants;
+import com.dc0d.iiridarts.venture.Constants;
 
 /**
  * Contains HashMaps for game resources.

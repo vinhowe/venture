@@ -4,7 +4,7 @@
  * Written by Thomas Howe <thomas@dc0d.com>, January 2015
  */
 
-package com.dc0d.oxidearts.venture;
+package com.dc0d.iiridarts.venture;
 
 public class Chunk {
 

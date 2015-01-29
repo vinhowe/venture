@@ -4,7 +4,7 @@
  * Written by Thomas Howe <thomas@dc0d.com>, January 2015
  */
 
-package com.dc0d.oxidearts.venture;
+package com.dc0d.iiridarts.venture;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -54,6 +54,8 @@ public class Player extends Entity {
 	
 	public void updatePlayer(float delta){
 		
+		
+		
 		float timestep = 0.4f;
 		
 		float gx = Constants.GRAVITY_X * (timestep);
@@ -84,8 +86,8 @@ public class Player extends Entity {
 	     //   }
         //} else {
         	jump = false;
-			velocity.x = (float) (MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity) * 0.95);
-	        velocity.y = MathUtils.clamp(velocity.y + Constants.GRAVITY_Y * (timestep), -maxVelocity, maxVelocity);
+		velocity.x = (float) (MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity) * 0.95);
+        velocity.y = MathUtils.clamp(velocity.y + Constants.GRAVITY_Y * (timestep), -maxVelocity, maxVelocity);
         //}
         position.x = MathUtils.clamp(position.x + (velocity.x * (timestep)), world.game.camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*16)-Constants.WORLDEDGEMARGIN);
         position.y = MathUtils.clamp(position.y + (velocity.y * (timestep)), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*16)-(world.game.camera.viewportHeight)-Constants.WORLDEDGEMARGIN);
@@ -131,7 +133,7 @@ public class Player extends Entity {
 	        x2 = (int) ((position.x + velocity.x + dimensions.x - 1) / Constants.TILESIZE);
 	    
 	        y1 = (int) ((position.y) / Constants.TILESIZE);
-	        y2 = (int) ((position.y + dimensions.y - 1) / Constants.TILESIZE);
+	        y2 = (int) ((position.y + velocity.y + dimensions.y - 1) / Constants.TILESIZE);
 	        
 	        System.out.println(x1 + " " + x2 + " " + y1 + " " + y2);
 	        
@@ -199,16 +201,18 @@ public class Player extends Entity {
 	            {
 	                /* Trying to move down */
 	                
-	                if ((world.tileAt(y1, x1).isSolid()) || (world.tileAt(y2, x2).isSolid()))
+	                if ((world.tileAt(y1, x1).isSolid()) || (world.tileAt(y1, x2).isSolid()))
 	                {
 	                    /* Place the player as close to the solid tile as possible */
 	                    
-	                    position.y = y2 * Constants.TILESIZE;
-	                    position.y -= dimensions.y;
+	                    position.y = (y2 + 1) * Constants.TILESIZE;
+	                    position.x -= dimensions.y + 1;
 	        
 	                    velocity.y = 0;
 	                    
-	                    jump = true;
+	                   // jump = true;
+	                    
+	                    System.out.println("down");
 	                }
 	            }
 	        
@@ -216,13 +220,14 @@ public class Player extends Entity {
 	            {
 	                /* Trying to move up */
 	        
-	                if ((world.tileAt(y1, x1).isSolid()) || (world.tileAt(y1, x2).isSolid()))
+	                if ((world.tileAt(y2, x1).isSolid()) || (world.tileAt(y2, x2).isSolid()))
 	                {
 	                    /* Place the player as close to the solid tile as possible */
 	        
-	                    position.y = (y2 + 1) * Constants.TILESIZE;
+	                    position.y = position.y = y2 * Constants.TILESIZE;
 	        
 	                    velocity.y = 0;
+	                    System.out.println("up");
 	                }
 	            }
 	        }
