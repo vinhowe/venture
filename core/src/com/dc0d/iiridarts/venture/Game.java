@@ -7,6 +7,9 @@
 package com.dc0d.iiridarts.venture;
 
 import java.util.ArrayList;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -55,6 +58,11 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	Vector2 touchPos = new Vector2(0,0);
 	boolean touch = false;
 	boolean rightclick = false;
+	//TODO Turn off debug mode
+	boolean debug = true;
+	public Logger logger = Logger.getLogger("Venture");
+    ConsoleHandler handler = new ConsoleHandler();
+	double frame = 0;
     
     //TODO Set up backgrounds
     
@@ -80,6 +88,12 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
         viewport = new ScreenViewport(camera);
         player = new Player(world);
         Gdx.input.setInputProcessor(new GameInput());
+        if(debug){
+        logger.setLevel(Level.ALL);
+        handler.setLevel(Level.ALL);
+        logger.addHandler(handler);
+        logger.setUseParentHandlers(false);
+        }
 	}
 
 	
@@ -104,10 +118,11 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		update(Gdx.graphics.getDeltaTime());
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if(touch){
-        	world.tileAt((int)camera.unproject(new Vector3(touchPos,0)).x/16,(int) camera.unproject(new Vector3(touchPos,0)).y/16).setType((short)((rightclick == true) ? 0 : 1));
+		logger.finer("delta on frame " + frame + " : "+ Gdx.graphics.getDeltaTime());
+        if(debug && touch){
+        	world.tileAt((int)camera.unproject(new Vector3(touchPos,0)).x/16,(int) camera.unproject(new Vector3(touchPos,0)).y/16).setType((short)((rightclick == true) ? 1 : 0));
         }
-        if(movingx){
+        if(movingx && debug){
             if(directionx)
             {
             	player.velocity.x += 2.5;
@@ -126,12 +141,12 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
             	bg3pos.x += Gdx.graphics.getDeltaTime() * 10;
             }
         }
-        if(movingy){
+        if(movingy && debug){
             if (directiony)
             {
-            	//if(player.jump){
+            	if(player.jump){
             	player.applyImpulse(0,10);
-            	//}
+            	}
             	//camera.position.y = Math.min(camera.position.y + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.y*16)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.y -= Gdx.graphics.getDeltaTime() * 5;
             	bg2pos.y -= Gdx.graphics.getDeltaTime() * 7.5;
@@ -172,12 +187,15 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 	 */
 	
 	public void update(float delta){
+		frame++;
 		//world.update((int) (camera.position.x-(camera.viewportWidth/2)),(int) (camera.position.y-(camera.viewportHeight/2)),(int)camera.viewportWidth,(int) camera.viewportHeight);
 		if(!oddFrame){
 			oddFrame = true;
 			return;
 		}
 		oddFrame = false;
+		
+		sprites.clear();
 		
 		Vector2 startingTile = new Vector2((int)(camera.position.x-camera.viewportWidth)/16,
 				(int)(camera.position.y-camera.viewportHeight)/16);
@@ -187,7 +205,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		
 		for(int x = (int) startingTile.x; x <= lastTile.x; x++){
 			for(int y = (int) startingTile.y; y <= lastTile.y; y++)
-		        		if(world.tileAt(x, y).getType()>0){
+		        		if(world.tileAt(x, y).isSolid()){
 			        	world.updateTile(x,y);
 		        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(world.tileAt(x,y).getType()),world.tileTexX(x, y)*9,world.tileTexY(x, y)*9,8,8));
 		        		sprite.setPosition(x*16,y*16);
@@ -313,6 +331,7 @@ public class Game extends com.badlogic.gdx.Game implements ApplicationListener{
 		@Override
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
 			touchPos.set(screenX, screenY);
+			touch = true;
 			return false;
 		}
 

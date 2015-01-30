@@ -23,7 +23,7 @@ public class Entity extends PhysicsBody {
 	boolean jump = false;
 	float jumpspeed;
 	float jumpstart = -18;
-	byte thinktime;
+	byte thinkTime = 0;
 	
 	public Entity(int width, int height) {
 		super(PhysicsBody.BodyType.DynamicBody, width, height); // All entities should be dynamic unless rocks count as living
