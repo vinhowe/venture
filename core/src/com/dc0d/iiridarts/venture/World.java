@@ -26,10 +26,10 @@ public class World {
 	ArrayList<ArrayList<Tile>> tiles;
 	private String name;
 	private final byte type;
-	Game game;
+	Venture venture;
 	
-	public World(String name, byte type, Game game){
-		this.game = game;
+	public World(String name, byte type, Venture venture){
+		this.venture = venture;
 		this.setName(name);
 		this.type = type;
 		tiles = new ArrayList<ArrayList<Tile>>();
@@ -96,7 +96,15 @@ public class World {
 		 }
 		 
 		 for(int x = 0; x < (int)Constants.mediumMapDimesions.x; x++){
-			 for(int y = 500; y < Constants.mediumMapDimesions.y; y++){
+			 for(int y = 500; y < Constants.mediumMapDimesions.y-250; y++){
+				 tiles.get(x).add(y, new Tile((short)/*new Random().nextInt(2)*/0,(byte)0,(byte)new Random().nextInt(5),(byte)new Random().nextInt(5)));
+				 tiles.get(x).get(y).setRandom(Utilities.randInt(0, 2));
+				 tiles.get(x).get(y);
+			 }
+		 }
+		 
+		 for(int x = 0; x < (int)Constants.mediumMapDimesions.x; x++){
+			 for(int y = 750; y < Constants.mediumMapDimesions.y; y++){
 				 tiles.get(x).add(y, new Tile((short)/*new Random().nextInt(2)*/0,(byte)0,(byte)new Random().nextInt(5),(byte)new Random().nextInt(5)));
 				 tiles.get(x).get(y).setRandom(Utilities.randInt(0, 2));
 				 tiles.get(x).get(y);

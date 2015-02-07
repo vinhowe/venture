@@ -18,7 +18,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.dc0d.iiridarts.venture.Constants;
 
 /**
- * Contains HashMaps for game resources.
+ * Contains HashMaps for venture resources.
  */
 public class Content {
 	
@@ -100,7 +100,7 @@ public class Content {
 	 */
 	
 	public void loadTileTextures() {
-		for (int i = 1; i <= Constants.TILES; i++){
+		for (int i = 1; i <= Constants.TILETYPES; i++){
 		Texture tex = new Texture(Gdx.files.internal(Constants.TILEDIR+"/tile_"+i+".png"));
 		tiletextures.add(tex);
 		}

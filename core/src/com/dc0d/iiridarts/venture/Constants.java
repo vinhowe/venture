@@ -12,12 +12,19 @@ public interface Constants {
 	public static final float GRAVITY_X = 0f;
 	public static final float GRAVITY_Y = -9.807f;
 	public static final double STICKY_THRESHOLD = .0004;
-	public static final int TILES = 1;
+	
+	public static final int TILETYPES = 1;
+	public static final int TILESIZE = 24;
+	public static final int WORLDEDGEMARGIN = 25*TILESIZE;
+	public static final int NETWORKTIMEOUT = 5000;
+	
 	public static final String ASSETSDIR = "assets";
 	public static final String IMAGEDIR = ASSETSDIR+"/images";
 	public static final String TILEDIR = IMAGEDIR+"/tiles";
+	
 	public static final Vector2 mediumMapDimesions = new Vector2(800,800);
 	public static final Vector2 chunkSize = new Vector2(128,128);
-	public static final int TILESIZE = 16;
-	public static final int WORLDEDGEMARGIN = 25*TILESIZE;
+	
+	public static boolean DEBUG = true;
+	public static boolean SERVER = false;
 }

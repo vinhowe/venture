@@ -40,37 +40,12 @@ project(":desktop") {
         compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+		compile "org.springframework:spring-context:4.1.4.RELEASE"
+		compile 'com.esotericsoftware:kryonet:2.22.0-RC1'
     }
 }
 
-project(":android") {
-    apply plugin: "android"
 
-    configurations { natives }
-
-    dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
-        compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86"
-        compile "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
-        natives "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-armeabi"
-        natives "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-x86"
-        compile "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
-        compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
-        compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-        natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi"
-        natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
-        compile "com.badlogicgames.ashley:ashley:$ashleyVersion"
-    }
-}
 
 project(":ios") {
     apply plugin: "java"
@@ -87,6 +62,8 @@ project(":ios") {
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-ios"
         natives "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-ios"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-ios"
+		compile 'org.springframework:spring-context:4.1.4.RELEASE'
+		compile 'com.esotericsoftware:kryonet:2.22.0-RC1'
     }
 }
 
@@ -102,6 +79,8 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
         compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         compile "com.badlogicgames.ashley:ashley:$ashleyVersion"
+		compile 'org.springframework:spring-context:4.1.4.RELEASE'
+		compile 'com.esotericsoftware:kryonet:2.22.0-RC1'
     }
 }
 

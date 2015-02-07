@@ -45,6 +45,14 @@ public class PhysicsBody {
 	
 	public float mass = 0.1F;
 	
+	//Object forces
+	
+	public ArrayList<Vector2> forces;
+	
+	//Combined object force
+	
+	public Vector2 force;
+	
 	public PhysicsBody(BodyType bodyType, int width, int height){
 		this.bodyType = bodyType;
 		
@@ -58,7 +66,8 @@ public class PhysicsBody {
 		
 		this.halfDimensions.x = this.dimensions.x / 2;
 		this.halfDimensions.y = this.dimensions.y / 2;
-		
+		forces = new ArrayList<Vector2>();
+		force = new Vector2();
 	}
 	
 	/**
@@ -122,11 +131,11 @@ public class PhysicsBody {
 	}
 	
 	public float getMidX(){
-		return this.halfDimensions.x + this.position.x;
+		return (this.dimensions.x/2) + this.position.x;
 	}
 	
 	public float getMidY(){
-		return this.halfDimensions.y + this.position.y;
+		return (this.dimensions.y/2) + this.position.y;
 	}
 	
 	public void updateBounds(){
@@ -149,11 +158,11 @@ public class PhysicsBody {
 	}
 	
 	public void applyImpulse(Vector2 force){
-		applyImpulse(force.x, force.y);
+		forces.add(force);
 	}
 	
 	public void applyImpulse(float forceX, float forceY){
-	    velocity.add(forceX, forceY);
+	    forces.add(new Vector2(forceX, forceY));
 	}
 }
 

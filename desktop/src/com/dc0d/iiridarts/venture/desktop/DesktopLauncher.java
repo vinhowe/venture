@@ -9,6 +9,7 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "Project Venture";
 		config.vSyncEnabled = true;
-		new LwjglApplication(new Game(), config);
+		new LwjglApplication(new Venture(), config);
+		//new LwjglApplication(new Networking(), config);
 	}
 }

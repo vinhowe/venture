@@ -13,6 +13,8 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class Utilities {
 
+	  private final Random rnd = new Random();
+	
 	/**
 	 * Returns a pseudo-random number between min and max, inclusive.
 	 * The difference between min and max can be at most
@@ -47,10 +49,24 @@ public class Utilities {
 		return region;
 	}
 	
-	  int lerp(int start, int end, float t)
-	  {
-	    t = MathUtils.clamp(t, 0, 1); // prevent our interpolations from over-shooting
-	    return (int) (start + (end - start) * t);
-	  }
+	public static int lerp(int start, int end, float t)
+	{
+		t = MathUtils.clamp(t, 0, 1);
+		return (int) (start + (end - start) * t);
+	}
 	
+	/**
+	 * Returns true if n is positive and false if it is not
+	 * @param n
+	 * @return
+	 */
+	public static boolean isPositive(float n){
+		if(n > 0){
+			return true;
+		} else if (n < 0){
+			return false;
+		} else {
+			return true;
+		}
+	}
 }

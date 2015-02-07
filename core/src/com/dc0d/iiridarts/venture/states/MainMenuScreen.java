@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-//import com.dc0d.iiridarts.venture.Game;
+//import com.dc0d.iiridarts.venture.Venture;
 
 public class MainMenuScreen implements Screen {
 	
@@ -19,12 +19,12 @@ public class MainMenuScreen implements Screen {
     private Texture texture;
     private Sprite sprite;
 	
-	//final Game game;
+	//final Venture venture;
 	
 	OrthographicCamera camera;
 	
-	public MainMenuScreen(/*final Game game*/){
-		//game = game;
+	public MainMenuScreen(/*final Venture venture*/){
+		//venture = venture;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
 	}
