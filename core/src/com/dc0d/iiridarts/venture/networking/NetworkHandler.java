@@ -9,13 +9,13 @@ import com.dc0d.iiridarts.venture.World;
 public class NetworkHandler {
 	Venture venture;
 	World world;
-	KryoNetClient client;
+	ClientNetworkHandler client;
 	KryoNetServer server;
 	GameRequest request;
 	
 	public NetworkHandler(Venture venture, World world) {
 		this.venture = venture;
-		client = new KryoNetClient(this);
+		client = new ClientNetworkHandler(this);
 		server = new KryoNetServer(this);
 		request = new GameRequest();
 	}

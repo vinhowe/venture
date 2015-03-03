@@ -6,6 +6,8 @@
 
 package com.dc0d.iiridarts.venture;
 
+import com.badlogic.gdx.math.Vector2;
+import com.dc0d.iiridarts.venture.handlers.RandomString;
 import com.dc0d.iiridarts.venture.physics.PhysicsBody;
 
 /**
@@ -18,21 +20,26 @@ public class Entity extends PhysicsBody {
 	
 	short type;
 	boolean isDead = false; //We dispose of dead things. Sorry.
-	int health; // We use an int so we can bit shift and find special debuffs.
-	int jumpHeight = 5; //Default jump height
-	boolean jump = false;
-	float jumpspeed;
-	float jumpstart = -18;
-	byte thinkTime = 0;
+	int health; // We use an integer so we can bit shift and find special debuffs.
+	boolean jump = false; //Is our entity on the ground and able to jump?
 	boolean canFly = false;
 	boolean hdir = false;
 	byte vdir = 1;
 	boolean run = false;
 	boolean walk = false;
+	boolean canWalk = false;
+	public boolean isRemote;
+	public String id;
 	
+	public Vector2 bodyforce;
 	
-	public Entity(int width, int height) {
+	public Entity(int width, int height, boolean isRemote) {
 		super(PhysicsBody.BodyType.DynamicBody, width, height); // All entities should be dynamic unless rocks count as living
+		this.isRemote = isRemote;
+		RandomString rndString = new RandomString(10);
+		id = rndString.nextString();
+		System.out.println(id);
+		bodyforce = new Vector2();
 		//TODO Work on entity stuff
 	}
 

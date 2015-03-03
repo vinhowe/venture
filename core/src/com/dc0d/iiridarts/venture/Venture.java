@@ -1,7 +1,7 @@
 /* Copyright (C) Thomas Howe - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
- * Written by Thomas Howe <thomas@dc0d.com>, January 2015
+ * Written by Thomas Howe <thomas@dc0d.com>, January - March 2015
  */
 
 package com.dc0d.iiridarts.venture;
@@ -30,14 +30,17 @@ import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.dc0d.iiridarts.venture.handlers.Content;
-import com.dc0d.iiridarts.venture.networking.KryoNetClient;
+import com.dc0d.iiridarts.venture.networking.EntityUpdatePacket;
+import com.dc0d.iiridarts.venture.networking.ClientNetworkHandler;
 import com.dc0d.iiridarts.venture.networking.NetworkHandler;
-import com.dc0d.iiridarts.venture.physics.PhysicsEngine;
+import com.dc0d.iiridarts.venture.networking.UpdatePacket;
 
 public class Venture extends com.badlogic.gdx.Game implements ApplicationListener{
 	
 	public Player player;
+	public HashMap<String, Entity> entities;
 	public HashMap<String, Player> players;
+	public HashMap<String, EntityUpdatePacket> entityUpdatePackets;
     private SpriteBatch batch;
     private World world;
     private SpriteBatch bgbatch;
@@ -59,7 +62,6 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 	Vector2 bg1pos;
 	Vector2 bg2pos;
 	Vector2 bg3pos;
-	PhysicsEngine physicsEngine;
 	//TODO Remove touchPos and touch variables. These exist for testing
 	Vector2 touchPos;
 	boolean touch;
@@ -75,8 +77,8 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 	NetworkHandler networker;
 	boolean gravity;
 	int playerFrame;
+	int motionBlurCounter;
 	
-    
     //TODO Set up backgrounds
     
 	@Override
@@ -103,7 +105,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         camera.update();
         zoom = 1F;
         viewport = new ScreenViewport(camera);
-        player = new Player(world, false, 400*Constants.TILESIZE, 501*Constants.TILESIZE);
+        player = new Player(world, false, 400*Constants.TILESIZE, 501*Constants.TILESIZE, true);
         Gdx.input.setInputProcessor(new GameInput());
         logger = Logger.getLogger("Venture");
         handler = new ConsoleHandler();
@@ -115,7 +117,6 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
     	bg1pos = new Vector2(0,0);
     	bg2pos = new Vector2(0,0);
     	bg3pos = new Vector2(0,0);
-    	physicsEngine = new PhysicsEngine();
     	loop = true;
         if(debug){
         logger.setLevel(Level.ALL);
@@ -128,19 +129,22 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         networker = new NetworkHandler(this, world);
         gravity = true;
         players = new HashMap<String, Player>();
+        entities = new HashMap<String, Entity>();
+        entityUpdatePackets = new HashMap<String, EntityUpdatePacket>();
         players.put(player.name, player);
+        motionBlurCounter = 0;
         if(Constants.SERVER){
         	try {
 				networker.initServer(5557);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				// TODO Make server do crap if it messes up
 				e.printStackTrace();
 			}
         } else {
 	        try {
 				networker.initClient(5557);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				// TODO Make client do crap if it messes up
 				e.printStackTrace();
 			}
         }
@@ -171,8 +175,14 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		if(loop){
 		update(Gdx.graphics.getDeltaTime());
 		}
-        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		if(!oddFrame)
+		{
+	        Gdx.gl.glClearColor(0.0f, 0.65f, 0.90f, 0.25f);
+	        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		} else {
+			Gdx.gl.glClearColor(0.0f, 0.65f, 0.90f, 1f);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		}
 		//logger.finer("delta on frame " + frame + " : "+ Gdx.graphics.getDeltaTime());
         if(debug && touch){
         	world.tileAt((int)camera.unproject(new Vector3(touchPos,0)).x/Constants.TILESIZE,(int) camera.unproject(new Vector3(touchPos,0)).y/Constants.TILESIZE).setType((short)((rightclick == true) ? 1 : 0));
@@ -180,8 +190,16 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         if(movingx && debug){
             if(directionx)
             {
-            	player.velocity.x = 0.75f;
+            	if(player.jump)
+            	{
+            		player.bodyforce.x = 0.75f;
+            	} else {
+            		player.bodyforce.x = 0.50f;
+            	}
+            	if(player.canWalk)
+            	{
             	player.walk = true;
+            	}
             	player.hdir = false;
             	//player.applyImpulse(2f*Constants.TILESIZE, 0);
             	//camera.position.x = Math.min(camera.position.x + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
@@ -191,8 +209,16 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         	}
             else
             {
-            	player.velocity.x = -0.75f;
+            	if(player.jump)
+            	{
+            		player.bodyforce.x = -0.75f;
+            	} else {
+            		player.bodyforce.x = -0.50f;
+            	}
+            	if(player.canWalk)
+            	{
             	player.walk = true;
+            	}
             	player.hdir = true;
             	//camera.position.x = Math.max(camera.position.x - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN);
             	bg1pos.x = camera.position.x / 60;
@@ -203,8 +229,14 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         if(movingy && debug){
             if (directiony)
             {
-            	if(player.jump || player.canFly){
-            		player.velocity.y += 60;
+            	if(player.jump && player.jumping){
+            		player.velocity.y += 45;
+            		player.jumping = false;
+            	}
+            	
+            	if(player.canFly)
+            	{
+            		player.velocity.y = Math.max(45, player.velocity.y);
             	}
             	//camera.position.y = Math.min(camera.position.y + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
             	bg1pos.y -= Gdx.graphics.getDeltaTime() * 5;
@@ -254,8 +286,12 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		if (playerFrame == 5) {
 			playerFrame = 0;
 			entitySprites.clear();
-			for(String key : players.keySet()){
-			entitySprites.add(players.get(key).sprite);
+			for(String key : entities.keySet()){
+				entitySprites.add(players.get(key).sprite);
+				if(players.get(key).isRemote){
+					players.get(key).remoteUpdatePlayer(entityUpdatePackets.get(players.get(key).id));
+					players.get(key).sprite.setPosition(players.get(key).getPosition().x, players.get(key).getPosition().y);
+				}
 			}
 		}
 		player.updatePlayer(0.25f);
@@ -347,6 +383,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 	        case Keys.UP:
 	            movingy = true;
 	            directiony = true;
+	            player.jumping = true;
 	            break;
 	        case Keys.RIGHT:
 	        	movingx = true;

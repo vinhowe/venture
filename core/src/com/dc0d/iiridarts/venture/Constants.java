@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public interface Constants {
 	public static final float GRAVITY_X = 0f;
-	public static final float GRAVITY_Y = -9.807f;
+	public static final float GRAVITY_Y = -5.5f;
 	public static final double STICKY_THRESHOLD = .0004;
 	
 	public static final int TILETYPES = 1;

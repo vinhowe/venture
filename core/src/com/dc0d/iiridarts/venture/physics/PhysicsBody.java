@@ -6,7 +6,6 @@
 
 package com.dc0d.iiridarts.venture.physics;
 
-import java.awt.Color;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.math.Vector2;

@@ -1,24 +1,32 @@
 package com.dc0d.iiridarts.venture.networking;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 
-import com.badlogic.gdx.math.Vector2;
-import com.dc0d.iiridarts.venture.Player;
+import com.dc0d.iiridarts.venture.Constants;
+import com.dc0d.iiridarts.venture.ServerWorld;
+import com.dc0d.iiridarts.venture.Venture;
+import com.dc0d.iiridarts.venture.VentureServer;
+import com.dc0d.iiridarts.venture.World;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 
-public class KryoNetServer {
-	
+public class ServerHandler {
+	VentureServer ventureServer;
+	ServerWorld world;
+	ServerHandler client;
 	Server server;
-	NetworkHandler handler;
+	GameRequest request;
 	
-	public KryoNetServer(NetworkHandler handler)	{
+	public ServerHandler(VentureServer venture, ServerWorld world) {
+		this.ventureServer = venture;
 		server = new Server();
-		this.handler = handler;
+		request = new GameRequest();
+	}
+	
+	public void initServer(int port) throws IOException {
+		initAndBind(port);
 	}
 	
 	public void initAndBind(int port) throws IOException {
@@ -40,7 +48,7 @@ public class KryoNetServer {
 	        	   GameConnectionRequest request = (GameConnectionRequest)object;
 	        	   GameConnectionResponse response = new GameConnectionResponse();
 	              if (request.password.equalsIgnoreCase("bofolo37*")){
-		              response.entityUpdates = handler.venture.entityUpdatePackets;
+		              response.entityUpdates = ventureServer.entityUpdatePackets;
 		              response.response = "ready for handshake";
 		              connection.sendUDP(response);
 	              } else {
@@ -53,8 +61,8 @@ public class KryoNetServer {
 	        	   GameRequest request = (GameRequest)object;
 	        	   if (request.request.equals("update")) {
 	        		  GameResponse response = new GameResponse();
-		              response.entityUpdates = handler.venture.entityUpdatePackets;
-		              handler.venture.players.put(request.player.id, request.player);
+		              response.entityUpdates = ventureServer.entityUpdatePackets;
+		              ventureServer.players.put(request.player.id, request.player);
 		              connection.sendUDP(response);
 	        	   }
 	           }
@@ -62,7 +70,7 @@ public class KryoNetServer {
             	  GameRequest request = (GameRequest)object;
 	              if (request.request.equals("update")) {
 		              GameResponse response = new GameResponse();
-		              response.entityUpdates = handler.venture.entityUpdatePackets;
+		              response.entityUpdates = ventureServer.entityUpdatePackets;
 		              connection.sendUDP(response);
 	              }
 	              /*
@@ -74,28 +82,4 @@ public class KryoNetServer {
 	     });
 	}
 	
-	
-	
-	public void closeServer() {
-		server.close();
-	}
-}
-
-class GameConnectionRequest {
-   public int type;
-   public String password;
-   public Player player;
-}
-class GameConnectionResponse {
-   public String response;
-   public HashMap<String, EntityUpdatePacket> entityUpdates;
-}
-
-class GameRequest {
-   public String request;
-   public Player player;
-}
-class GameResponse {
-   public String response;
-   public HashMap<String, EntityUpdatePacket> entityUpdates;
 }

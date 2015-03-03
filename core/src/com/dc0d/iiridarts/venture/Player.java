@@ -6,8 +6,6 @@
 
 package com.dc0d.iiridarts.venture;
 
-import java.io.Serializable;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -16,13 +14,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.handlers.RandomString;
+import com.dc0d.iiridarts.venture.networking.EntityUpdatePacket;
 
 /**
  * Holds information for player
  * @author Thomas Howe
  *
  */
-public class Player extends Entity implements Serializable {
+public class Player extends Entity {
 	
     private static final int        FRAME_COLS = 4;
 	
@@ -32,12 +31,14 @@ public class Player extends Entity implements Serializable {
     Texture                         animationSheet;
     TextureRegion[]                 animationFrames;
     TextureRegion                   currentFrame;
-    public String name;
     
     float stateTime;
+    public String name;
+    
+    boolean jumping = false;
 	
-	public Player(World world, boolean canFly, int x, int y) {
-		super((int)(16*1.5), (int)(24*1.5));
+	public Player(World world, boolean canFly, int x, int y, boolean isRemote) {
+		super((int)(16*1.5), (int)(24*1.5), isRemote);
 		sprite = new Sprite();
 		sprite.setSize(this.dimensions.x, this.dimensions.y);
 		//TODO Work on Player stuff
@@ -57,13 +58,39 @@ public class Player extends Entity implements Serializable {
 		stateTime += Gdx.graphics.getDeltaTime();
 		currentFrame = animation.getKeyFrame(stateTime, true);
 		canFly = false;
-		sprite.setScale(2f);
-		RandomString rndString = new RandomString(5);
-		name = rndString.nextString();
-		System.out.println(name);
+		sprite.setScale(2);
 	}
 	
+	//public Player(PlayerJoinPacket packet) {
+		
+	//}
+	
 	public void updatePlayer(float timestep){
+        
+        //System.out.println(velocity.x);
+        
+        for(int i = 0; i <= 5; i++) doPhysics(timestep/5);
+		if(jump)
+		{
+			bodyforce.x = (float) Math.max(bodyforce.x - 0.1, 0);
+		} else {
+			//
+		}
+		
+		stateTime += Gdx.graphics.getDeltaTime();
+        
+		if(walk){
+        	currentFrame = animation.getKeyFrame(stateTime, true);
+        }
+        sprite.setRegion(currentFrame);
+        
+        sprite.flip(hdir, false);
+		
+        walk = false;
+        
+	}
+	
+	public void remoteUpdatePlayer(EntityUpdatePacket update){
         
         stateTime += Gdx.graphics.getDeltaTime();
         if(walk){
@@ -74,11 +101,16 @@ public class Player extends Entity implements Serializable {
         sprite.flip(hdir, false);
         
         //System.out.println(velocity.x);
-        
-        for(int i = 0; i <= 5; i++) doPhysics(timestep/5);
-        walk = false;
+        position = update.pos;
+        velocity = update.velocity;
+       // for(int i = 0; i <= 5; i++) doPhysics(timestep/5);
+        //walk = false;
         
 	}
+	
+	//public EntityUpdatePacket makeEntityUpdatePacket() {
+	//	return new EntityUpdatePacket(position, velocity, stateTime, id);
+	//}
 	
 	public void movePlayer(){
 		//position.x
@@ -102,22 +134,27 @@ public class Player extends Entity implements Serializable {
 		
 		velocity.y = MathUtils.clamp(velocity.y + (this.world.venture.gravity ? Constants.GRAVITY_Y : 0) * (timestep), -maxVelocity, maxVelocity);
 		if(world.venture.physics){
-    	
     	{
     		//Moving Left
-	        if (velocity.x < 0){
+	        if (velocity.x < 0 || bodyforce.x < 0){
 	        	while(world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()/Constants.TILESIZE)+1).isSolid() || world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getTop()/Constants.TILESIZE)-1).isSolid()){
 	        		position.x += (int)(getLeft())-getLeft()+1;
 	        		velocity.x = 0;
+	        		bodyforce.x = 0;
 	        		jump = true;
+	        		walk = false;
 	        	}
         	//Moving Right
-	        } else if (velocity.x > 0){
+	        } else if (velocity.x > 0 || bodyforce.x > 0){
 	        	while(world.tileAt((int)(getRight()/Constants.TILESIZE), (int)(getBottom()/Constants.TILESIZE)+1).isSolid() || world.tileAt((int)(getRight()/Constants.TILESIZE), (int)(getTop()/Constants.TILESIZE)-1).isSolid()){
 	        		position.x -= (int)(getRight())-getRight()+1;
 	        		velocity.x = 0;
+	        		bodyforce.x = 0;
 	        		jump = true;
+	        		walk = false;
 	        	}
+	        } else {
+	        	canWalk = true;
 	        }
     	}
         
@@ -164,13 +201,11 @@ public class Player extends Entity implements Serializable {
     	} else if (position.y == Constants.WORLDEDGEMARGIN){
     		velocity.y = MathUtils.clamp(velocity.y, 0, maxVelocity) * drag;	
     	}
-    	position.x = MathUtils.clamp((position.x + (velocity.x )), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.x);
-        position.y = MathUtils.clamp((position.y + (velocity.y * (timestep))), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.y);
+    	position.x = MathUtils.clamp((position.x + (velocity.x) + bodyforce.x), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.x);
+        position.y = MathUtils.clamp((position.y + (velocity.y * (timestep)) + bodyforce.y), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.y);
 		} else { 
-	    	position.x = MathUtils.clamp((position.x + (velocity.x * (timestep))), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.x);
-	        position.y = MathUtils.clamp((position.y + (velocity.y * (timestep))), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.y);
+	    	position.x = MathUtils.clamp((position.x + (velocity.x) + bodyforce.x), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.x);
+	        position.y = MathUtils.clamp((position.y + (velocity.y * (timestep)) + bodyforce.y), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.y);
 		}
-		forces.clear();
 	}
-	
 }

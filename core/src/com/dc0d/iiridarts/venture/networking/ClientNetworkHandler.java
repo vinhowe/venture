@@ -7,12 +7,12 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
-public class KryoNetClient {
+public class ClientNetworkHandler {
 	
 	Client client;
 	NetworkHandler handler;
 	
-	public KryoNetClient(NetworkHandler handler)	{
+	public ClientNetworkHandler(NetworkHandler handler)	{
 		client = new Client();
 		this.handler = handler;
 	}
@@ -33,8 +33,6 @@ public class KryoNetClient {
 	    kryo.register(GameRequest.class);
 	    kryo.register(GameResponse.class);
 	    kryo.register(java.util.HashMap.class);
-	    kryo.register(com.badlogic.gdx.math.Vector2.class);
-	    kryo.register(com.badlogic.gdx.graphics.g2d.TextureRegion[].class);
 		attemptHandshake("bofolo37*");
 	    client.addListener(new Listener() {
 	        public void received (Connection connection, Object object) {
@@ -45,8 +43,9 @@ public class KryoNetClient {
 		        	  request.player = handler.venture.player;
 		        	  request.request = "update";
 		        	  connection.sendUDP(request);
-		        	  for(int p = 0; p <= response.players.size(); p++){
-		        		  handler.venture.players.put(response.players.get(p).name, response.players.get(p));
+		        	  for(int p = 0; p <= response.entityUpdates.size(); p++){
+		        		  response.entityUpdates.get(p).isRemote = true;
+		        		  //handler.venture.players.put(response.entityUpdates.get(p).id, response.entityUpdates.get(p));
 		        	  }
 		        	  
 		        	  client.sendUDP(request);

@@ -10,6 +10,12 @@ import java.util.ArrayList;
 
 import com.dc0d.iiridarts.venture.Constants;
 
+/**
+ * Written
+ *  * @author Thomas
+ *
+ */
+
 public class CollisionSolver {
 	
 	public static ArrayList<PhysicsBody> detectCollisions(PhysicsBody dynamicEntity, ArrayList<PhysicsBody> collidables){

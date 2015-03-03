@@ -10,6 +10,13 @@ import java.util.ArrayList;
 
 import com.dc0d.iiridarts.venture.Constants;
 
+/**
+ * Old physics engine exploration. Used for physics reference
+ * @deprecated
+ * @author Thomas
+ *
+ */
+
 public class PhysicsEngine {
 	
     float gx;
