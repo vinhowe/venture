@@ -68,8 +68,11 @@ public class Player extends Entity {
 	public void updatePlayer(float timestep){
         
         //System.out.println(velocity.x);
-        
-        for(int i = 0; i <= 5; i++) doPhysics(timestep/5);
+        if(world.venture.sloMo){
+        for(int i = 0; i <= 5; i++) doPhysics(timestep/10);
+        } else {
+            for(int i = 0; i <= 5; i++) doPhysics(timestep/5);
+        }
 		if(jump)
 		{
 			bodyforce.x = (float) Math.max(bodyforce.x - 0.1, 0);

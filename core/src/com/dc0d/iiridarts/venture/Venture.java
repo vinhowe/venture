@@ -78,6 +78,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 	boolean gravity;
 	int playerFrame;
 	int motionBlurCounter;
+	int sloMoCounter;
 	
     //TODO Set up backgrounds
     
@@ -133,6 +134,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         entityUpdatePackets = new HashMap<String, EntityUpdatePacket>();
         players.put(player.name, player);
         motionBlurCounter = 0;
+        sloMoCounter = 0;
         if(Constants.SERVER){
         	try {
 				networker.initServer(5557);
@@ -281,7 +283,11 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 	 */
 	
 	public void update(float delta){
-		//if(sloMo == 0){
+		if(sloMo){
+			if(!oddFrame){
+				return;
+			}
+		}
 		//I do this three times so that the logic is faster
 		if (playerFrame == 5) {
 			playerFrame = 0;
