@@ -27,7 +27,7 @@ public class World {
 	ArrayList<ArrayList<Tile>> tiles;
 	private String name;
 	private final byte type;
-	Venture venture;
+	public Venture venture;
 
 	public World(String name, byte type, Venture venture) {
 		this.venture = venture;
@@ -175,26 +175,116 @@ public class World {
 				// # = solid tile
 				// . = empty tile/tile wall
 				
-				// .#.
+				// &#.
+				// .o#
+				// &#.
+				if (top && !topright && bottom && !bottomright && !left && right) {
+					tileAt(x, y).setTexCoords(new Vector2(5, 8+tileAt(x, y).getRandom()));
+				}
+				
+				// .#&
+				// #o.
+				// .#&
+				else if (top && !topleft && bottom && !bottomleft && left && !right) {
+					tileAt(x, y).setTexCoords(new Vector2(9, 8+tileAt(x, y).getRandom()));
+				}
+				
+				// &#.
+				// .o#
+				// &##
+				else if (top && !topright && bottom && bottomright && !left && right) {
+					tileAt(x, y).setTexCoords(new Vector2(0, 11+tileAt(x, y).getRandom()));
+				}
+				
+				// ##&
+				// #o.
+				// .#&
+				else if (top && topleft && bottom && !bottomleft && left && !right) {
+					tileAt(x, y).setTexCoords(new Vector2(4, 11+tileAt(x, y).getRandom()));
+				}
+				
+				// .##
+				// #o#
+				// &.&
+				else if (top && topright && !topleft && !bottom && left && right) {
+					tileAt(x, y).setTexCoords(new Vector2(1+tileAt(x, y).getRandom(), 13));
+				}
+				
+				// &.&
+				// #o#
+				// ##.
+				else if (!top && bottom && bottomleft && !bottomright && left && right) {
+					tileAt(x, y).setTexCoords(new Vector2(1+tileAt(x, y).getRandom(), 11));
+				}
+				
+				//*//*//
+				
+				// &##
+				// .o#
+				// &#.
+				else if (top && topright && bottom && !bottomright && !left && right) {
+					tileAt(x, y).setTexCoords(new Vector2(5, 11+tileAt(x, y).getRandom()));
+				}
+				
+				// .#&
+				// #o.
+				// ##&
+				else if (top && !topleft && bottom && bottomleft && left && !right) {
+					tileAt(x, y).setTexCoords(new Vector2(9, 11+tileAt(x, y).getRandom()));
+				}
+				
+				// ##.
+				// #o#
+				// &.&
+				else if (top && !topright && topleft && !bottom && left && right) {
+					tileAt(x, y).setTexCoords(new Vector2(6+tileAt(x, y).getRandom(), 13));
+				}
+				
+				// &.&
+				// #o#
+				// .##
+				else if (!top && bottom && !bottomleft && bottomright && left && right) {
+					tileAt(x, y).setTexCoords(new Vector2(6+tileAt(x, y).getRandom(), 11));
+				}
+				
+				//*//*//
+				
+				//TODO Do in-corners
+				
+				// ...
 				// .o#
 				// .#.
-				if (top && !topright && !topleft && bottom && !bottomleft && !bottomright && !left && right) {
-					tileAt(x, y).setTexCoords(new Vector2(5, 8+tileAt(x, y).getRandom()));
+				else if (!top && !left && bottom && !bottomright && right) {
+					tileAt(x, y).setTexCoords(
+							new Vector2(10+tileAt(x, y).getRandom(), 0));
+				}
+				
+				// ...
+				// #o.
+				// .#.
+				else if (!top && bottom && !bottomleft && left && !right) {
+					tileAt(x, y).setTexCoords(
+							new Vector2(13 + tileAt(x, y).getRandom(), 0));
 				}
 				
 				// .#.
 				// .o#
-				// .##
-				else if (top && !topright && !topleft && bottom && !bottomleft && bottomright && !left && right) {
-					tileAt(x, y).setTexCoords(new Vector2(0, 11+tileAt(x, y).getRandom()));
+				// ...
+				else if (top && !topright && !bottom && !left && right) {
+					tileAt(x, y).setTexCoords(
+							new Vector2(10+tileAt(x, y).getRandom(), 1));
 				}
 				
 				// .#.
 				// #o.
-				// .#.
-				else if (top && !topright && !topleft && bottom && !bottomleft && !bottomright && left && !right) {
-					tileAt(x, y).setTexCoords(new Vector2(9, 8+tileAt(x, y).getRandom()));
+				// ...
+				else if (top && !topleft && !bottom && left && !right) {
+					tileAt(x, y).setTexCoords(
+							new Vector2(13 + tileAt(x, y).getRandom(), 1));
 				}
+				
+				//*//*//
+				
 				// .##
 				// .o#
 				// .##
@@ -210,10 +300,10 @@ public class World {
 							new Vector2(tileAt(x, y).getRandom(), 3));
 				}
 				
-				// ...
+				// &.&
 				// #o#
 				// .#.
-				else if (!top && !topright && !topleft && bottom && !bottomleft && !bottomright && left && right) {
+				else if (!top && bottom && !bottomleft && !bottomright && left && right) {
 					tileAt(x, y).setTexCoords(new Vector2(6+tileAt(x, y).getRandom(), 8));
 				}
 				// .#.
@@ -254,8 +344,8 @@ public class World {
 				
 				// .#.
 				// #o#
-				// ...
-				else if (top && !topright && !topleft && !bottom && !bottomleft && !bottomright && left && right) {
+				// &.&
+				else if (top && !topright && !topleft && !bottom && left && right) {
 					tileAt(x, y).setTexCoords(new Vector2(6+tileAt(x, y).getRandom(), 10));
 				}
 				

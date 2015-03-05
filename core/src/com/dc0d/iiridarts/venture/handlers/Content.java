@@ -32,6 +32,7 @@ public class Content {
 	 */
 	private HashMap<String, ArrayList<TextureRegion>> randtextures;
 	private ArrayList<Texture> tiletextures;
+	private ArrayList<Texture> itemtextures;
 	private HashMap<String, Music> music;
 	private HashMap<String, Sound> sounds;
 	private Random rand = new Random();
@@ -40,6 +41,7 @@ public class Content {
 		textures = new HashMap<String, Texture>();
 		randtextures = new HashMap<String, ArrayList<TextureRegion>>();
 		tiletextures = new ArrayList<Texture>();
+		itemtextures = new ArrayList<Texture>();
 		music = new HashMap<String, Music>();
 		sounds = new HashMap<String, Sound>();
 	}
@@ -93,6 +95,27 @@ public class Content {
 			textures.remove(key);
 			tex.dispose();
 		}
+	}
+	
+	/**
+	 * Loads all item textures from tiles directory into com.badlogic.gdx.graphics.Texture hashmap
+	 */
+	
+	public void loadItemTextures() {
+		for (int i = 1; i <= Constants.TILETYPES; i++){
+		Texture tex = new Texture(Gdx.files.internal(Constants.ITEMDIR+"/item_"+i+".png"));
+		itemtextures.add(tex);
+		}
+	}
+	
+	/**
+	 * Returns item texture from texture hashmap
+	 * @param id
+	 * @return
+	 */
+	
+	public Texture getItemTexture(int id) {
+		return itemtextures.get(id-1);
 	}
 	
 	/**

@@ -51,7 +51,8 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 	private float zoom;
 	private ArrayList<Sprite> tileSprites;
 	private ArrayList<Sprite> entitySprites;
-	Content res;
+	private ArrayList<Sprite> itemSprites;
+	public Content res;
     boolean movingx;
     boolean movingy;
     boolean directiony;
@@ -89,8 +90,10 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		frame = 0;
 		tileSprites = new ArrayList<Sprite>();
 		entitySprites = new ArrayList<Sprite>();
+		itemSprites = new ArrayList<Sprite>();
 		res = new Content();
 		res.loadTileTextures();
+		res.loadItemTextures();
 		res.loadTexture("assets/images/backgrounds/bg.png");
 		res.loadTexture("assets/images/entities/entity_2.png");
 		bg = new TextureRegion[]{new TextureRegion(res.getTexture("bg"),80,50), new TextureRegion(res.getTexture("bg"),0,51,80,50),new TextureRegion(res.getTexture("bg"),0,51*2,80,50)};
@@ -275,6 +278,9 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         for(int i = 0; i < entitySprites.size(); i++){
     		entitySprites.get(i).draw(batch);
         }
+        for(int i = 0; i < itemSprites.size(); i++){
+        	itemSprites.get(i).draw(batch);
+        }
         batch.end();
 	}
 	
@@ -300,6 +306,9 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 				}
 			}
 		}
+		if(oddFrame){
+			//entitySprites.clear();
+		}
 		player.updatePlayer(0.25f);
 		player.sprite.setPosition(player.getPosition().x, player.getPosition().y);
 		camera.position.x = MathUtils.clamp(player.position.x,Constants.WORLDEDGEMARGIN+camera.viewportWidth/2, ((Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN)-(camera.viewportWidth/2));
@@ -324,6 +333,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		oddFrame = false;
 		
 		tileSprites.clear();
+		itemSprites.clear();
 		
 		Vector2 startingTile = new Vector2((int)(camera.position.x-camera.viewportWidth)/Constants.TILESIZE,
 				(int)(camera.position.y-camera.viewportHeight)/Constants.TILESIZE);
@@ -345,7 +355,13 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
            // System.out.println(x);
 		}
 		//player.sprite.setPosition(player.getPosition().x, player.getPosition().y);
-		
+		//for(int p = 0; p <= players.size(); p++) {
+			//Player iplayer = players.get(p);
+			Sprite item = new Sprite(res.getItemTexture(1));
+			item.setPosition(player.position.x, player.position.y);
+			item.setScale(2f);
+			itemSprites.add(item);
+		//}
 	}
 	
 	

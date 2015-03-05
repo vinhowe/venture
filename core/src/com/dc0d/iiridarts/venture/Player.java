@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.handlers.RandomString;
+import com.dc0d.iiridarts.venture.item.ItemStack;
 import com.dc0d.iiridarts.venture.networking.EntityUpdatePacket;
 
 /**
@@ -26,11 +27,16 @@ public class Player extends Entity {
     private static final int        FRAME_COLS = 4;
 	
 	public Sprite sprite;
+	public Sprite itemSprite;
 	private World world;
     Animation                       animation;
     Texture                         animationSheet;
     TextureRegion[]                 animationFrames;
     TextureRegion                   currentFrame;
+    
+    ItemStack[] items;
+    
+    byte holdingStack;
     
     float stateTime;
     public String name;
@@ -59,6 +65,11 @@ public class Player extends Entity {
 		currentFrame = animation.getKeyFrame(stateTime, true);
 		canFly = false;
 		sprite.setScale(2);
+		items = new ItemStack[48];
+		for(int i = 0; i < 48; i++) {
+			items[i] = new ItemStack((short)0,0);
+		}
+		holdingStack = 0;
 	}
 	
 	//public Player(PlayerJoinPacket packet) {
