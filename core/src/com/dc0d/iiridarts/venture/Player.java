@@ -7,6 +7,7 @@
 package com.dc0d.iiridarts.venture;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -42,6 +43,9 @@ public class Player extends Entity {
     public String name;
     
     boolean jumping = false;
+    
+    boolean swingingSword = false;
+    short swingingSwordRampPos = 0;
 	
 	public Player(World world, boolean canFly, int x, int y, boolean isRemote) {
 		super((int)(16*1.5), (int)(24*1.5), isRemote);
@@ -64,12 +68,17 @@ public class Player extends Entity {
 		stateTime += Gdx.graphics.getDeltaTime();
 		currentFrame = animation.getKeyFrame(stateTime, true);
 		canFly = false;
-		sprite.setScale(2);
+		sprite.setOrigin(this.dimensions.x/2, 0);
+		sprite.setScale(2f);
 		items = new ItemStack[48];
 		for(int i = 0; i < 48; i++) {
 			items[i] = new ItemStack((short)0,0);
 		}
 		holdingStack = 0;
+        itemSprite = new Sprite(world.venture.res.getItemTexture(1));
+        itemSprite.scale(2f);
+        world.venture.itemSprites.add(itemSprite);
+        
 	}
 	
 	//public Player(PlayerJoinPacket packet) {
@@ -101,7 +110,19 @@ public class Player extends Entity {
         sprite.flip(hdir, false);
 		
         walk = false;
-        
+        //FIXME Use dynamic item textures instead of just debugging with pencil
+        itemSprite.setPosition(this.position.x+(this.sprite.getWidth()/2), this.position.y+(this.sprite.getHeight()/1.5f));
+        itemSprite.setOrigin(0f, 0f);
+        if(itemSprite.getRotation() > -60 && swingingSword){
+        	itemSprite.rotate(-2.5f*(swingingSwordRampPos*0.15f));
+        	swingingSwordRampPos++;
+        	itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
+        } else {
+        	swingingSword = false;
+        	itemSprite.setRotation(25);
+        	swingingSwordRampPos = 0;
+        	itemSprite.setAlpha(0.10f);
+        }
 	}
 	
 	public void remoteUpdatePlayer(EntityUpdatePacket update){

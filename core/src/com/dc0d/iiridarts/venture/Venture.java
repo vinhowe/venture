@@ -20,9 +20,13 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -49,9 +53,9 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
     public OrthographicCamera camera;
 	public OrthographicCamera scamera;
 	private float zoom;
-	private ArrayList<Sprite> tileSprites;
-	private ArrayList<Sprite> entitySprites;
-	private ArrayList<Sprite> itemSprites;
+	public ArrayList<Sprite> tileSprites;
+	public ArrayList<Sprite> entitySprites;
+	public ArrayList<Sprite> itemSprites;
 	public Content res;
     boolean movingx;
     boolean movingy;
@@ -78,7 +82,6 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 	NetworkHandler networker;
 	boolean gravity;
 	int playerFrame;
-	int motionBlurCounter;
 	int sloMoCounter;
 	
     //TODO Set up backgrounds
@@ -86,6 +89,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 	@Override
 	public void create() {
 		// Setting up Textures
+		Gdx.input.setCursorCatched(true);
 		fps = new FPSLogger();
 		frame = 0;
 		tileSprites = new ArrayList<Sprite>();
@@ -136,7 +140,6 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         entities = new HashMap<String, Entity>();
         entityUpdatePackets = new HashMap<String, EntityUpdatePacket>();
         players.put(player.name, player);
-        motionBlurCounter = 0;
         sloMoCounter = 0;
         if(Constants.SERVER){
         	try {
@@ -162,7 +165,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		viewport.update(width, height);
 		camera.position.x = MathUtils.clamp(camera.position.x, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
 		camera.position.y = MathUtils.clamp(camera.position.y, camera.viewportHeight/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
-	    //camera = new OrthographicCamera(width, height);
+		//camera = new OrthographicCamera(width, height);
 	    //camera.translate(width/2, height/2, 0);
 	    scamera = new OrthographicCamera(width, height);
 	    scamera.translate(width/2, height/2, 0);
@@ -180,14 +183,8 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		if(loop){
 		update(Gdx.graphics.getDeltaTime());
 		}
-		if(!oddFrame)
-		{
-	        Gdx.gl.glClearColor(0.0f, 0.65f, 0.90f, 0.25f);
-	        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		} else {
-			Gdx.gl.glClearColor(0.0f, 0.65f, 0.90f, 1f);
-			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		}
+        Gdx.gl.glClearColor(0.0f, 0.65f, 0.90f, 1f);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		//logger.finer("delta on frame " + frame + " : "+ Gdx.graphics.getDeltaTime());
         if(debug && touch){
         	world.tileAt((int)camera.unproject(new Vector3(touchPos,0)).x/Constants.TILESIZE,(int) camera.unproject(new Vector3(touchPos,0)).y/Constants.TILESIZE).setType((short)((rightclick == true) ? 1 : 0));
@@ -270,10 +267,11 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		//background[2].draw(bgbatch, 0,0,10000,10000);
 		//TODO Generate clouds and other floating object randomly using textures
 		//bgbatch.end();
+		
 		batch.setProjectionMatrix(camera.combined);
         batch.begin();
         for(int i = 0; i < tileSprites.size(); i++){
-        		tileSprites.get(i).draw(batch);
+    		tileSprites.get(i).draw(batch);
         }
         for(int i = 0; i < entitySprites.size(); i++){
     		entitySprites.get(i).draw(batch);
@@ -333,7 +331,6 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		oddFrame = false;
 		
 		tileSprites.clear();
-		itemSprites.clear();
 		
 		Vector2 startingTile = new Vector2((int)(camera.position.x-camera.viewportWidth)/Constants.TILESIZE,
 				(int)(camera.position.y-camera.viewportHeight)/Constants.TILESIZE);
@@ -357,10 +354,9 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		//player.sprite.setPosition(player.getPosition().x, player.getPosition().y);
 		//for(int p = 0; p <= players.size(); p++) {
 			//Player iplayer = players.get(p);
-			Sprite item = new Sprite(res.getItemTexture(1));
-			item.setPosition(player.position.x, player.position.y);
-			item.setScale(2f);
-			itemSprites.add(item);
+			//item.setPosition(player.position.x, player.position.y);
+			//item.setScale(2f);
+			//itemSprites.add(item);
 		//}
 	}
 	
@@ -443,6 +439,9 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		    case Keys.F4:
 		    	gravity = !gravity;
 		    	break;
+		    case Keys.ESCAPE:
+		    	Gdx.input.setCursorCatched(!Gdx.input.isCursorCatched());
+		    	break;
 	        }
 	        return true;
 		}
@@ -482,6 +481,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 			touchPos.set(screenX, screenY);
 			touch = true;
 			rightclick = (button == 1) ? true: false;
+			player.swingingSword = true;
 			return false;
 		}
 

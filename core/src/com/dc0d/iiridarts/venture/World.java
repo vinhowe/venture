@@ -175,10 +175,17 @@ public class World {
 				// # = solid tile
 				// . = empty tile/tile wall
 				
+				// ###
+				// #o#
+				// ###
+				if (top && topright && topleft && bottom && bottomleft && bottomright && left && right) {
+					tileAt(x, y).setTexCoords(new Vector2(1+tileAt(x, y).getRandom(), 1));
+				}
+				
 				// &#.
 				// .o#
 				// &#.
-				if (top && !topright && bottom && !bottomright && !left && right) {
+				else if (top && !topright && bottom && !bottomright && !left && right) {
 					tileAt(x, y).setTexCoords(new Vector2(5, 8+tileAt(x, y).getRandom()));
 				}
 				
@@ -511,7 +518,7 @@ public class World {
 				else if (top && !topright && !topleft && bottom && bottomleft && !bottomright && left && right) {
 					tileAt(x, y).setTexCoords(new Vector2(1+tileAt(x, y).getRandom(), 10));
 				}
-				// Middle block and undefined locations
+				//TODO Undefined locations default to pink
 				else {
 					tileAt(x, y).setTexCoords(
 							new Vector2(1 + tileAt(x, y).getRandom(), 1));

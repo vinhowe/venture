@@ -10,6 +10,5 @@ public class DesktopLauncher {
 		config.title = "Project Venture";
 		config.vSyncEnabled = true;
 		new LwjglApplication(new Venture(), config);
-		//new LwjglApplication(new Networking(), config);
 	}
 }
