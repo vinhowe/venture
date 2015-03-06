@@ -187,7 +187,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		//logger.finer("delta on frame " + frame + " : "+ Gdx.graphics.getDeltaTime());
         if(debug && touch){
-        	world.tileAt((int)camera.unproject(new Vector3(touchPos,0)).x/Constants.TILESIZE,(int) camera.unproject(new Vector3(touchPos,0)).y/Constants.TILESIZE).setType((short)((rightclick == true) ? 1 : 0));
+        	player.breakTile((int)camera.unproject(new Vector3(touchPos,0)).x/Constants.TILESIZE,(int) camera.unproject(new Vector3(touchPos,0)).y/Constants.TILESIZE);
         }
         if(movingx && debug){
             if(directionx)

@@ -6,6 +6,8 @@
 
 package com.dc0d.iiridarts.venture;
 
+import java.util.HashMap;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,6 +17,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.handlers.RandomString;
+import com.dc0d.iiridarts.venture.handlers.Utilities;
 import com.dc0d.iiridarts.venture.item.ItemStack;
 import com.dc0d.iiridarts.venture.networking.EntityUpdatePacket;
 
@@ -36,6 +39,8 @@ public class Player extends Entity {
     TextureRegion                   currentFrame;
     
     ItemStack[] items;
+    
+    HashMap<Vector2, Short> tileBreakBuffer; 
     
     byte holdingStack;
     
@@ -78,7 +83,7 @@ public class Player extends Entity {
         itemSprite = new Sprite(world.venture.res.getItemTexture(1));
         itemSprite.scale(2f);
         world.venture.itemSprites.add(itemSprite);
-        
+        tileBreakBuffer = new HashMap<Vector2, Short>();
 	}
 	
 	//public Player(PlayerJoinPacket packet) {
@@ -111,17 +116,34 @@ public class Player extends Entity {
 		
         walk = false;
         //FIXME Use dynamic item textures instead of just debugging with pencil
-        itemSprite.setPosition(this.position.x+(this.sprite.getWidth()/2), this.position.y+(this.sprite.getHeight()/1.5f));
-        itemSprite.setOrigin(0f, 0f);
-        if(itemSprite.getRotation() > -60 && swingingSword){
-        	itemSprite.rotate(-2.5f*(swingingSwordRampPos*0.15f));
-        	swingingSwordRampPos++;
-        	itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
+        if(!hdir){
+ 	        itemSprite.setOrigin(0f, 0f);
+	        itemSprite.setPosition(this.position.x+(this.sprite.getWidth()/2), this.position.y+(this.sprite.getHeight()/2.5f));
+	        itemSprite.setFlip(false, false);
+	        if(itemSprite.getRotation() > -60 && swingingSword){
+	        	itemSprite.rotate(-2.5f*(swingingSwordRampPos*0.15f));
+	        	swingingSwordRampPos++;
+	        	itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
+	        } else {
+	        	swingingSword = false;
+	        	itemSprite.setRotation(0);
+	        	swingingSwordRampPos = 0;
+	        	itemSprite.setAlpha(0.05f);
+	        }
         } else {
-        	swingingSword = false;
-        	itemSprite.setRotation(25);
-        	swingingSwordRampPos = 0;
-        	itemSprite.setAlpha(0.10f);
+ 	        itemSprite.setOrigin(itemSprite.getWidth(), 0f);
+        	itemSprite.setPosition(this.position.x-(this.sprite.getWidth()/2), this.position.y+(this.sprite.getHeight()/2.5f));
+        	itemSprite.setFlip(true, false);
+	        if(itemSprite.getRotation() < 60 && swingingSword){
+	        	itemSprite.rotate(2.5f*(swingingSwordRampPos*0.15f));
+	        	swingingSwordRampPos++;
+	        	itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
+	        } else {
+	        	swingingSword = false;
+	        	itemSprite.setRotation(0);
+	        	swingingSwordRampPos = 0;
+	        	itemSprite.setAlpha(0.05f);
+	        }
         }
 	}
 	
@@ -141,6 +163,22 @@ public class Player extends Entity {
        // for(int i = 0; i <= 5; i++) doPhysics(timestep/5);
         //walk = false;
         
+	}
+	
+	public boolean breakTile(int x, int y) {
+		if(tileBreakBuffer.containsKey(new Vector2(x, y))) {
+			if(tileBreakBuffer.get(new Vector2(x, y)).shortValue() < 100){
+				tileBreakBuffer.put(new Vector2(x, y), new Short((short) (tileBreakBuffer.get(new Vector2(x, y)).shortValue()+1)));
+				if(Math.random() < 0.05){
+					world.tiles.get(x).get(y).setRandom(Utilities.randInt(0, 2));
+				}
+			} else {
+				world.tileAt(x, y).setType((short) 0);
+			}
+		} else {
+			tileBreakBuffer.put(new Vector2(x, y), new Short((short) 0));
+		}
+		return false;
 	}
 	
 	//public EntityUpdatePacket makeEntityUpdatePacket() {
