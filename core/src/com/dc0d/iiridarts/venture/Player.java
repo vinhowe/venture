@@ -165,20 +165,21 @@ public class Player extends Entity {
         
 	}
 	
-	public boolean breakTile(int x, int y) {
-		if(tileBreakBuffer.containsKey(new Vector2(x, y))) {
-			if(tileBreakBuffer.get(new Vector2(x, y)).shortValue() < 100){
-				tileBreakBuffer.put(new Vector2(x, y), new Short((short) (tileBreakBuffer.get(new Vector2(x, y)).shortValue()+1)));
-				if(Math.random() < 0.05){
-					world.tiles.get(x).get(y).setRandom(Utilities.randInt(0, 2));
+	public void breakTile(int x, int y) {
+		if((int)position.x - 10 < x && (int)position.y + 10 > x){
+			if(tileBreakBuffer.containsKey(new Vector2(x, y))) {
+				if(tileBreakBuffer.get(new Vector2(x, y)).shortValue() < 100){
+					tileBreakBuffer.put(new Vector2(x, y), new Short((short) (tileBreakBuffer.get(new Vector2(x, y)).shortValue()+1)));
+					if(Math.random() < 0.05){
+						world.tiles.get(x).get(y).setRandom(Utilities.randInt(0, 2));
+					}
+				} else {
+					world.tileAt(x, y).setType((short) 0);
 				}
 			} else {
-				world.tileAt(x, y).setType((short) 0);
+				tileBreakBuffer.put(new Vector2(x, y), new Short((short) 0));
 			}
-		} else {
-			tileBreakBuffer.put(new Vector2(x, y), new Short((short) 0));
 		}
-		return false;
 	}
 	
 	//public EntityUpdatePacket makeEntityUpdatePacket() {
