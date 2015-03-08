@@ -166,8 +166,10 @@ public class Player extends Entity {
 	}
 	
 	public void breakTile(int x, int y) {
-		//if((int)(position.x) == (x*16)){
-		world.venture.logger.finer("TileBreak: input tile x: " + x + " player x divided: " + this.position.x/16);
+		//TODO Make player tile reach dynamic based on items in itemstack
+		//TODO Make different tiles take longer to destroy and some unbreakable
+		if((int)(position.x/Constants.TILESIZE) - 4 < x && (int)(position.x/Constants.TILESIZE) + 4 > x &&
+				(int)(position.y/Constants.TILESIZE) - 4 < y && (int)(position.y/Constants.TILESIZE) + 4 > y){
 			if(tileBreakBuffer.containsKey(new Vector2(x, y))) {
 				if(tileBreakBuffer.get(new Vector2(x, y)).shortValue() < 100){
 					tileBreakBuffer.put(new Vector2(x, y), new Short((short) (tileBreakBuffer.get(new Vector2(x, y)).shortValue()+1)));
@@ -180,7 +182,7 @@ public class Player extends Entity {
 			} else {
 				tileBreakBuffer.put(new Vector2(x, y), new Short((short) 0));
 			}
-		//}
+		}
 	}
 	
 	//public EntityUpdatePacket makeEntityUpdatePacket() {
