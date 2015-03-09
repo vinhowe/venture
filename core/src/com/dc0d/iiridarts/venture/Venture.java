@@ -44,7 +44,6 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 	public Player player;
 	public HashMap<String, Entity> entities;
 	public HashMap<String, Player> players;
-	public HashMap<String, EntityUpdatePacket> entityUpdatePackets;
     private SpriteBatch batch;
     private World world;
     private SpriteBatch bgbatch;
@@ -137,8 +136,6 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         networker = new NetworkHandler(this, world);
         gravity = true;
         players = new HashMap<String, Player>();
-        entities = new HashMap<String, Entity>();
-        entityUpdatePackets = new HashMap<String, EntityUpdatePacket>();
         players.put(player.name, player);
         sloMoCounter = 0;
         if(Constants.SERVER){
@@ -299,7 +296,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 			for(String key : entities.keySet()){
 				entitySprites.add(players.get(key).sprite);
 				if(players.get(key).isRemote){
-					players.get(key).remoteUpdatePlayer(entityUpdatePackets.get(players.get(key).id));
+					//players.get(key).remoteUpdatePlayer(entityUpdatePackets.get(players.get(key).id));
 					players.get(key).sprite.setPosition(players.get(key).getPosition().x, players.get(key).getPosition().y);
 				}
 			}
