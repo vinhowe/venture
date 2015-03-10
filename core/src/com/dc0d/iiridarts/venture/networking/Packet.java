@@ -6,9 +6,9 @@
 
 package com.dc0d.iiridarts.venture.networking;
 
-public class NetworkUpdate {
+public class Packet {
 	byte type;
-	public NetworkUpdate(byte type) {
+	public Packet(byte type) {
 		
 	}
 }

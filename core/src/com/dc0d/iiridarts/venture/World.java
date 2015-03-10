@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.handlers.Utilities;
+import com.dc0d.iiridarts.venture.networking.NetworkObject;
 import com.dc0d.iiridarts.venture.tiles.Tile;
 
 /**
@@ -27,6 +28,7 @@ public class World {
 	private String name;
 	private final byte type;
 	public Venture venture;
+	public ArrayList<Entity> entities;
 
 	public World(String name, byte type, Venture venture) {
 		this.venture = venture;

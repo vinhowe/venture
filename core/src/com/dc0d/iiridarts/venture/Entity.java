@@ -54,6 +54,7 @@ public class Entity extends NetworkObject {
 	public Vector2 force;
 	
 	public Entity(BodyType bodyType, int width, int height){
+		super("e");
 		this.bodyType = bodyType;
 		
 		// Setting the entity's width and height

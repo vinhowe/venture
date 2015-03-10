@@ -60,8 +60,7 @@ public class ServerHandler {
 	           } else if (object instanceof GameRequest) {
 	        	   GameRequest request = (GameRequest)object;
 	        	   if (request.request.equals("update")) {
-	        		  GameResponse response = new GameResponse();
-		              response.entityUpdates = ventureServer.entityUpdatePackets;
+	        		  Packet response = new Packet((byte)0);
 		              ventureServer.players.put(request.player.id, request.player);
 		              connection.sendUDP(response);
 	        	   }

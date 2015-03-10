@@ -43,8 +43,8 @@ public class EntityLiving extends Entity {
 		super(Entity.BodyType.DynamicBody, width, height); // All entities should be dynamic unless rocks count as living
 		this.isRemote = isRemote;
 		RandomString rndString = new RandomString(10);
-		id = rndString.nextString();
-		System.out.println(id);
+		//id = rndString.nextString();
+		//System.out.println(id);
 		bodyforce = new Vector2();
 		//TODO Work on entity stuff
 	}
