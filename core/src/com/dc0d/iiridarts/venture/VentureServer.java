@@ -15,14 +15,12 @@ import java.util.logging.Logger;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.handlers.Content;
-import com.dc0d.iiridarts.venture.networking.EntityUpdatePacket;
 import com.dc0d.iiridarts.venture.networking.ServerHandler;
 
 public class VentureServer {
 	
-	public HashMap<String, Entity> entities;
+	public HashMap<String, EntityLiving> entities;
 	public HashMap<String, Player> players;
-	public HashMap<String, EntityUpdatePacket> entityUpdatePackets;
     private ServerWorld world;
 	Content res;
     boolean movingx;
@@ -79,8 +77,7 @@ public class VentureServer {
         networker = new ServerHandler(this, world);
         gravity = true;
         players = new HashMap<String, Player>();
-        entities = new HashMap<String, Entity>();
-        entityUpdatePackets = new HashMap<String, EntityUpdatePacket>();
+        entities = new HashMap<String, EntityLiving>();
     	try {
 			networker.initServer(5557);
 		} catch (IOException e) {
@@ -103,7 +100,7 @@ public class VentureServer {
 			for(String key : entities.keySet()){
 				//entitySprites.add(players.get(key).sprite);
 				if(players.get(key).isRemote){
-					players.get(key).remoteUpdatePlayer(entityUpdatePackets.get(players.get(key).id));
+					//players.get(key).remoteUpdatePlayer(entityUpdatePackets.get(players.get(key).id));
 					players.get(key).sprite.setPosition(players.get(key).getPosition().x, players.get(key).getPosition().y);
 				}
 			}

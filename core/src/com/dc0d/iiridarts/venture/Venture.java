@@ -34,15 +34,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.dc0d.iiridarts.venture.handlers.Content;
-import com.dc0d.iiridarts.venture.networking.EntityUpdatePacket;
 import com.dc0d.iiridarts.venture.networking.ClientNetworkHandler;
 import com.dc0d.iiridarts.venture.networking.NetworkHandler;
-import com.dc0d.iiridarts.venture.networking.UpdatePacket;
+import com.dc0d.iiridarts.venture.networking.NetworkUpdate;
 
 public class Venture extends com.badlogic.gdx.Game implements ApplicationListener{
 	
 	public Player player;
-	public HashMap<String, Entity> entities;
+	public HashMap<String, EntityLiving> entities;
 	public HashMap<String, Player> players;
     private SpriteBatch batch;
     private World world;

@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.handlers.Utilities;
-import com.dc0d.iiridarts.venture.physics.PhysicsBody;
 import com.dc0d.iiridarts.venture.tiles.Tile;
 
 /**

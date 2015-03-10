@@ -43,10 +43,10 @@ public class ClientNetworkHandler {
 		        	  request.player = handler.venture.player;
 		        	  request.request = "update";
 		        	  connection.sendUDP(request);
-		        	  for(int p = 0; p <= response.entityUpdates.size(); p++){
-		        		  response.entityUpdates.get(p).isRemote = true;
-		        		  //handler.venture.players.put(response.entityUpdates.get(p).id, response.entityUpdates.get(p));
-		        	  }
+		        	//  for(int p = 0; p <= response.entityUpdates.size(); p++){
+		        	//	  response.entityUpdates.get(p).isRemote = true;
+		        	//	  //handler.venture.players.put(response.entityUpdates.get(p).id, response.entityUpdates.get(p));
+		        	//  }
 		        	  
 		        	  client.sendUDP(request);
 	        	  }

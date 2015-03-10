@@ -6,41 +6,164 @@
 
 package com.dc0d.iiridarts.venture;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.math.Vector2;
-import com.dc0d.iiridarts.venture.handlers.RandomString;
-import com.dc0d.iiridarts.venture.physics.PhysicsBody;
+import com.dc0d.iiridarts.venture.networking.NetworkObject;
 
-/**
- * Handler for sentient/dynamic things
- * @author Thomas
- *
- */
-
-public class Entity extends PhysicsBody {
+public class Entity extends NetworkObject {
 	
-	short type;
-	boolean isDead = false; //We dispose of dead things. Sorry.
-	int health; // We use an integer so we can bit shift and find special debuffs.
-	boolean jump = false; //Is our entity on the ground and able to jump?
-	boolean canFly = false;
-	boolean hdir = false;
-	byte vdir = 1;
-	boolean run = false;
-	boolean walk = false;
-	boolean canWalk = false;
-	public boolean isRemote;
-	public String id;
+	// Height and width values
 	
-	public Vector2 bodyforce;
+	public Vector2 dimensions = new Vector2(0, 0);
 	
-	public Entity(int width, int height, boolean isRemote) {
-		super(PhysicsBody.BodyType.DynamicBody, width, height); // All entities should be dynamic unless rocks count as living
-		this.isRemote = isRemote;
-		RandomString rndString = new RandomString(10);
-		id = rndString.nextString();
-		System.out.println(id);
-		bodyforce = new Vector2();
-		//TODO Work on entity stuff
+	// Half width and half height values for faster calculation
+	
+	public Vector2 halfDimensions = new Vector2(0, 0);
+	
+	// Position values
+	
+	public Vector2 position = new Vector2(0, 0);
+	
+	// Velocity values - current speed in each direction - can be negative
+	
+	public Vector2 velocity = new Vector2(0, 0);
+	
+	// Acceleration values - velocity added each loop in each direction - can be negative
+	
+	public Vector2 acceleration = new Vector2(0, 0);
+	
+	// Collision solver and body types
+	
+	BodyType bodyType;
+	
+	// Restitution, or "bounciness" of entity
+	
+	private int restitution;
+	
+	// Object mass for faster math and flexibility
+	
+	public float mass = 0.1F;
+	
+	//Object forces
+	
+	public ArrayList<Vector2> forces;
+	
+	//Combined object force
+	
+	public Vector2 force;
+	
+	public Entity(BodyType bodyType, int width, int height){
+		this.bodyType = bodyType;
+		
+		// Setting the entity's width and height
+		// Make this variable
+		
+		this.dimensions.x = width;
+		this.dimensions.y = height;
+		
+		// Setting half sizes
+		
+		this.halfDimensions.x = this.dimensions.x / 2;
+		this.halfDimensions.y = this.dimensions.y / 2;
+		forces = new ArrayList<Vector2>();
+		force = new Vector2();
+	}
+	
+	/**
+	 * Sets the restitution of entity
+	 * @param restitution
+	 */
+	
+	public void setRestitution(int restitution){
+		this.restitution = restitution;
+	}
+	
+	/**
+	 * Returns the restitution value of entity
+	 */
+	
+	public int getRestitution(){
+		return this.restitution;
+	}
+	
+	/**
+	 * Returns position of entity
+	 */
+	
+	public Vector2 getPosition() {
+		return position;
+	}
+	
+	/**
+	 * Sets new position for entity
+	 * @param x
+	 * @param y
+	 */
+	
+	public void setPosition(int x, int y) {
+		position.set(x, y);
+	}
+	
+	/**
+	 * Sets new position for entity
+	 * @param pos
+	 */
+	
+	public void setPosition(Vector2 position) {
+		this.position = position;
+	}
+	
+	public float getTop(){
+		return this.position.y + this.dimensions.y;
+	}
+	
+	public float getLeft(){
+		return this.position.x;
+	}
+	
+	public float getRight(){
+		return this.position.x + this.dimensions.x;
+	}
+	
+	public float getBottom(){
+		return this.position.y;
+	}
+	
+	public float getMidX(){
+		return (this.dimensions.x/2) + this.position.x;
+	}
+	
+	public float getMidY(){
+		return (this.dimensions.y/2) + this.position.y;
+	}
+	
+	public void updateBounds(){
+        this.halfDimensions.x = (float) (this.dimensions.x * .5);
+        this.halfDimensions.y = (float) (this.dimensions.y * .5);
 	}
 
+	public enum BodyType {
+		KinematicBody(0), DynamicBody(1);
+
+		private int value;
+
+		private BodyType (int value) {
+			this.value = value;
+		}
+
+		public int getValue () {
+			return value;
+		}
+	}
+	
+	public void applyImpulse(Vector2 force){
+		forces.add(force);
+	}
+	
+	public void applyImpulse(float forceX, float forceY){
+	    forces.add(new Vector2(forceX, forceY));
+	}
 }
+
+

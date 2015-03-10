@@ -32,7 +32,7 @@ public class KryoNetServer {
 	    kryo.register(GameRequest.class);
 	    kryo.register(GameResponse.class);
 	    kryo.register(java.util.HashMap.class);
-	    kryo.register(com.dc0d.iiridarts.venture.networking.EntityUpdatePacket.class);
+	   // kryo.register(com.dc0d.iiridarts.venture.networking.EntityUpdatePacket.class);
 	    //kryo.register(.class);
 	    server.addListener(new Listener() {
 	        public void received (Connection connection, Object object) {

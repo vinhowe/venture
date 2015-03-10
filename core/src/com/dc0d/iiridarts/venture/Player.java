@@ -9,34 +9,28 @@ package com.dc0d.iiridarts.venture;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.dc0d.iiridarts.venture.handlers.RandomString;
 import com.dc0d.iiridarts.venture.handlers.Utilities;
 import com.dc0d.iiridarts.venture.item.ItemStack;
-import com.dc0d.iiridarts.venture.networking.EntityUpdatePacket;
+//import com.dc0d.iiridarts.venture.networking.EntityUpdatePacket;
 
 /**
  * Holds information for player
  * @author Thomas Howe
  *
  */
-public class Player extends Entity {
+public class Player extends EntityLiving {
 	
     private static final int        FRAME_COLS = 4;
 	
 	public Sprite sprite;
 	public Sprite itemSprite;
 	private World world;
-    Animation                       animation;
-    Texture                         animationSheet;
-    TextureRegion[]                 animationFrames;
-    TextureRegion                   currentFrame;
     
     ItemStack[] items;
     
@@ -147,7 +141,7 @@ public class Player extends Entity {
         }
 	}
 	
-	public void remoteUpdatePlayer(EntityUpdatePacket update){
+	/*public void remoteUpdatePlayer(EntityUpdatePacket update){
         
         stateTime += Gdx.graphics.getDeltaTime();
         if(walk){
@@ -163,7 +157,7 @@ public class Player extends Entity {
        // for(int i = 0; i <= 5; i++) doPhysics(timestep/5);
         //walk = false;
         
-	}
+	}*/
 	
 	public void breakTile(int x, int y) {
 		//TODO Make player tile reach dynamic based on items in itemstack
