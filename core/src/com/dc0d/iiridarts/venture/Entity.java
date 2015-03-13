@@ -8,10 +8,12 @@ package com.dc0d.iiridarts.venture;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.networking.NetworkObject;
 
-public class Entity extends NetworkObject {
+public abstract class Entity{
 	
 	// Height and width values
 	
@@ -33,10 +35,6 @@ public class Entity extends NetworkObject {
 	
 	public Vector2 acceleration = new Vector2(0, 0);
 	
-	// Collision solver and body types
-	
-	BodyType bodyType;
-	
 	// Restitution, or "bounciness" of entity
 	
 	private int restitution;
@@ -53,9 +51,16 @@ public class Entity extends NetworkObject {
 	
 	public Vector2 force;
 	
-	public Entity(BodyType bodyType, int width, int height){
-		super("e");
-		this.bodyType = bodyType;
+	public World world;
+	public Sprite sprite;
+    float stateTime;
+	
+    NetworkObject networkObject;
+    
+	boolean isRemote = false;
+    
+	public Entity(World world, int width, int height, byte entityType){
+		networkObject = new NetworkObject(world.venture, (byte)3, (byte) entityType);
 		
 		// Setting the entity's width and height
 		// Make this variable
@@ -142,20 +147,6 @@ public class Entity extends NetworkObject {
 	public void updateBounds(){
         this.halfDimensions.x = (float) (this.dimensions.x * .5);
         this.halfDimensions.y = (float) (this.dimensions.y * .5);
-	}
-
-	public enum BodyType {
-		KinematicBody(0), DynamicBody(1);
-
-		private int value;
-
-		private BodyType (int value) {
-			this.value = value;
-		}
-
-		public int getValue () {
-			return value;
-		}
 	}
 	
 	public void applyImpulse(Vector2 force){

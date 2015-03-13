@@ -83,6 +83,8 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 	boolean gravity;
 	int playerFrame;
 	int sloMoCounter;
+	boolean shift = false;
+	ClientNetworkHandler networkHandler;
 	
     //TODO Set up backgrounds
     
@@ -155,6 +157,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 			}
         }
         playerFrame = 0;
+        networkHandler = new ClientNetworkHandler();
 	}
 
 	
@@ -187,70 +190,6 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         if(debug && touch){
         	player.breakTile((int)camera.unproject(new Vector3(touchPos,0)).x/Constants.TILESIZE,(int) camera.unproject(new Vector3(touchPos,0)).y/Constants.TILESIZE);
         }
-        if(movingx && debug){
-            if(directionx)
-            {
-            	if(player.jump)
-            	{
-            		player.bodyforce.x = 0.75f;
-            	} else {
-            		player.bodyforce.x = 0.50f;
-            	}
-            	if(player.canWalk)
-            	{
-            	player.walk = true;
-            	}
-            	player.hdir = false;
-            	//player.applyImpulse(2f*Constants.TILESIZE, 0);
-            	//camera.position.x = Math.min(camera.position.x + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
-            	bg1pos.x = camera.position.x / 60 * Gdx.graphics.getDeltaTime();
-            	bg2pos.x -= Gdx.graphics.getDeltaTime() * 7.5;
-            	bg3pos.x -= Gdx.graphics.getDeltaTime() * 10;
-        	}
-            else
-            {
-            	if(player.jump)
-            	{
-            		player.bodyforce.x = -0.75f;
-            	} else {
-            		player.bodyforce.x = -0.50f;
-            	}
-            	if(player.canWalk)
-            	{
-            	player.walk = true;
-            	}
-            	player.hdir = true;
-            	//camera.position.x = Math.max(camera.position.x - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN);
-            	bg1pos.x = camera.position.x / 60;
-            	bg2pos.x += Gdx.graphics.getDeltaTime() * 7.5;
-            	bg3pos.x += Gdx.graphics.getDeltaTime() * 10;
-            }
-        }
-        if(movingy && debug){
-            if (directiony)
-            {
-            	if(player.jump && player.jumping){
-            		player.velocity.y += 45;
-            		player.jumping = false;
-            	}
-            	
-            	if(player.canFly)
-            	{
-            		player.velocity.y = Math.max(45, player.velocity.y);
-            	}
-            	//camera.position.y = Math.min(camera.position.y + Gdx.graphics.getDeltaTime() * 300*8, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
-            	bg1pos.y -= Gdx.graphics.getDeltaTime() * 5;
-            	bg2pos.y -= Gdx.graphics.getDeltaTime() * 7.5;
-            	bg3pos.y -= Gdx.graphics.getDeltaTime() * 10;
-        	}
-            else
-            {
-            	//camera.position.y = Math.max(camera.position.y - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportHeight/2+Constants.WORLDEDGEMARGIN);
-            	bg1pos.y += Gdx.graphics.getDeltaTime() * 5;
-            	bg2pos.y += Gdx.graphics.getDeltaTime() * 7.5;
-            	bg3pos.y += Gdx.graphics.getDeltaTime() * 10;
-            }
-    	}
         bg3pos.x += Gdx.graphics.getDeltaTime() * 1.5;
         bg2pos.x += Gdx.graphics.getDeltaTime() * 1;
         bg1pos.x += Gdx.graphics.getDeltaTime() * 0.5;
@@ -305,14 +244,14 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		if(oddFrame){
 			//entitySprites.clear();
 		}
-		player.updatePlayer(0.25f);
+		player.updateLivingEntity(0.25f);
 		player.sprite.setPosition(player.getPosition().x, player.getPosition().y);
 		camera.position.x = MathUtils.clamp(player.position.x,Constants.WORLDEDGEMARGIN+camera.viewportWidth/2, ((Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN)-(camera.viewportWidth/2));
 		camera.position.y = MathUtils.clamp(player.position.y,camera.viewportHeight/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-(camera.viewportHeight/2));
 		scamera.position.x = MathUtils.clamp(player.position.x,camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
 		scamera.position.y = MathUtils.clamp(player.position.y,camera.viewportHeight/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
 		
-			//players.
+		//players.
 		//sloMo = sloMoMax;
 		//} else {
 		//	sloMo--;
@@ -396,20 +335,20 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		public boolean keyDown(int keycode) {
 	        switch (keycode)
 	        {
-	        case Keys.UP:
+	        case Keys.W:
 	            movingy = true;
 	            directiony = true;
 	            player.jumping = true;
 	            break;
-	        case Keys.RIGHT:
+	        case Keys.D:
 	        	movingx = true;
 	        	directionx = true;
 	            break;
-	        case Keys.DOWN:
+	        case Keys.S:
 	        	movingy = true;
 	        	directiony = false;
 	            break;
-		    case Keys.LEFT:
+		    case Keys.A:
 		    	movingx = true;
 		    	directionx = false;
 		        break;
@@ -440,6 +379,9 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		    case Keys.ESCAPE:
 		    	Gdx.input.setCursorCatched(!Gdx.input.isCursorCatched());
 		    	break;
+		    case Keys.SHIFT_LEFT:
+		    	shift = true;
+		    	break;
 	        }
 	        return true;
 		}
@@ -448,22 +390,25 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		public boolean keyUp(int keycode) {
 			 switch (keycode)
 		        {
-		        case Keys.UP:
+		        case Keys.W:
 		            movingy = false;
 		            directiony = true;
 		            break;
-		        case Keys.RIGHT:
+		        case Keys.D:
 		        	movingx = false;
 		        	directionx = false;
 		            break;
-		        case Keys.DOWN:
+		        case Keys.S:
 		        	movingy = false;
 		        	directiony = false;
 		            break;
-			    case Keys.LEFT:
+			    case Keys.A:
 			    	movingx = false;
 			    	directionx = true;
 			        break;
+			    case Keys.SHIFT_LEFT:
+			    	shift = false;
+			    	break;
 			    }
 	        return true;
 		}

@@ -27,11 +27,6 @@ public class KryoNetServer {
 	    server.bind(port+1, port);
 	    
 	    Kryo kryo = server.getKryo();
-	    kryo.register(GameConnectionRequest.class);
-	    kryo.register(GameConnectionResponse.class);
-	    kryo.register(GameRequest.class);
-	    kryo.register(GameResponse.class);
-	    kryo.register(java.util.HashMap.class);
 	   // kryo.register(com.dc0d.iiridarts.venture.networking.EntityUpdatePacket.class);
 	    //kryo.register(.class);
 	    server.addListener(new Listener() {
@@ -54,7 +49,7 @@ public class KryoNetServer {
 	        	   if (request.request.equals("update")) {
 	        		  GameResponse response = new GameResponse();
 		              response.entityUpdates = handler.venture.entityUpdatePackets;
-		              handler.venture.players.put(request.player.id, request.player);
+		              handler.venture.players.put(request.player.getId(), request.player);
 		              connection.sendUDP(response);
 	        	   }
 	           }
@@ -86,6 +81,7 @@ class GameConnectionRequest {
    public String password;
    public Player player;
 }
+
 class GameConnectionResponse {
    public String response;
    public HashMap<String, EntityUpdatePacket> entityUpdates;
@@ -95,6 +91,7 @@ class GameRequest {
    public String request;
    public Player player;
 }
+
 class GameResponse {
    public String response;
    public HashMap<String, EntityUpdatePacket> entityUpdates;

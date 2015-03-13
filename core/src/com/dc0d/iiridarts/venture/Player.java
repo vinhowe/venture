@@ -18,6 +18,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.handlers.Utilities;
 import com.dc0d.iiridarts.venture.item.ItemStack;
 //import com.dc0d.iiridarts.venture.networking.EntityUpdatePacket;
+import com.dc0d.iiridarts.venture.networking.NetworkObject;
 
 /**
  * Holds information for player
@@ -26,11 +27,7 @@ import com.dc0d.iiridarts.venture.item.ItemStack;
  */
 public class Player extends EntityLiving {
 	
-    private static final int        FRAME_COLS = 4;
-	
-	public Sprite sprite;
 	public Sprite itemSprite;
-	private World world;
     
     ItemStack[] items;
     
@@ -38,34 +35,20 @@ public class Player extends EntityLiving {
     
     byte holdingStack;
     
-    float stateTime;
     public String name;
-    
-    boolean jumping = false;
     
     boolean swingingSword = false;
     short swingingSwordRampPos = 0;
 	
 	public Player(World world, boolean canFly, int x, int y, boolean isRemote) {
-		super((int)(16*1.5), (int)(24*1.5), isRemote);
+		super(world, (int)(16*1.5), (int)(24*1.5), isRemote, (byte) 1);
+		networkObject = new NetworkObject(world.venture, (byte)2, (byte) 0);
 		sprite = new Sprite();
 		sprite.setSize(this.dimensions.x, this.dimensions.y);
 		//TODO Work on Player stuff
 		this.setPosition(x, y);
 		this.world = world;
 		//sprite.setScale(1.25f,1.25f);
-		animationSheet = new Texture(world.venture.res.getTexture("entity_2").getTextureData());
-		animationFrames = new TextureRegion[4];
-		TextureRegion[][] tmp = TextureRegion.split(animationSheet, animationSheet.getWidth()/FRAME_COLS, animationSheet.getHeight());    
-		int index = 0;
-		for (int i = 0; i < 1; i++) {
-            for (int j = 0; j < 4; j++) {
-                animationFrames[index++] = tmp[i][j];
-            }
-        }
-		animation = new Animation(0.25f, animationFrames);
-		stateTime += Gdx.graphics.getDeltaTime();
-		currentFrame = animation.getKeyFrame(stateTime, true);
 		canFly = false;
 		sprite.setOrigin(this.dimensions.x/2, 0);
 		sprite.setScale(2f);
@@ -84,9 +67,67 @@ public class Player extends EntityLiving {
 		
 	//}
 	
-	public void updatePlayer(float timestep){
-        
-        //System.out.println(velocity.x);
+	public void updateLivingEntity(float timestep){
+        if(world.venture.movingx){
+            if(world.venture.directionx)
+            {
+            	if(jump)
+            	{
+            		bodyforce.x = run?1.25f:0.75f;
+            	} else {
+            		bodyforce.x = run?1.00f:0.50f;
+            	}
+            	if(canWalk)
+            	{
+            	walk = true;
+            	}
+            	hdir = false;
+        	}
+            else
+            {
+            	if(jump)
+            	{
+            		bodyforce.x = -0.75f;
+            		if(run) {
+            			bodyforce.x = -1.50f;
+            		}
+            	} else {
+            		bodyforce.x = -0.50f;
+            		if(run) {
+            			bodyforce.x = -1.00f;
+            		}
+            	}
+            	if(canWalk)
+            	{
+            	walk = true;
+            	}
+            	hdir = true;
+            	//camera.position.x = Math.max(camera.position.x - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN);
+            }
+        }
+        if(world.venture.movingy) {
+            if (world.venture.directiony)
+            {
+            	if(jump && jumping){
+            		velocity.y += 45;
+            		jumping = false;
+            	}
+            	
+            	if(canFly)
+            	{
+            		velocity.y = Math.max(45, velocity.y);
+            	}
+        	}
+            else
+            {
+            	
+            }
+    	}
+        if(world.venture.shift) {
+        	run = true;
+        } else {
+        	run = false;
+        }
         if(world.venture.sloMo){
         for(int i = 0; i <= 5; i++) doPhysics(timestep/10);
         } else {
@@ -98,9 +139,8 @@ public class Player extends EntityLiving {
 		} else {
 			//
 		}
+			stateTime += Gdx.graphics.getDeltaTime()*(run?1.5f:1);
 		
-		stateTime += Gdx.graphics.getDeltaTime();
-        
 		if(walk){
         	currentFrame = animation.getKeyFrame(stateTime, true);
         }
@@ -166,7 +206,7 @@ public class Player extends EntityLiving {
 				(int)(position.y/Constants.TILESIZE) - 4 < y && (int)(position.y/Constants.TILESIZE) + 4 > y){
 			if(tileBreakBuffer.containsKey(new Vector2(x, y))) {
 				if(tileBreakBuffer.get(new Vector2(x, y)).shortValue() < 100){
-					tileBreakBuffer.put(new Vector2(x, y), new Short((short) (tileBreakBuffer.get(new Vector2(x, y)).shortValue()+1)));
+					tileBreakBuffer.put(new Vector2(x, y), new Short((short) ((tileBreakBuffer.get(new Vector2(x, y)).shortValue()+6))));
 					if(Math.random() < 0.05){
 						world.tiles.get(x).get(y).setRandom(Utilities.randInt(0, 2));
 					}
@@ -182,12 +222,7 @@ public class Player extends EntityLiving {
 	//public EntityUpdatePacket makeEntityUpdatePacket() {
 	//	return new EntityUpdatePacket(position, velocity, stateTime, id);
 	//}
-	
-	public void movePlayer(){
-		//position.x
-	}
-	
-	public void doPhysics(float timestep){
+	public void doPhysics(float timestep) {
 		float drag = 0.98F;
 		//float acceleration = 0.5f;
 		
@@ -195,18 +230,18 @@ public class Player extends EntityLiving {
 		
 		float maxVelocity = 125;
 		
-    	if(walk || !jump){
-    		velocity.x = MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity);
-    	} else {
-    		velocity.x = MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity) * drag;
-    	}
+		if(walk || !jump){
+			velocity.x = MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity);
+		} else {
+			velocity.x = MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity) * drag;
+		}
 		
-    	jump = false;
+		jump = false;
 		
 		velocity.y = MathUtils.clamp(velocity.y + (this.world.venture.gravity ? Constants.GRAVITY_Y : 0) * (timestep), -maxVelocity, maxVelocity);
 		if(world.venture.physics){
-    	{
-    		//Moving Left
+		{
+			//Moving Left
 	        if (velocity.x < 0 || bodyforce.x < 0){
 	        	while(world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()/Constants.TILESIZE)+1).isSolid() || world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getTop()/Constants.TILESIZE)-1).isSolid()){
 	        		position.x += (int)(getLeft())-getLeft()+1;
@@ -215,7 +250,7 @@ public class Player extends EntityLiving {
 	        		jump = true;
 	        		walk = false;
 	        	}
-        	//Moving Right
+	    	//Moving Right
 	        } else if (velocity.x > 0 || bodyforce.x > 0){
 	        	while(world.tileAt((int)(getRight()/Constants.TILESIZE), (int)(getBottom()/Constants.TILESIZE)+1).isSolid() || world.tileAt((int)(getRight()/Constants.TILESIZE), (int)(getTop()/Constants.TILESIZE)-1).isSolid()){
 	        		position.x -= (int)(getRight())-getRight()+1;
@@ -227,10 +262,10 @@ public class Player extends EntityLiving {
 	        } else {
 	        	canWalk = true;
 	        }
-    	}
-        
-    	{   
-    		//Moving Down
+		}
+	    
+		{   
+			//Moving Down
 	        if (velocity.y < 0){
 	        	while(world.tileAt((int)getLeft()/Constants.TILESIZE, (int)getBottom()/Constants.TILESIZE).isSolid() || 
 	        			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)getBottom()/Constants.TILESIZE).isSolid()||world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)getBottom()/Constants.TILESIZE).isSolid())
@@ -239,44 +274,44 @@ public class Player extends EntityLiving {
 	        		velocity.y = 0;
 	        		jump = true;
 	        	}
-        	//Moving Up
+	    	//Moving Up
 	        } else if (velocity.y > 0){
 	        	while(world.tileAt((int)(getLeft()/Constants.TILESIZE), ((int)getTop()/Constants.TILESIZE)).isSolid() ||
 	        			world.tileAt((int)(getRight()/Constants.TILESIZE), ((int)getTop()/Constants.TILESIZE)).isSolid())
-    			{
+				{
 	        		position.y -= (int)(getTop())-getTop()+1;
 	        		velocity.y = 0;
 	        	}
 	        }
 	        if(world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()-1)/Constants.TILESIZE).isSolid() || 
-        			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)(getBottom()-1)/Constants.TILESIZE).isSolid()||
-        			world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)(getBottom()-1)/Constants.TILESIZE).isSolid()||
-        			world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()-4)/Constants.TILESIZE).isSolid() || 
-        			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)(getBottom()-4)/Constants.TILESIZE).isSolid()||
-        			world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)(getBottom()-4)/Constants.TILESIZE).isSolid()||
-        			world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid() || 
-        			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid()||
-        			world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid()){
+	    			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)(getBottom()-1)/Constants.TILESIZE).isSolid()||
+	    			world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)(getBottom()-1)/Constants.TILESIZE).isSolid()||
+	    			world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()-4)/Constants.TILESIZE).isSolid() || 
+	    			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)(getBottom()-4)/Constants.TILESIZE).isSolid()||
+	    			world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)(getBottom()-4)/Constants.TILESIZE).isSolid()||
+	    			world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid() || 
+	    			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid()||
+	    			world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid()){
 	        	jump = true;
 	        }
-    	}
+		}
 	
 		/*collision = doCollision(position.x, position.y, velocity.x, velocity.y, dimensions.x, dimensions.y, Constants.TILESIZE);
-        
-        
+	    
+	    
 		velocity.x = MathUtils.clamp(collision.width, -maxVelocity, maxVelocity) * drag;
-        velocity.y = MathUtils.clamp(collision.height, -maxVelocity, maxVelocity) * drag;*/
-    	//System.out.println(velocity.x);
-    	if(getTop() >= (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN * drag){
-    		velocity.y = MathUtils.clamp(velocity.y, -maxVelocity, 0);
-    	} else if (position.y == Constants.WORLDEDGEMARGIN){
-    		velocity.y = MathUtils.clamp(velocity.y, 0, maxVelocity) * drag;	
-    	}
-    	position.x = MathUtils.clamp((position.x + (velocity.x) + bodyforce.x), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.x);
-        position.y = MathUtils.clamp((position.y + (velocity.y * (timestep)) + bodyforce.y), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.y);
+	    velocity.y = MathUtils.clamp(collision.height, -maxVelocity, maxVelocity) * drag;*/
+		//System.out.println(velocity.x);
+		if(getTop() >= (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN * drag){
+			velocity.y = MathUtils.clamp(velocity.y, -maxVelocity, 0);
+		} else if (position.y == Constants.WORLDEDGEMARGIN){
+			velocity.y = MathUtils.clamp(velocity.y, 0, maxVelocity) * drag;	
+		}
+		position.x = MathUtils.clamp((position.x + (velocity.x) + bodyforce.x), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.x);
+	    position.y = MathUtils.clamp((position.y + (velocity.y * (timestep)) + bodyforce.y), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.y);
 		} else { 
 	    	position.x = MathUtils.clamp((position.x + (velocity.x) + bodyforce.x), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.x);
 	        position.y = MathUtils.clamp((position.y + (velocity.y * (timestep)) + bodyforce.y), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.y);
-		}
+		}	
 	}
 }

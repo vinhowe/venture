@@ -7,6 +7,7 @@
 package com.dc0d.iiridarts.venture.tiles;
 
 import com.badlogic.gdx.math.Vector2;
+import com.dc0d.iiridarts.venture.World;
 
 /**
  * Construct for holding world tile state information
@@ -21,6 +22,7 @@ public class Tile {
 	private byte byte3;
 	private byte texX;
 	private byte texY;
+	boolean update = false;
 	
 	/**
 	 * Constructor for Tile
@@ -61,6 +63,7 @@ public class Tile {
 
 	public void setType(short type) {
 		this.type = type;
+		update = true;
 	}
 
 	public byte getWallType() {
@@ -69,6 +72,7 @@ public class Tile {
 
 	public void setWallType(byte wallType) {
 		this.wallType = wallType;
+		update = true;
 	}
 
 	public byte getByte1() {
@@ -77,6 +81,7 @@ public class Tile {
 
 	public void setByte1(byte byte1) {
 		this.byte1 = byte1;
+		update = true;
 	}
 
 	public byte getByte2() {
@@ -85,6 +90,7 @@ public class Tile {
 
 	public void setByte2(byte byte2) {
 		this.byte2 = byte2;
+		update = true;
 	}
 
 	public byte getByte3() {
@@ -93,6 +99,7 @@ public class Tile {
 
 	public void setByte3(byte byte3) {
 		this.byte3 = byte3;
+		update = true;
 	}
 
 	public byte getTexX() {
@@ -133,4 +140,9 @@ public class Tile {
 		return type > 0;
 	}
 	
+	public void update(Vector2 pos, World world) {
+		if(this.update && world.venture.) {
+			
+		}
+	}
 }

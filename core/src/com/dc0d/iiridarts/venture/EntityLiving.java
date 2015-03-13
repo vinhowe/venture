@@ -6,9 +6,11 @@
 
 package com.dc0d.iiridarts.venture;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.handlers.RandomString;
 
@@ -18,7 +20,7 @@ import com.dc0d.iiridarts.venture.handlers.RandomString;
  *
  */
 
-public class EntityLiving extends Entity {
+public abstract class EntityLiving extends Entity {
 	
 	short type;
 	boolean isDead = false; //We dispose of dead things. Sorry.
@@ -27,10 +29,12 @@ public class EntityLiving extends Entity {
 	boolean canFly = false; // Is our entity a flying animal or something magical?
 	boolean hdir = false;
 	byte vdir = 1;
-	boolean run = false;
-	boolean walk = false;
 	boolean canWalk = false;
-	public boolean isRemote;
+	boolean walk = false;
+	boolean run = false;
+	public boolean jumping = false;
+	
+    private static final int        FRAME_COLS = 4;
 	
     Animation                       animation;
     Texture                         animationSheet;
@@ -39,14 +43,29 @@ public class EntityLiving extends Entity {
 	
 	public Vector2 bodyforce;
 	
-	public EntityLiving(int width, int height, boolean isRemote) {
-		super(Entity.BodyType.DynamicBody, width, height); // All entities should be dynamic unless rocks count as living
+	public EntityLiving(World world, int width, int height, boolean isRemote, byte entityType) {
+		super(world, width, height, entityType); // All entities should be dynamic unless rocks count as living
 		this.isRemote = isRemote;
 		RandomString rndString = new RandomString(10);
 		//id = rndString.nextString();
 		//System.out.println(id);
 		bodyforce = new Vector2();
 		//TODO Work on entity stuff
+		animationSheet = new Texture(world.venture.res.getTexture("entity_2").getTextureData());
+		animationFrames = new TextureRegion[4];
+		TextureRegion[][] tmp = TextureRegion.split(animationSheet, animationSheet.getWidth()/FRAME_COLS, animationSheet.getHeight());    
+		int index = 0;
+		for (int i = 0; i < 1; i++) {
+            for (int j = 0; j < 4; j++) {
+                animationFrames[index++] = tmp[i][j];
+            }
+        }
+		animation = new Animation(0.25f, animationFrames);
+		stateTime += Gdx.graphics.getDeltaTime();
+		currentFrame = animation.getKeyFrame(stateTime, true);
 	}
-
+	
+	abstract void doPhysics(float timestep);
+	
+	abstract void updateLivingEntity(float timestep);
 }

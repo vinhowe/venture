@@ -1,12 +1,15 @@
 package com.dc0d.iiridarts.venture.networking;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.dc0d.iiridarts.venture.Constants;
 import com.dc0d.iiridarts.venture.ServerWorld;
 import com.dc0d.iiridarts.venture.Venture;
 import com.dc0d.iiridarts.venture.VentureServer;
 import com.dc0d.iiridarts.venture.World;
+import com.dc0d.iiridarts.venture.tiles.Tile;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -18,6 +21,8 @@ public class ServerHandler {
 	ServerHandler client;
 	Server server;
 	GameRequest request;
+	ArrayList<Packet> pendingRequests;
+	HashMap<Integer, HashMap<Integer, Tile>> tileUpdates;
 	
 	public ServerHandler(VentureServer venture, ServerWorld world) {
 		this.ventureServer = venture;
@@ -40,7 +45,7 @@ public class ServerHandler {
 	    kryo.register(GameRequest.class);
 	    kryo.register(GameResponse.class);
 	    kryo.register(java.util.HashMap.class);
-	  //  kryo.register(com.dc0d.iiridarts.venture.networking.EntityUpdatePacket.class);
+	    //kryo.register(com.dc0d.iiridarts.venture.networking.EntityUpdatePacket.class);
 	    //kryo.register(.class);
 	    server.addListener(new Listener() {
 	        public void received (Connection connection, Object object) {
@@ -48,7 +53,7 @@ public class ServerHandler {
 	        	   GameConnectionRequest request = (GameConnectionRequest)object;
 	        	   GameConnectionResponse response = new GameConnectionResponse();
 	              if (request.password.equalsIgnoreCase("bofolo37*")){
-		              response.entityUpdates = ventureServer.entityUpdatePackets;
+		              response.pendingRequests = ventureServer.pendingRequests;
 		              response.response = "ready for handshake";
 		              connection.sendUDP(response);
 	              } else {
@@ -60,8 +65,8 @@ public class ServerHandler {
 	           } else if (object instanceof GameRequest) {
 	        	   GameRequest request = (GameRequest)object;
 	        	   if (request.request.equals("update")) {
-	        		  Packet response = new Packet((byte)0);
-		              ventureServer.players.put(request.player.id, request.player);
+	        		  Packet response = new Packet();
+		              ventureServer.players.put(request.player.getId(), request.player);
 		              connection.sendUDP(response);
 	        	   }
 	           }

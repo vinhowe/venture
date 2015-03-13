@@ -1,7 +1,10 @@
 package com.dc0d.iiridarts.venture.networking;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+import com.dc0d.iiridarts.venture.tiles.Tile;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
@@ -11,6 +14,8 @@ public class ClientNetworkHandler {
 	
 	Client client;
 	NetworkHandler handler;
+	ArrayList<Packet> pendingRequests;
+	HashMap<Integer, HashMap<Integer, Tile>> tileUpdates;
 	
 	public ClientNetworkHandler(NetworkHandler handler)	{
 		client = new Client();
@@ -28,10 +33,6 @@ public class ClientNetworkHandler {
 		client.start();
 		client.connect(timeout, ipAddress, port+1, port);
 	    Kryo kryo = client.getKryo();
-	    kryo.register(GameConnectionRequest.class);
-	    kryo.register(GameConnectionResponse.class);
-	    kryo.register(GameRequest.class);
-	    kryo.register(GameResponse.class);
 	    kryo.register(java.util.HashMap.class);
 		attemptHandshake("bofolo37*");
 	    client.addListener(new Listener() {
