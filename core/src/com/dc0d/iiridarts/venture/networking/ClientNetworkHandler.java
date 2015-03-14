@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.dc0d.iiridarts.venture.Venture;
 import com.dc0d.iiridarts.venture.tiles.Tile;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
@@ -16,10 +17,10 @@ public class ClientNetworkHandler {
 	NetworkHandler handler;
 	ArrayList<Packet> pendingRequests;
 	HashMap<Integer, HashMap<Integer, Tile>> tileUpdates;
+	Venture venture;
 	
-	public ClientNetworkHandler(NetworkHandler handler)	{
+	public ClientNetworkHandler()	{
 		client = new Client();
-		this.handler = handler;
 	}
 	/**
 	 * Initializes client and connects to server

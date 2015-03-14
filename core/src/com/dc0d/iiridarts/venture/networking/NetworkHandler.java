@@ -9,20 +9,20 @@ import com.dc0d.iiridarts.venture.World;
 public class NetworkHandler {
 	Venture venture;
 	World world;
-	ClientNetworkHandler client;
+	ClientNetworkHandler clientHandler;
 	KryoNetServer server;
 	GameRequest request;
 	
 	public NetworkHandler(Venture venture, World world) {
 		this.venture = venture;
-		client = new ClientNetworkHandler(this);
+		clientHandler = new ClientNetworkHandler();
 		server = new KryoNetServer(this);
 		request = new GameRequest();
 	}
 	
 	public void initClient(int port) throws IOException {
-		client.initAndConnect("127.0.0.1", Constants.NETWORKTIMEOUT, port);
-		client.attemptHandshake("bofolo37*");
+		clientHandler.initAndConnect("127.0.0.1", Constants.NETWORKTIMEOUT, port);
+		clientHandler.attemptHandshake("bofolo37*");
 	}
 	
 	public void initServer(int port) throws IOException {
