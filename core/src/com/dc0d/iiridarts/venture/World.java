@@ -29,12 +29,14 @@ public class World {
 	private final byte type;
 	public Venture venture;
 	public ArrayList<Entity> entities;
+	NetworkObject networkObject;
 
 	public World(String name, byte type, Venture venture) {
 		this.venture = venture;
 		this.setName(name);
 		this.type = type;
 		tiles = new ArrayList<ArrayList<Tile>>();
+		networkObject = new NetworkObject(venture, (byte)0, (byte)0);
 	}
 
 	/**

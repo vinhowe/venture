@@ -141,7 +141,7 @@ public class Tile {
 	}
 	
 	public void update(Vector2 pos, World world) {
-		if(this.update && world.venture.) {
+		if(this.update) {
 			
 		}
 	}

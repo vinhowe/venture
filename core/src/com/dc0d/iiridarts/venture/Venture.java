@@ -20,13 +20,9 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -37,7 +33,6 @@ import com.dc0d.iiridarts.venture.handlers.Content;
 import com.dc0d.iiridarts.venture.networking.ClientNetworkHandler;
 import com.dc0d.iiridarts.venture.networking.NetworkHandler;
 import com.dc0d.iiridarts.venture.networking.NetworkObject;
-import com.dc0d.iiridarts.venture.networking.Packet;
 
 public class Venture extends com.badlogic.gdx.Game implements ApplicationListener{
 	
@@ -45,7 +40,8 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 	public HashMap<String, EntityLiving> entities;
 	public HashMap<String, Player> players;
     private SpriteBatch batch;
-    private World world;
+    private ArrayList<World> world;
+    @SuppressWarnings("unused")
     private SpriteBatch bgbatch;
     private Viewport viewport;
     private TextureRegion[] bg;
@@ -104,10 +100,11 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		res.loadTexture("assets/images/entities/entity_2.png");
 		bg = new TextureRegion[]{new TextureRegion(res.getTexture("bg"),80,50), new TextureRegion(res.getTexture("bg"),0,51,80,50),new TextureRegion(res.getTexture("bg"),0,51*2,80,50)};
 		background = new TiledDrawable[]{new TiledDrawable(bg[0]), new TiledDrawable(bg[1]), new TiledDrawable(bg[2])};
-		world = new World("alpha", (byte)1, this);
+		world = new ArrayList<World>();
+		world.add(new World("alpha", (byte)1, this));
         batch = new SpriteBatch();
         bgbatch = new SpriteBatch();
-        world.generate();
+        world.get(0).generate();
         oddFrame = true;
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.x = 400*Constants.TILESIZE;
@@ -115,7 +112,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         camera.update();
         zoom = 1F;
         viewport = new ScreenViewport(camera);
-        player = new Player(world, false, 400*Constants.TILESIZE, 501*Constants.TILESIZE, true);
+        player = new Player(world.get(0), false, 400*Constants.TILESIZE, 501*Constants.TILESIZE, true);
         Gdx.input.setInputProcessor(new GameInput());
         logger = Logger.getLogger("Venture");
         handler = new ConsoleHandler();
@@ -136,7 +133,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         }
         sloMo = false;
         entitySprites.add(player.sprite);
-        networker = new NetworkHandler(this, world);
+        networker = new NetworkHandler(this, world.get(0));
         gravity = true;
         players = new HashMap<String, Player>();
         players.put(player.name, player);
@@ -195,6 +192,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
         bg1pos.x += Gdx.graphics.getDeltaTime() * 0.5;
 		//camera.zoom = 1 - 0.05F;
 		scamera.zoom = 0.07f;
+		camera.zoom = zoom;
 		camera.update();
 		//scamera.update();
 		//bgbatch.setProjectionMatrix(scamera.combined);
@@ -277,9 +275,9 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		
 		for(int x = (int) startingTile.x; x <= lastTile.x; x++){
 			for(int y = (int) startingTile.y; y <= lastTile.y; y++)
-		        		if(world.tileAt(x, y).isSolid()){
-			        	world.updateTile(x,y);
-		        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(world.tileAt(x,y).getType()),world.tileTexX(x, y)*9,world.tileTexY(x, y)*9,8,8));
+		        		if(world.get(0).tileAt(x, y).isSolid()){
+	        			world.get(0).updateTile(x,y);
+		        		Sprite sprite = new Sprite(new TextureRegion(res.getTileTexture(world.get(0).tileAt(x,y).getType()),world.get(0).tileTexX(x, y)*9,world.get(0).tileTexY(x, y)*9,8,8));
 		        		sprite.setPosition(x*Constants.TILESIZE,y*Constants.TILESIZE);
 		        		sprite.setSize(Constants.TILESIZE,Constants.TILESIZE);
 		        		sprite.setScale(1.05f);
@@ -319,7 +317,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		public boolean scrolled(int amount) {
  
             /*//Zoom out
-			if (amount > 0 && zoom < 1) {
+			if (amount > 0 && zoom < 2) {
 				zoom += 0.1f;
 			}
  
