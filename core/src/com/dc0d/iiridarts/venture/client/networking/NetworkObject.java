@@ -9,7 +9,6 @@ package com.dc0d.iiridarts.venture.client.networking;
 import java.util.HashMap;
 
 import com.dc0d.iiridarts.venture.client.Venture;
-import com.dc0d.iiridarts.venture.client.World;
 import com.dc0d.iiridarts.venture.client.handlers.RandomString;
 
 public class NetworkObject {

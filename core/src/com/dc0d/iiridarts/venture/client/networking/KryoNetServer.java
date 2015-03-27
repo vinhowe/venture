@@ -7,11 +7,7 @@
 package com.dc0d.iiridarts.venture.client.networking;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 
-import com.badlogic.gdx.math.Vector2;
-import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;

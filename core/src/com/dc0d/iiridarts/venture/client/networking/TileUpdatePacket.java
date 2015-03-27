@@ -8,8 +8,6 @@ package com.dc0d.iiridarts.venture.client.networking;
 
 import java.util.HashMap;
 
-import com.dc0d.iiridarts.venture.client.tiles.Tile;
-
 public class TileUpdatePacket extends Packet{
 	HashMap<TileKey, HashMap<Integer, Object>> tileUpdates;
 	public TileUpdatePacket() {

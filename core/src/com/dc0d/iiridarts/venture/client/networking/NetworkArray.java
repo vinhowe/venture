@@ -9,9 +9,13 @@ package com.dc0d.iiridarts.venture.client.networking;
 import java.util.HashMap;
 
 public class NetworkArray {
-	HashMap<Integer, Object> keyValuePairs;
+	
+	HashMap<Integer, UpdateValuePair> keyValuePairs;
 	Object key;
+	
 	public NetworkArray() {
-		keyValuePairs = new HashMap<Integer, Object>();
+		keyValuePairs = new HashMap<Integer, UpdateValuePair>();
 	}
+	
+	
 }

@@ -23,11 +23,12 @@ public class ClientNetworkHandler {
 	
 	private Client client;
 	ArrayList<Packet> pendingRequests;
-	HashMap<Integer, HashMap<Integer, Tile>> tileUpdates;
 	Venture venture;
+	ClientUpdateHandler updateHandler;
 	
 	public ClientNetworkHandler()	{
 		client = new Client();
+		updateHandler = new ClientUpdateHandler();
 	}
 	
 	/**
@@ -39,7 +40,7 @@ public class ClientNetworkHandler {
 	 */
 	
 	public void initAndConnect(String ipAddress, int port, String password) throws IOException {
-		initAndConnect("127.0.0.1", Constants.NETWORKTIMEOUT, port);
+		initAndConnect(ipAddress, Constants.NETWORKTIMEOUT, port);
 		attemptHandshake(password);
 	}
 	
