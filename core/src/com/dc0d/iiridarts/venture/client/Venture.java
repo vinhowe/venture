@@ -31,7 +31,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.dc0d.iiridarts.venture.client.handlers.Content;
 import com.dc0d.iiridarts.venture.client.networking.ClientNetworkHandler;
-import com.dc0d.iiridarts.venture.client.networking.NetworkObject;
+import com.dc0d.iiridarts.venture.client.networking.NetworkKey;
 
 public class Venture extends com.badlogic.gdx.Game implements ApplicationListener{
 	
@@ -57,7 +57,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
     boolean directionx;
     FPSLogger fps;
     boolean oddFrame;
-	public ArrayList<NetworkObject> objects; //FIXME Work on NetworkObject ArrayList
+	public ArrayList<NetworkKey> objects; //FIXME Work on NetworkKey ArrayList
     TiledDrawable[] background;
 	Vector2 bg1pos;
 	Vector2 bg2pos;

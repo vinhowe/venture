@@ -10,8 +10,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public class TileKey {
 	Vector2 position;
-	NetworkObject world;
-	public TileKey(Vector2 position, NetworkObject world) {
+	NetworkKey world;
+	public TileKey(Vector2 position, NetworkKey world) {
 		this.position = position;
 		this.world = world;
 	}

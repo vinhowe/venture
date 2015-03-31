@@ -12,7 +12,7 @@ import java.util.Random;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.client.handlers.Utilities;
-import com.dc0d.iiridarts.venture.client.networking.NetworkObject;
+import com.dc0d.iiridarts.venture.client.networking.NetworkKey;
 import com.dc0d.iiridarts.venture.client.tiles.Tile;
 
 /**
@@ -28,14 +28,14 @@ public class World {
 	private final byte type;
 	public Venture venture;
 	public ArrayList<Entity> entities;
-	NetworkObject networkObject;
+	NetworkKey networkKey;
 
 	public World(String name, byte type, Venture venture) {
 		this.venture = venture;
 		this.setName(name);
 		this.type = type;
 		tiles = new ArrayList<ArrayList<Tile>>();
-		networkObject = new NetworkObject(venture, (byte)0, (byte)0);
+		networkKey = new NetworkKey(venture, (byte)0, (byte)0);
 	}
 
 	/**

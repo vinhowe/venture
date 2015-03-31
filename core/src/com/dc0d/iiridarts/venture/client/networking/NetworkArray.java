@@ -17,5 +17,4 @@ public class NetworkArray {
 		keyValuePairs = new HashMap<Integer, UpdateValuePair>();
 	}
 	
-	
 }

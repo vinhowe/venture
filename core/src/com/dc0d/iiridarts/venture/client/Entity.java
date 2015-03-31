@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
-import com.dc0d.iiridarts.venture.client.networking.NetworkObject;
+import com.dc0d.iiridarts.venture.client.networking.NetworkKey;
 
 public abstract class Entity{
 	
@@ -54,12 +54,12 @@ public abstract class Entity{
 	public Sprite sprite;
     float stateTime;
 	
-    NetworkObject networkObject;
+    NetworkKey networkKey;
     
 	boolean isRemote = false;
     
 	public Entity(World world, int width, int height, byte entityType){
-		networkObject = new NetworkObject(world.venture, (byte)3, (byte) entityType);
+		networkKey = new NetworkKey(world.venture, (byte)3, (byte) entityType);
 		
 		// Setting the entity's width and height
 		// Make this variable

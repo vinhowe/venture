@@ -11,7 +11,7 @@ import java.util.HashMap;
 import com.dc0d.iiridarts.venture.client.Venture;
 import com.dc0d.iiridarts.venture.client.handlers.RandomString;
 
-public class NetworkObject {
+public class NetworkKey {
 	private String id;
 	public Venture venture;
 	private Byte objectType;
@@ -26,7 +26,7 @@ public class NetworkObject {
 	 * @param id
 	 */
 	
-	public NetworkObject(Venture venture, byte objectType, byte subtype, String id) {
+	public NetworkKey(Venture venture, byte objectType, byte subtype, String id) {
 		this.venture = venture;
 		this.setObjectType(objectType);
 		this.setSubtype(subtype);
@@ -42,7 +42,7 @@ public class NetworkObject {
 	 * @param subtype
 	 */
 	
-	public NetworkObject(Venture venture, byte objectType, byte subtype) {
+	public NetworkKey(Venture venture, byte objectType, byte subtype) {
 		this(venture, objectType, subtype, new RandomString(5).nextString());
 	}
 

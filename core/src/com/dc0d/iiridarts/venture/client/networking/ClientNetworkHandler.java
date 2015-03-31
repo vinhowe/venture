@@ -8,12 +8,9 @@ package com.dc0d.iiridarts.venture.client.networking;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.dc0d.iiridarts.venture.client.Constants;
 import com.dc0d.iiridarts.venture.client.Venture;
-import com.dc0d.iiridarts.venture.client.World;
-import com.dc0d.iiridarts.venture.client.tiles.Tile;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;

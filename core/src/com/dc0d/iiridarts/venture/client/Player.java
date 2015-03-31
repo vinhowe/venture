@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.client.handlers.Utilities;
 import com.dc0d.iiridarts.venture.client.item.ItemStack;
-import com.dc0d.iiridarts.venture.client.networking.NetworkObject;
+import com.dc0d.iiridarts.venture.client.networking.NetworkKey;
 
 /**
  * Holds information for player
@@ -38,7 +38,7 @@ public class Player extends EntityLiving {
 	
 	public Player(World world, boolean canFly, int x, int y, boolean isRemote) {
 		super(world, (int)(16*1.5), (int)(24*1.5), isRemote, (byte) 1);
-		networkObject = new NetworkObject(world.venture, (byte)2, (byte) 0);
+		networkKey = new NetworkKey(world.venture, (byte)2, (byte) 0);
 		sprite = new Sprite();
 		sprite.setSize(this.dimensions.x, this.dimensions.y);
 		//TODO Work on Player stuff

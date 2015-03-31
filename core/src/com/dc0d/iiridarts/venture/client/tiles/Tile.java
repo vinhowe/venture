@@ -9,6 +9,7 @@ package com.dc0d.iiridarts.venture.client.tiles;
 import java.util.Random;
 
 import com.badlogic.gdx.math.Vector2;
+import com.dc0d.iiridarts.venture.client.networking.NetworkArray;
 
 /**
  * Construct for holding world tile state information
@@ -29,7 +30,7 @@ public class Tile {
 	
 	private boolean[] networkValueUpdates;
 	
-	private Object[] networkValues;
+	private NetworkArray array;
 	
 	//TODO Use a NetworkArray here instead of primitive arrays
 	
