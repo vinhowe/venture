@@ -10,6 +10,7 @@ import java.util.Random;
 
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.client.networking.NetworkArray;
+import com.dc0d.iiridarts.venture.client.networking.TileKey;
 
 /**
  * Construct for holding world tile state information
@@ -30,7 +31,7 @@ public class Tile {
 	
 	private boolean[] networkValueUpdates;
 	
-	private NetworkArray array;
+	private NetworkArray networkArray;
 	
 	//TODO Use a NetworkArray here instead of primitive arrays
 	
@@ -41,7 +42,7 @@ public class Tile {
 	 * @param texCoords
 	 */
 	
-	public Tile(short type, byte wallType, Vector2 texCoords) {
+	public Tile(short type, byte wallType, Vector2 texCoords, Vector2 coords) {
 		this.type = type;
 		this.wallType = wallType;
 		this.texX = (byte) texCoords.x;
@@ -50,12 +51,13 @@ public class Tile {
 		byte2 = 0;
 		byte3 = 0;
 		setRandom(new Random().nextInt(2), false);
-		networkValues = new Object[8];
+		networkArray = new NetworkArray(new TileKey(coords));
+		networkArray.addVariable();
 		networkValueUpdates = new boolean[8];
 	}
 	
-	public Tile(short type, byte wallType, byte texX, byte texY) {
-		this(type, wallType, new Vector2(texX, texY));
+	public Tile(short type, byte wallType, byte texX, byte texY, int x, int y) {
+		this(type, wallType, new Vector2(texX, texY), new Vector2(x, y));
 	}
 
 	public short getType() {
