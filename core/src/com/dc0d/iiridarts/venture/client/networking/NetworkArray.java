@@ -6,17 +6,15 @@
 
 package com.dc0d.iiridarts.venture.client.networking;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class NetworkArray {
 
 	// CLEANUP HashMap with Integer and UpdateValuePair may be better as an
-	// arraylist
-	private ArrayList<UpdateValuePair> keyValuePairs;
-	Object key;
-
-	public NetworkArray(Object key) {
-		keyValuePairs = new ArrayList<UpdateValuePair>();
+	private HashMap<Integer, UpdateValuePair> keyValuePairs;
+	
+	public NetworkArray() {
+		keyValuePairs = new HashMap<Integer, UpdateValuePair>();
 	}
 
 	public void flagUpdate(int index, boolean update) {
@@ -28,7 +26,6 @@ public class NetworkArray {
 	}
 
 	public void addVariable() {
-
+		//FIXME Set up addVariable
 	}
-
 }

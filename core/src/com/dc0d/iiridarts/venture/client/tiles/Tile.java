@@ -42,7 +42,7 @@ public class Tile {
 	 * @param texCoords
 	 */
 	
-	public Tile(short type, byte wallType, Vector2 texCoords, Vector2 coords) {
+	public Tile(short type, byte wallType, Vector2 texCoords) {
 		this.type = type;
 		this.wallType = wallType;
 		this.texX = (byte) texCoords.x;
@@ -51,13 +51,14 @@ public class Tile {
 		byte2 = 0;
 		byte3 = 0;
 		setRandom(new Random().nextInt(2), false);
-		networkArray = new NetworkArray(new TileKey(coords));
-		networkArray.addVariable();
+		networkArray = new NetworkArray();
+		//networkArray.addVariable();
+		//FIXME Add tile variables to networkArray
 		networkValueUpdates = new boolean[8];
 	}
 	
-	public Tile(short type, byte wallType, byte texX, byte texY, int x, int y) {
-		this(type, wallType, new Vector2(texX, texY), new Vector2(x, y));
+	public Tile(short type, byte wallType, byte texX, byte texY) {
+		this(type, wallType, new Vector2(texX, texY));
 	}
 
 	public short getType() {

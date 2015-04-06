@@ -229,9 +229,8 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 				}
 			}
 		}
-		if(oddFrame){
-			//entitySprites.clear();
-		}
+		
+		
 		player.updateLivingEntity(0.25f);
 		player.sprite.setPosition(player.getPosition().x, player.getPosition().y);
 		camera.position.x = MathUtils.clamp(player.position.x,Constants.WORLDEDGEMARGIN+camera.viewportWidth/2, ((Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN)-(camera.viewportWidth/2));
@@ -323,7 +322,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		public boolean keyDown(int keycode) {
 	        switch (keycode)
 	        {
-	        case Keys.W:
+	        case Keys.SPACE:
 	            movingy = true;
 	            directiony = true;
 	            player.jumping = true;
@@ -339,9 +338,6 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		    case Keys.A:
 		    	movingx = true;
 		    	directionx = false;
-		        break;
-		    case Keys.SPACE:
-		    	//player.jump(5f);
 		        break;
 		    case Keys.F8:
 		    	create();
