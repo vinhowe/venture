@@ -16,29 +16,15 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
-public class ClientNetworkHandler {
+public class KryoNetClient {
 	
 	private Client client;
-	ArrayList<Packet> pendingRequests;
 	Venture venture;
 	ClientUpdateHandler updateHandler;
 	
-	public ClientNetworkHandler()	{
+	public KryoNetClient()	{
 		client = new Client();
 		updateHandler = new ClientUpdateHandler();
-	}
-	
-	/**
-	 * Attempts to connect client to server
-	 * @param ipAddress
-	 * @param port
-	 * @param password input string for password protected servers
-	 * @throws IOException
-	 */
-	
-	public void initAndConnect(String ipAddress, int port, String password) throws IOException {
-		initAndConnect(ipAddress, Constants.NETWORKTIMEOUT, port);
-		attemptHandshake(password);
 	}
 	
 	/**
@@ -49,27 +35,25 @@ public class ClientNetworkHandler {
 	 * @param udpPort
 	 * @throws IOException
 	 */
-	public void initAndConnect(String ipAddress, int timeout, int port) throws IOException{
-		client.start();
-		client.connect(timeout, ipAddress, port+1, port);
+	public void initAndConnect(String ipAddress, int port, String password) throws IOException{
 	    Kryo kryo = client.getKryo();
-	    kryo.register(java.util.HashMap.class);
-		attemptHandshake("bofolo37*");
+		kryo.register(NetworkConnectionRequest.class);
+		kryo.register(NetworkConnectionResponse.class);
+		kryo.register(NetworkRequest.class);
+		kryo.register(NetworkResponse.class);
+		kryo.register(java.util.HashMap.class);
+		client.start();
+		client.connect(Constants.NETWORKTIMEOUT, ipAddress, port+1, port);
+		attemptHandshake(password);
 	    client.addListener(new Listener() {
-	        public void Network (Connection connection, Object object) {
+	    	public void received (Connection connection, Object object) {
 	           if (object instanceof NetworkConnectionResponse) {
 	        	  NetworkConnectionResponse response = (NetworkConnectionResponse)object;
 	        	  if(response.response.equalsIgnoreCase("ready for handshake")){
 	        		  NetworkRequest request = new NetworkRequest();
-		        	  connection.sendUDP(request);
-		        	//  for(int p = 0; p <= response.entityUpdates.size(); p++){
-		        	//	  response.entityUpdates.get(p).isRemote = true;
-		        	//	  //handler.venture.players.put(response.entityUpdates.get(p).id, response.entityUpdates.get(p));
-		        	//  }
 		        	  
-		        	  client.sendUDP(request);
+		        	  connection.sendTCP(request);
 	        	  }
-	              //System.out.println(request.request);
 	           }
 	           if (object instanceof NetworkResponse) {
 	        	   
@@ -99,7 +83,7 @@ public class ClientNetworkHandler {
 		//if (client.isConnected()){
 			NetworkConnectionRequest request = new NetworkConnectionRequest();
 			request.password = password;
-			client.sendUDP(request);
+			client.sendTCP(request);
 		//}
 	}
 }

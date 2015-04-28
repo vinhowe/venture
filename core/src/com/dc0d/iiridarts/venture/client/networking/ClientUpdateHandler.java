@@ -6,10 +6,12 @@
 
 package com.dc0d.iiridarts.venture.client.networking;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ClientUpdateHandler {
 	private HashMap<Object, HashMap<Integer, Object>> keyValueUpdates;
+	ArrayList<Packet> pendingRequests;
 	
 	public ClientUpdateHandler() {
 		keyValueUpdates = new HashMap<Object, HashMap<Integer, Object>>();

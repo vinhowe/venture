@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.client.handlers.Utilities;
 import com.dc0d.iiridarts.venture.client.item.ItemStack;
-import com.dc0d.iiridarts.venture.client.networking.NetworkKey;
+import com.dc0d.iiridarts.venture.client.networking.EntityKey;
 
 /**
  * Holds information for player
@@ -24,6 +24,7 @@ import com.dc0d.iiridarts.venture.client.networking.NetworkKey;
 public class Player extends EntityLiving {
 	
 	public Sprite itemSprite;
+	public Sprite itemGlowSprite;
     
     ItemStack[] items;
     
@@ -38,7 +39,7 @@ public class Player extends EntityLiving {
 	
 	public Player(World world, boolean canFly, int x, int y, boolean isRemote) {
 		super(world, (int)(16*1.5), (int)(24*1.5), isRemote, (byte) 1);
-		networkKey = new NetworkKey(world.venture, (byte)2, (byte) 0);
+		entityKey = new EntityKey(world.venture, (byte)2, (byte) 0);
 		sprite = new Sprite();
 		sprite.setSize(this.dimensions.x, this.dimensions.y);
 		//TODO Work on Player stuff
@@ -53,9 +54,15 @@ public class Player extends EntityLiving {
 			items[i] = new ItemStack((short)0,0);
 		}
 		holdingStack = 0;
-        itemSprite = new Sprite(world.venture.res.getItemTexture(1));
-        itemSprite.scale(2f);
+        itemSprite = new Sprite(world.venture.res.getItemTexture(2));
+        itemSprite.scale(1f);
         world.venture.itemSprites.add(itemSprite);
+        if(world.venture.res.getItemGlowTexture(2) != null){
+        	System.out.println("Found Glow Texture");
+	        itemGlowSprite = new Sprite(world.venture.res.getItemGlowTexture(2));
+	        itemGlowSprite.scale(1f);
+	        world.venture.itemGlowSprites.add(itemGlowSprite);
+        }
         tileBreakBuffer = new HashMap<Vector2, Short>();
 	}
 	
@@ -132,6 +139,7 @@ public class Player extends EntityLiving {
 		if(jump)
 		{
 			bodyforce.x = (float) Math.max(bodyforce.x - 0.1, 0);
+			
 		} else {
 			//
 		}
@@ -148,34 +156,71 @@ public class Player extends EntityLiving {
         //FIXME Use dynamic item textures instead of just debugging with pencil
         if(!hdir){
  	        itemSprite.setOrigin(0f, 0f);
-	        itemSprite.setPosition(this.position.x+(this.sprite.getWidth()/2), this.position.y+(this.sprite.getHeight()/2.5f));
+	        itemSprite.setPosition(this.position.x+(this.sprite.getWidth()/1.25f), this.position.y+(this.sprite.getHeight()/1.90f));
 	        itemSprite.setFlip(false, false);
+ 	        itemGlowSprite.setOrigin(0f, 0f);
+ 	        itemGlowSprite.setPosition(this.position.x+(this.sprite.getWidth()/1.25f), this.position.y+(this.sprite.getHeight()/1.90f));
+ 	        itemGlowSprite.setFlip(false, false);
 	        if(itemSprite.getRotation() > -60 && swingingSword){
 	        	itemSprite.rotate(-2.5f*(swingingSwordRampPos*0.15f));
+	        	itemGlowSprite.rotate(-2.5f*(swingingSwordRampPos*0.15f));
 	        	swingingSwordRampPos++;
-	        	itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
+	        	//itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
 	        } else {
 	        	swingingSword = false;
 	        	itemSprite.setRotation(0);
+	        	itemGlowSprite.setRotation(0);
 	        	swingingSwordRampPos = 0;
-	        	itemSprite.setAlpha(0.05f);
+	        	//itemSprite.setAlpha(0.90f);
 	        }
         } else {
  	        itemSprite.setOrigin(itemSprite.getWidth(), 0f);
-        	itemSprite.setPosition(this.position.x-(this.sprite.getWidth()/2), this.position.y+(this.sprite.getHeight()/2.5f));
+        	itemSprite.setPosition(this.position.x-(this.sprite.getWidth()/1.25f), this.position.y+(this.sprite.getHeight()/1.90f));
         	itemSprite.setFlip(true, false);
+        	itemGlowSprite.setOrigin(itemGlowSprite.getWidth(), 0f);
+        	itemGlowSprite.setPosition(this.position.x-(this.sprite.getWidth()/1.25f), this.position.y+(this.sprite.getHeight()/1.90f));
+        	itemGlowSprite.setFlip(true, false);
 	        if(itemSprite.getRotation() < 60 && swingingSword){
 	        	itemSprite.rotate(2.5f*(swingingSwordRampPos*0.15f));
+	        	itemGlowSprite.rotate(2.5f*(swingingSwordRampPos*0.15f));
 	        	swingingSwordRampPos++;
-	        	itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
+	        	//itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
 	        } else {
 	        	swingingSword = false;
 	        	itemSprite.setRotation(0);
+	        	itemGlowSprite.setRotation(0);
 	        	swingingSwordRampPos = 0;
-	        	itemSprite.setAlpha(0.05f);
+	        	//itemSprite.setAlpha(0.15f);
 	        }
         }
-	}
+        
+          int x = 5;
+          int y = 0;
+          int radiusError = 1-x;
+         
+          while(x >= y)
+          {
+           // world.tileAt( x + (this.position.x/Constants.TILESIZE),  y + (this.position.y/Constants.TILESIZE));
+           // DrawPixel( y + (this.position.x/Constants.TILESIZE),  x + (this.position.y/Constants.TILESIZE));
+           // DrawPixel(-x + (this.position.x/Constants.TILESIZE),  y + (this.position.y/Constants.TILESIZE));
+           // DrawPixel(-y + (this.position.x/Constants.TILESIZE),  x + (this.position.y/Constants.TILESIZE));
+           // DrawPixel(-x + (this.position.x/Constants.TILESIZE), -y + (this.position.y/Constants.TILESIZE));
+           // DrawPixel(-y + (this.position.x/Constants.TILESIZE), -x + (this.position.y/Constants.TILESIZE));
+           // DrawPixel( x + (this.position.x/Constants.TILESIZE), -y + (this.position.y/Constants.TILESIZE));
+           // DrawPixel( y + (this.position.x/Constants.TILESIZE), -x + (this.position.y/Constants.TILESIZE));
+            y++;
+            if (radiusError<0)
+            {
+              radiusError += 2 * y + 1;
+            }
+            else
+            {
+              x--;
+              radiusError += 2 * (y - x) + 1;
+            }
+          }
+    }
+        
 	
 	/*public void remoteUpdatePlayer(EntityUpdatePacket update){
         
@@ -195,19 +240,24 @@ public class Player extends EntityLiving {
         
 	}*/
 	
-	public void breakTile(int x, int y) {
+	public void modifyTileDamage(int x, int y, int damage) {
 		//TODO Make player tile reach dynamic based on items in itemstack
 		//TODO Make different tiles take longer to destroy and some unbreakable
 		if((int)(position.x/Constants.TILESIZE) - 4 < x && (int)(position.x/Constants.TILESIZE) + 4 > x &&
 				(int)(position.y/Constants.TILESIZE) - 4 < y && (int)(position.y/Constants.TILESIZE) + 4 > y){
 			if(tileBreakBuffer.containsKey(new Vector2(x, y))) {
 				if(tileBreakBuffer.get(new Vector2(x, y)).shortValue() < 100){
-					tileBreakBuffer.put(new Vector2(x, y), new Short((short) ((tileBreakBuffer.get(new Vector2(x, y)).shortValue()+6))));
+					tileBreakBuffer.put(new Vector2(x, y), new Short((short) ((tileBreakBuffer.get(new Vector2(x, y)).shortValue()+damage))));
 					if(Math.random() < 0.05){
 						world.tiles.get(x).get(y).setRandom(Utilities.randInt(0, 2), true);
 					}
 				} else {
-					world.tileAt(x, y).setType((short) 0);
+					if(damage > 0){
+						world.tileAt(x, y).setType((short) 0);
+					} else {
+						//FIXME Use player item and not placeholder tile
+						world.tileAt(x, y).setType((short) 1);
+					}
 				}
 			} else {
 				tileBreakBuffer.put(new Vector2(x, y), new Short((short) 0));
@@ -244,7 +294,7 @@ public class Player extends EntityLiving {
 	        		velocity.x = 0;
 	        		bodyforce.x = 0;
 	        		jump = true;
-	        		walk = false;
+	        		//walk = false;
 	        	}
 	    	//Moving Right
 	        } else if (velocity.x > 0 || bodyforce.x > 0){
@@ -253,7 +303,7 @@ public class Player extends EntityLiving {
 	        		velocity.x = 0;
 	        		bodyforce.x = 0;
 	        		jump = true;
-	        		walk = false;
+	        		//walk = false;
 	        	}
 	        } else {
 	        	canWalk = true;

@@ -10,7 +10,6 @@ import java.util.Random;
 
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.client.networking.NetworkArray;
-import com.dc0d.iiridarts.venture.client.networking.TileKey;
 
 /**
  * Construct for holding world tile state information
@@ -139,6 +138,16 @@ public class Tile {
 		byte1 = (byte) (byte1 & ~(0x3));
 		byte1 = (byte) (byte1 | rand);
 		//this.update = update;
+	}
+	
+	public void setBrightness(byte color, boolean update){
+		byte1 = (byte) (color & ~(0x7 << 2));
+		byte1 = (byte) (color | (color % 7) << 2);
+		//this.update = update;
+	}
+	
+	public int getBrightness(){
+		return ((byte)((byte1 & 0xFF)&28)>>2);
 	}
 	
 	public boolean isSolid() {

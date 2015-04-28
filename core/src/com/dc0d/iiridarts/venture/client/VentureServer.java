@@ -53,13 +53,10 @@ public class VentureServer {
 		fps = new FPSLogger();
 		frame = 0;
 		res = new Content();
-		res.loadTileTextures();
-		res.loadTexture("assets/images/backgrounds/bg.png");
-		res.loadTexture("assets/images/entities/entity_2.png");
 		world = new ServerWorld("alpha", (byte)1, this);
         world.generate();
         oddFrame = true;
-        logger = Logger.getLogger("Venture");
+        logger = Logger.getLogger("VentureServer");
         handler = new ConsoleHandler();
         physics = true;
         rightclick = false;
@@ -79,15 +76,17 @@ public class VentureServer {
         players = new HashMap<String, Player>();
         entities = new HashMap<String, EntityLiving>();
     	try {
-			networker.initServer(5557);
+			networker.initAndBind(5557);
 		} catch (IOException e) {
-			// TODO Make dedicated server do crap if it messes up
+			// TODO Make dedicated server do something if it messes up
 			e.printStackTrace();
 		}
         playerFrame = 0;
 	}
 
 	public static void main(String[] args) {
+		VentureServer server = new VentureServer();
+		server.init();
 	}
 	
 	/**

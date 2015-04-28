@@ -12,7 +12,7 @@ import java.util.Random;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.client.handlers.Utilities;
-import com.dc0d.iiridarts.venture.client.networking.NetworkKey;
+import com.dc0d.iiridarts.venture.client.networking.EntityKey;
 import com.dc0d.iiridarts.venture.client.tiles.Tile;
 
 /**
@@ -28,14 +28,14 @@ public class World {
 	private final byte type;
 	public Venture venture;
 	public ArrayList<Entity> entities;
-	NetworkKey networkKey;
+	EntityKey entityKey;
 
 	public World(String name, byte type, Venture venture) {
 		this.venture = venture;
 		this.setName(name);
 		this.type = type;
 		tiles = new ArrayList<ArrayList<Tile>>();
-		networkKey = new NetworkKey(venture, (byte)0, (byte)0);
+		entityKey = new EntityKey(venture, (byte)0, (byte)0);
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class World {
 		boolean topright = tileAt(x + 1, y + 1).getType() > 0;
 		boolean bottomleft = tileAt(x - 1, y - 1).getType() > 0;
 		boolean bottomright = tileAt(x + 1, y - 1).getType() > 0;
-
+		
 		// x+ is right
 		// y+ is up
 		if (x > 0 && y > 0 && x < (int) Constants.mediumMapDimesions.x
@@ -255,8 +255,6 @@ public class World {
 				}
 				
 				//*//*//
-				
-				//TODO Do in-corners
 				
 				// ...
 				// .o#

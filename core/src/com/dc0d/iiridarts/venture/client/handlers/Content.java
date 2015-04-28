@@ -33,6 +33,7 @@ public class Content {
 	private HashMap<String, ArrayList<TextureRegion>> randtextures;
 	private ArrayList<Texture> tiletextures;
 	private ArrayList<Texture> itemtextures;
+	private HashMap<Integer, Texture> itemGlowtextures;
 	private HashMap<String, Music> music;
 	private HashMap<String, Sound> sounds;
 	private Random rand = new Random();
@@ -44,6 +45,8 @@ public class Content {
 		itemtextures = new ArrayList<Texture>();
 		music = new HashMap<String, Music>();
 		sounds = new HashMap<String, Sound>();
+		
+		itemGlowtextures = new HashMap<Integer, Texture>();
 	}
 	
 	/**
@@ -102,7 +105,7 @@ public class Content {
 	 */
 	
 	public void loadItemTextures() {
-		for (int i = 1; i <= Constants.TILETYPES; i++){
+		for (int i = 1; i <= Constants.ITEMS; i++){
 		Texture tex = new Texture(Gdx.files.internal(Constants.ITEMDIR+"/item_"+i+".png"));
 		itemtextures.add(tex);
 		}
@@ -137,6 +140,31 @@ public class Content {
 	
 	public Texture getTileTexture(int id) {
 		return tiletextures.get(id-1);
+	}
+	
+	/**
+	 * Loads all item glow textures from tiles directory into com.badlogic.gdx.graphics.Texture hashmap
+	 */
+	
+	public void loadItemGlowTextures() {
+		for (int i = 1; i <= Constants.ITEMS; i++){
+			if(Gdx.files.internal(Constants.ITEMDIR+"/item_"+i+"-glow.png").exists()){
+				System.out.println("Found Glow Texture for "+i);
+				Texture tex = new Texture(Gdx.files.internal(Constants.ITEMDIR+"/item_"+i+"-glow.png"));
+				itemGlowtextures.put(i, tex);
+			}
+		}
+	}
+	
+	/**
+	 * Returns item glow texture from texture hashmap
+	 * @param id
+	 * @return
+	 */
+	
+	public Texture getItemGlowTexture(int id) {
+		System.out.println(itemGlowtextures.get(id));
+		return itemGlowtextures.get(id);
 	}
 	
 	/**

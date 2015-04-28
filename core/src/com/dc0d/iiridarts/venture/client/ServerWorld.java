@@ -24,7 +24,7 @@ public class ServerWorld {
 	ArrayList<ArrayList<Tile>> tiles;
 	private String name;
 	private final byte type;
-	VentureServer venture;
+	public VentureServer venture;
 
 	public ServerWorld(String name, byte type, VentureServer venture) {
 		this.venture = venture;

@@ -8,11 +8,10 @@ package com.dc0d.iiridarts.venture.client.networking;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class TileKey {
+public class TileKey extends NetworkKey {
 	Vector2 position;
-	NetworkKey world;
-	public TileKey(Vector2 position, NetworkKey world) {
+	public TileKey(Vector2 position) {
+		super(position);
 		this.position = position;
-		this.world = world;
 	}
 }
