@@ -38,10 +38,10 @@ public class Player extends EntityLiving {
     short swingingSwordRampPos = 0;
 	
 	public Player(World world, boolean canFly, int x, int y, boolean isRemote) {
-		super(world, (int)(16*1.5), (int)(24*1.5), isRemote, (byte) 1);
+		super(world, (int)(16*1.1), (int)(24*1.1), isRemote, (byte) 1);
 		entityKey = new EntityKey(world.venture, (byte)2, (byte) 0);
 		sprite = new Sprite();
-		sprite.setSize(this.dimensions.x, this.dimensions.y);
+		sprite.setSize(this.dimensions.x*1.5f, this.dimensions.y*1.5f);
 		//TODO Work on Player stuff
 		this.setPosition(x, y);
 		this.world = world;

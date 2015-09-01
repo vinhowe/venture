@@ -14,9 +14,9 @@ public interface Constants {
 	public static final float GRAVITY_Y = -5.5f;
 	public static final double STICKY_THRESHOLD = .0004;
 	
-	public static final int TILETYPES = 1;
+	public static final int TILETYPES = 2;
 	public static final int ITEMS = 3;
-	public static final int TILESIZE = 24;
+	public static final int TILESIZE = 20;
 	public static final int WORLDEDGEMARGIN = 25*TILESIZE;
 	public static final int NETWORKTIMEOUT = 5000;
 	

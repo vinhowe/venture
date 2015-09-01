@@ -19,6 +19,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -294,12 +295,13 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		//blurShader.setSize(Gdx.graphics.getWidth()*5, Gdx.graphics.getHeight()*5);
 		batch.setProjectionMatrix(camera.combined);
 		if(enableShaders) {
-			blurShader.setBlurDirection(zoom, zoom);
+			blurShader.setBlurDirection(cameraPosDiff.x/6, cameraPosDiff.y/6);
 			blurShader.setClearColor(0.0f, 0.65f, 0.90f, 1f);
 			//System.out.println(10-zoom);
 			shaderProgram.begin();
 			shaderProgram.setUniformf("v_time", (cameraDiffMax/10)%10, (cameraDiffMax/10)%10, (cameraDiffMax/10)%10, (cameraDiffMax/10)%10);
 			shaderProgram.setUniformf("grayScaleScale", Math.min(zoom/5, 1));
+			shaderProgram.setUniformf("random", (float)Math.random(), (float)Math.random());
 			shaderProgram.end();
 			batch.setShader(shaderProgram);
 			blurShader.capture();
@@ -379,7 +381,8 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		player.sprite.setPosition(player.getPosition().x, player.getPosition().y);
 		camera.position.x = MathUtils.clamp(player.position.x,Constants.WORLDEDGEMARGIN+camera.viewportWidth/2, ((Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN)-(camera.viewportWidth/2));
 		camera.position.y = MathUtils.clamp(player.position.y,camera.viewportHeight/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-(camera.viewportHeight/2));
-		camera.position.y -= cameraBob/20;
+		//TODO Figure out camera bobbing dynamic
+		//camera.position.y -= cameraBob/20;
 		scamera.position.x = MathUtils.clamp(player.position.x,camera.viewportWidth/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-(camera.viewportWidth/2)-Constants.WORLDEDGEMARGIN);
 		scamera.position.y = MathUtils.clamp(player.position.y,camera.viewportHeight/2+Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-(camera.viewportHeight/2)-Constants.WORLDEDGEMARGIN);
 		
@@ -430,6 +433,7 @@ public class Venture extends com.badlogic.gdx.Game implements ApplicationListene
 		        		sprite.setPosition(x*Constants.TILESIZE,y*Constants.TILESIZE);
 		        		sprite.setSize(Constants.TILESIZE,Constants.TILESIZE);
 		        		sprite.setScale(1.05f);
+		        		sprite.setColor(new Color(50,50,50,25));
 		        		tileSprites.add(sprite);
 		        		//System.out.println(x+" "+y);
 		        		}
