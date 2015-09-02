@@ -7,6 +7,8 @@ uniform mat4 u_projTrans;
 varying vec4 vColor;
 varying vec2 vTexCoord;
 
+uniform vec2 random;
+
 void main() {
    vColor = a_color;
    vTexCoord = a_texCoord0;
