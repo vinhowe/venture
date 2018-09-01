@@ -71,77 +71,61 @@ public class Player extends EntityLiving {
 	//}
 	
 	public void updateLivingEntity(float timestep){
-        if(world.venture.movingx){
-            if(world.venture.directionx)
-            {
-            	if(jump)
-            	{
-            		bodyforce.x = run?1.25f:0.75f;
-            	} else {
-            		bodyforce.x = run?1.00f:0.50f;
-            	}
-            	if(canWalk)
-            	{
-            	walk = true;
-            	}
-            	hdir = false;
-        	}
-            else
-            {
-            	if(jump)
-            	{
-            		bodyforce.x = -0.75f;
-            		if(run) {
-            			bodyforce.x = -1.50f;
-            		}
-            	} else {
-            		bodyforce.x = -0.50f;
-            		if(run) {
-            			bodyforce.x = -1.00f;
-            		}
-            	}
-            	if(canWalk)
-            	{
-            	walk = true;
-            	}
-            	hdir = true;
-            	//camera.position.x = Math.max(camera.position.x - Gdx.graphics.getDeltaTime() * 300*8, camera.viewportWidth/2+Constants.WORLDEDGEMARGIN);
-            }
+        float walkAcceleration = 0.25f;
+		float runAcceleration = 5.0f;
+		float walkSpeed = 1f;
+		float runSpeed = 3f;
+		run = world.venture.shift;
+		float maxSpeed = run ? runSpeed : walkSpeed;
+
+		float verticalSpeed = world.venture.gravity ? 60 : 10;
+
+
+
+		if(world.venture.movingx){
+
+			flipped = !world.venture.directionx;
+			if(canWalk) {
+				walk = true;
+			}
+
+
+
+			float acceleration = run ? runAcceleration : walkAcceleration;
+
+			// Don't allow control over acceleration while in air
+
+			if(Math.abs(bodyforce.x) > maxSpeed && !canJump && !canFly && world.venture.gravity) {
+				acceleration = 0;
+			}
+
+			bodyforce.x = Math.max(Math.min(bodyforce.x + (world.venture.directionx ? acceleration : -acceleration), runSpeed), -runSpeed);
         }
         if(world.venture.movingy) {
             if (world.venture.directiony)
             {
-            	if(jump && jumping){
-            		velocity.y += 45;
-            		jumping = false;
+            	if((canJump || !world.venture.gravity) && jumping){
+            		velocity.y += verticalSpeed;
             	}
             	
-            	if(canFly)
+            	if(canFly && jumping && world.venture.gravity)
             	{
-            		velocity.y = Math.max(45, velocity.y);
+            		velocity.y = Math.min(velocity.y+5f, verticalSpeed);
             	}
-        	}
-            else
-            {
-            	
-            }
+        	} else if (!world.venture.gravity) {
+				velocity.y -= verticalSpeed;
+			}
     	}
-        if(world.venture.shift) {
-        	run = true;
-        } else {
-        	run = false;
-        }
+
         if(world.venture.sloMo){
-        for(int i = 0; i <= 5; i++) doPhysics(timestep/10);
+        	for(int i = 0; i <= 5; i++) doPhysics(timestep/10);
         } else {
             for(int i = 0; i <= 5; i++) doPhysics(timestep/5);
         }
-		if(jump)
-		{
-			bodyforce.x = (float) Math.max(bodyforce.x - 0.1, 0);
-			
-		} else {
-			//
+
+        // Slow player down if on the ground
+		if(!walk && canJump || !world.venture.gravity) {
+			bodyforce.x = (float) (bodyforce.x * (world.venture.gravity ? 0.5 : 0.9));
 		}
 			stateTime += Gdx.graphics.getDeltaTime()*(run?1.5f:1);
 		
@@ -150,26 +134,32 @@ public class Player extends EntityLiving {
         }
         sprite.setRegion(currentFrame);
         
-        sprite.flip(hdir, false);
+        sprite.flip(flipped, false);
 		
         walk = false;
         //FIXME Use dynamic item textures instead of just debugging with pencil
-        if(!hdir){
+        if(!flipped){
  	        itemSprite.setOrigin(0f, 0f);
 	        itemSprite.setPosition(this.position.x+(this.sprite.getWidth()/1.25f), this.position.y+(this.sprite.getHeight()/1.90f));
 	        itemSprite.setFlip(false, false);
- 	        itemGlowSprite.setOrigin(0f, 0f);
- 	        itemGlowSprite.setPosition(this.position.x+(this.sprite.getWidth()/1.25f), this.position.y+(this.sprite.getHeight()/1.90f));
- 	        itemGlowSprite.setFlip(false, false);
+	        if(itemGlowSprite != null) {
+				itemGlowSprite.setOrigin(0f, 0f);
+				itemGlowSprite.setPosition(this.position.x + (this.sprite.getWidth() / 1.25f), this.position.y + (this.sprite.getHeight() / 1.90f));
+				itemGlowSprite.setFlip(false, false);
+			}
 	        if(itemSprite.getRotation() > -60 && swingingSword){
 	        	itemSprite.rotate(-2.5f*(swingingSwordRampPos*0.15f));
-	        	itemGlowSprite.rotate(-2.5f*(swingingSwordRampPos*0.15f));
+				if(itemGlowSprite != null) {
+					itemGlowSprite.rotate(-2.5f * (swingingSwordRampPos * 0.15f));
+				}
 	        	swingingSwordRampPos++;
 	        	//itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
 	        } else {
 	        	swingingSword = false;
 	        	itemSprite.setRotation(0);
-	        	itemGlowSprite.setRotation(0);
+	        	if(itemGlowSprite != null) {
+					itemGlowSprite.setRotation(0);
+				}
 	        	swingingSwordRampPos = 0;
 	        	//itemSprite.setAlpha(0.90f);
 	        }
@@ -177,48 +167,29 @@ public class Player extends EntityLiving {
  	        itemSprite.setOrigin(itemSprite.getWidth(), 0f);
         	itemSprite.setPosition(this.position.x-(this.sprite.getWidth()/1.25f), this.position.y+(this.sprite.getHeight()/1.90f));
         	itemSprite.setFlip(true, false);
-        	itemGlowSprite.setOrigin(itemGlowSprite.getWidth(), 0f);
-        	itemGlowSprite.setPosition(this.position.x-(this.sprite.getWidth()/1.25f), this.position.y+(this.sprite.getHeight()/1.90f));
-        	itemGlowSprite.setFlip(true, false);
+			if(itemGlowSprite != null) {
+				itemGlowSprite.setOrigin(itemGlowSprite.getWidth(), 0f);
+				itemGlowSprite.setPosition(this.position.x - (this.sprite.getWidth() / 1.25f), this.position.y + (this.sprite.getHeight() / 1.90f));
+				itemGlowSprite.setFlip(true, false);
+			}
 	        if(itemSprite.getRotation() < 60 && swingingSword){
 	        	itemSprite.rotate(2.5f*(swingingSwordRampPos*0.15f));
-	        	itemGlowSprite.rotate(2.5f*(swingingSwordRampPos*0.15f));
+				if(itemGlowSprite != null) {
+					itemGlowSprite.rotate(2.5f * (swingingSwordRampPos * 0.15f));
+				}
 	        	swingingSwordRampPos++;
 	        	//itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
 	        } else {
 	        	swingingSword = false;
 	        	itemSprite.setRotation(0);
-	        	itemGlowSprite.setRotation(0);
+				if(itemGlowSprite != null) {
+					itemGlowSprite.setRotation(0);
+				}
 	        	swingingSwordRampPos = 0;
 	        	//itemSprite.setAlpha(0.15f);
 	        }
         }
-        
-          int x = 5;
-          int y = 0;
-          int radiusError = 1-x;
-         
-          while(x >= y)
-          {
-           // world.tileAt( x + (this.position.x/Constants.TILESIZE),  y + (this.position.y/Constants.TILESIZE));
-           // DrawPixel( y + (this.position.x/Constants.TILESIZE),  x + (this.position.y/Constants.TILESIZE));
-           // DrawPixel(-x + (this.position.x/Constants.TILESIZE),  y + (this.position.y/Constants.TILESIZE));
-           // DrawPixel(-y + (this.position.x/Constants.TILESIZE),  x + (this.position.y/Constants.TILESIZE));
-           // DrawPixel(-x + (this.position.x/Constants.TILESIZE), -y + (this.position.y/Constants.TILESIZE));
-           // DrawPixel(-y + (this.position.x/Constants.TILESIZE), -x + (this.position.y/Constants.TILESIZE));
-           // DrawPixel( x + (this.position.x/Constants.TILESIZE), -y + (this.position.y/Constants.TILESIZE));
-           // DrawPixel( y + (this.position.x/Constants.TILESIZE), -x + (this.position.y/Constants.TILESIZE));
-            y++;
-            if (radiusError<0)
-            {
-              radiusError += 2 * y + 1;
-            }
-            else
-            {
-              x--;
-              radiusError += 2 * (y - x) + 1;
-            }
-          }
+
     }
         
 	
@@ -230,7 +201,7 @@ public class Player extends EntityLiving {
         }
         sprite.setRegion(currentFrame);
         
-        sprite.flip(hdir, false);
+        sprite.flip(flipped, false);
         
         //System.out.println(velocity.x);
         position = update.pos;
@@ -243,8 +214,10 @@ public class Player extends EntityLiving {
 	public void modifyTileDamage(int x, int y, int damage) {
 		//TODO Make player tile reach dynamic based on items in itemstack
 		//TODO Make different tiles take longer to destroy and some unbreakable
-		if((int)(position.x/Constants.TILESIZE) - 4 < x && (int)(position.x/Constants.TILESIZE) + 4 > x &&
-				(int)(position.y/Constants.TILESIZE) - 4 < y && (int)(position.y/Constants.TILESIZE) + 4 > y){
+		int reach = 400;
+
+		if((int)(position.x/Constants.TILESIZE) - reach < x && (int)(position.x/Constants.TILESIZE) + reach > x &&
+				(int)(position.y/Constants.TILESIZE) - reach < y && (int)(position.y/Constants.TILESIZE) + reach > y){
 			if(tileBreakBuffer.containsKey(new Vector2(x, y))) {
 				if(tileBreakBuffer.get(new Vector2(x, y)).shortValue() < 100){
 					tileBreakBuffer.put(new Vector2(x, y), new Short((short) ((tileBreakBuffer.get(new Vector2(x, y)).shortValue()+damage))));
@@ -256,11 +229,11 @@ public class Player extends EntityLiving {
 						world.tileAt(x, y).setType((short) 0);
 					} else {
 						//FIXME Use player item and not placeholder tile
-						world.tileAt(x, y).setType((short) 1);
+						world.tileAt(x, y).setType((short) 2);
 					}
 				}
 			} else {
-				tileBreakBuffer.put(new Vector2(x, y), new Short((short) 0));
+				tileBreakBuffer.put(new Vector2(x, y), (short) 0);
 			}
 		}
 	}
@@ -269,22 +242,22 @@ public class Player extends EntityLiving {
 	//	return new EntityUpdatePacket(position, velocity, stateTime, id);
 	//}
 	public void doPhysics(float timestep) {
-		float drag = 0.98F;
+		float drag = 0.18F;
 		//float acceleration = 0.5f;
 		
 		//Vector2 lastPos = position;
 		
 		float maxVelocity = 125;
 		
-		if(walk || !jump){
+		if(walk || !canJump){
 			velocity.x = MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity);
 		} else {
 			velocity.x = MathUtils.clamp(velocity.x + Constants.GRAVITY_X * (timestep), -maxVelocity, maxVelocity) * drag;
 		}
 		
-		jump = false;
+		canJump = false;
 		
-		velocity.y = MathUtils.clamp(velocity.y + (this.world.venture.gravity ? Constants.GRAVITY_Y : 0) * (timestep), -maxVelocity, maxVelocity);
+		velocity.y = MathUtils.clamp(velocity.y + (this.world.venture.gravity ? -Constants.GRAVITY_Y : -(velocity.y * 0.70f)) * (timestep), -maxVelocity, maxVelocity);
 		if(world.venture.physics){
 		{
 			//Moving Left
@@ -293,7 +266,7 @@ public class Player extends EntityLiving {
 	        		position.x += (int)(getLeft())-getLeft()+1;
 	        		velocity.x = 0;
 	        		bodyforce.x = 0;
-	        		jump = true;
+	        		canJump = true;
 	        		//walk = false;
 	        	}
 	    	//Moving Right
@@ -302,7 +275,7 @@ public class Player extends EntityLiving {
 	        		position.x -= (int)(getRight())-getRight()+1;
 	        		velocity.x = 0;
 	        		bodyforce.x = 0;
-	        		jump = true;
+	        		canJump = true;
 	        		//walk = false;
 	        	}
 	        } else {
@@ -318,7 +291,7 @@ public class Player extends EntityLiving {
 	        	{
 	        		position.y += (int)(getBottom())-getBottom()+1;
 	        		velocity.y = 0;
-	        		jump = true;
+	        		canJump = true;
 	        	}
 	    	//Moving Up
 	        } else if (velocity.y > 0){
@@ -338,7 +311,7 @@ public class Player extends EntityLiving {
 	    			world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid() || 
 	    			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid()||
 	    			world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid()){
-	        	jump = true;
+	        	canJump = true;
 	        }
 		}
 	

@@ -24,14 +24,13 @@ import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Pixmap.Filter;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
@@ -60,9 +59,11 @@ public class Venture extends com.badlogic.gdx.Game implements
 	public OrthographicCamera scamera;
 	private float zoom;
 	public ArrayList<Sprite> tileSprites;
+    public ArrayList<Sprite> tileShapeSprites;
 	public ArrayList<Sprite> entitySprites;
 	public ArrayList<Sprite> itemSprites;
 	public ArrayList<Sprite> itemGlowSprites;
+	public ArrayList<Sprite> cursorSprites;
 	public Content res;
 	boolean movingx;
 	boolean movingy;
@@ -79,7 +80,7 @@ public class Venture extends com.badlogic.gdx.Game implements
 	Vector2 touchPos;
 	boolean touch;
 	// TODO Turn off debug mode
-	boolean rightclick;
+	boolean rightClick;
 	boolean debug;
 	public Logger logger;
 	ConsoleHandler handler;
@@ -93,7 +94,7 @@ public class Venture extends com.badlogic.gdx.Game implements
 	int sloMoCounter;
 	boolean shift = false;
 	KryoNetClient networkHandler;
-	boolean local = false;
+	boolean local = true;
 	Bloom bloom;
 	MotionBlur blurShader;
 	String vertexShader;
@@ -142,6 +143,7 @@ public class Venture extends com.badlogic.gdx.Game implements
 			// Textures
 			res = new Content();
 			res.loadTileTextures();
+            res.loadTileShapeTextures();
 			res.loadItemTextures();
 			res.loadItemGlowTextures();
 			res.loadTexture("assets/images/backgrounds/bg.png");
@@ -154,6 +156,7 @@ public class Venture extends com.badlogic.gdx.Game implements
 			// Constants.daySkyColor.g, Constants.daySkyColor.b, 0);
 			// Sprite Arrays - used in rendering loops
 			tileSprites = new ArrayList<Sprite>();
+            tileShapeSprites = new ArrayList<Sprite>();
 			entitySprites = new ArrayList<Sprite>();
 			lastCameraCoords = new Vector2();
 			cameraBob = 0;
@@ -162,13 +165,14 @@ public class Venture extends com.badlogic.gdx.Game implements
 			skyColor = new Vector3();
 		case 3: // Switches - volatile information - soft reset
 			physics = true;
-			rightclick = false;
+			rightClick = false;
 			debug = true;
-			touch = false;
+			touch = true;
 			break;
 		}
 		itemSprites = new ArrayList<Sprite>();
 		itemGlowSprites = new ArrayList<Sprite>();
+		cursorSprites = new ArrayList<Sprite>();
 		bg = new TextureRegion[] {
 				new TextureRegion(res.getTexture("bg"), 80, 50),
 				new TextureRegion(res.getTexture("bg"), 0, 51, 80, 50),
@@ -215,50 +219,50 @@ public class Venture extends com.badlogic.gdx.Game implements
 		}
 		playerFrame = 0;
 		networkHandler = new KryoNetClient();
-		Pixmap pm = new Pixmap(Gdx.files.internal("assets/images/cursor.png"));
-		Gdx.input.setCursorImage(pm, 0, 0);
-		pm.dispose();
+		// Pixmap pm = new Pixmap(Gdx.files.internal("assets/images/cursor.png"));
+		// Gdx.input.setCursorImage(pm, 0, 0);
+		// pm.dispose();
 		lastCameraCoords = new Vector2(camera.position.x, camera.position.y);
 	}
 
 	/**
 	 * Initializes Shader Programs
 	 */
-	public void loadShaders() {
-		if (enableShaders) {
-			Bloom.useAlphaChannelAsMask = true;
-			bloom = new Bloom((int) (Gdx.graphics.getWidth() / 1.5f),
-					(int) (Gdx.graphics.getHeight() / 1.5f), true, false, true);
-			blurShader = new MotionBlur((int) (Gdx.graphics.getWidth() / 1f),
-					(int) (Gdx.graphics.getHeight() / 1f), true, false, true);
-			ShaderProgram.pedantic = false;
-			vertexShader = Gdx.files.internal("assets/shaders/motionblur.vert")
-					.readString();
-			fragmentShader = Gdx.files.internal(
-					"assets/shaders/motionblur.frag").readString();
-			shaderProgram = new ShaderProgram(vertexShader, fragmentShader);
-			shaderProgram.setUniformMatrix("u_projViewTrans", camera.combined);
-			int timeLoc = shaderProgram.getUniformLocation("v_time");
-			if (!shaderProgram.isCompiled()) {
-				System.out.println(shaderProgram.getLog());
-				Gdx.app.exit();
-			} else {
-				Gdx.app.log("motion shader compiled", shaderProgram.getClass()
-						.getSimpleName());
-			}
-			shaderProgram.begin();
-			// shaderProgram.setUniformf("v_time", 1, 1, 1, 1);
-			shaderProgram.setUniformf("MColor", 1);
-			shaderProgram.setUniformf("screenSize", Gdx.graphics.getWidth(),
-					Gdx.graphics.getHeight());
-			shaderProgram.end();
-			// for(int i = 0; i < shaderProgram.getUniforms().length; i++){
-			// System.out.println(shaderProgram.getUniforms()[i]);
-			// }
-			// bloom = new MotionBlur(3000, 3000, true, false, true);
-			// bloom2 = new MotionBlur(3000, 3000, true, false, true);
-		}
-	}
+    public void loadShaders() {
+        if (enableShaders) {
+            Bloom.useAlphaChannelAsMask = true;
+            bloom = new Bloom((int) (Gdx.graphics.getWidth() / 1.5f),
+                    (int) (Gdx.graphics.getHeight() / 1.5f), true, false, true);
+            blurShader = new MotionBlur((int) (Gdx.graphics.getWidth() / 1f),
+                    (int) (Gdx.graphics.getHeight() / 1f), true, false, true);
+            ShaderProgram.pedantic = false;
+            vertexShader = Gdx.files.internal("assets/shaders/venture.vert")
+                    .readString();
+            fragmentShader = Gdx.files.internal(
+                    "assets/shaders/venture.frag").readString();
+            shaderProgram = new ShaderProgram(vertexShader, fragmentShader);
+            shaderProgram.setUniformMatrix("u_projViewTrans", camera.combined);
+            int timeLoc = shaderProgram.getUniformLocation("v_time");
+            if (!shaderProgram.isCompiled()) {
+                System.out.println(shaderProgram.getLog());
+                Gdx.app.exit();
+            } else {
+                Gdx.app.log("motion shader compiled", shaderProgram.getClass()
+                        .getSimpleName());
+            }
+            shaderProgram.begin();
+            // shaderProgram.setUniformf("v_time", 1, 1, 1, 1);
+            shaderProgram.setUniformf("MColor", 1);
+            shaderProgram.setUniformf("screenSize", Gdx.graphics.getWidth(),
+                    Gdx.graphics.getHeight());
+            shaderProgram.end();
+            // for(int i = 0; i < shaderProgram.getUniforms().length; i++){
+            // System.out.println(shaderProgram.getUniforms()[i]);
+            // }
+            // bloom = new MotionBlur(3000, 3000, true, false, true);
+            // bloom2 = new MotionBlur(3000, 3000, true, false, true);
+        }
+    }
 
 	@Override
 	public void resize(int width, int height) {
@@ -305,17 +309,34 @@ public class Venture extends com.badlogic.gdx.Game implements
 		// logger.finer("delta on totalFrames " + totalFrames + " : "+
 		// Gdx.graphics.getDeltaTime());
 		if (debug && touch) {
+			int damage = rightClick ? 5000 : -5000;
+
 			player.modifyTileDamage(
 					(int) camera.unproject(new Vector3(touchPos, 0)).x
 							/ Constants.TILESIZE,
 					(int) camera.unproject(new Vector3(touchPos, 0)).y
-							/ Constants.TILESIZE, -50);
+							/ Constants.TILESIZE, damage);
+            player.modifyTileDamage(
+                    (int) camera.unproject(new Vector3(touchPos, 0)).x
+                            / Constants.TILESIZE,
+                    (int) (camera.unproject(new Vector3(touchPos, 0)).y
+                            / Constants.TILESIZE)+1, damage);
+			player.modifyTileDamage(
+					(int) (camera.unproject(new Vector3(touchPos, 0)).x
+							/ Constants.TILESIZE) + 1,
+					(int) (camera.unproject(new Vector3(touchPos, 0)).y
+							/ Constants.TILESIZE)+1, damage);
+			player.modifyTileDamage(
+					(int) (camera.unproject(new Vector3(touchPos, 0)).x
+							/ Constants.TILESIZE) + 1,
+					(int) (camera.unproject(new Vector3(touchPos, 0)).y
+							/ Constants.TILESIZE), damage);
 		}
 		bg3pos.x += Gdx.graphics.getDeltaTime() * 1.5;
 		bg2pos.x += Gdx.graphics.getDeltaTime() * 1;
 		bg1pos.x += Gdx.graphics.getDeltaTime() * 0.5;
 		// camera.zoom = 1 - 0.05F;
-		scamera.zoom = 0.07f;
+		scamera.zoom = 0.05f;
 		// camera.zoom = zoom;
 		camera.update();
 		// scamera.update();
@@ -354,7 +375,7 @@ public class Venture extends com.badlogic.gdx.Game implements
 					(float) Math.random());
 			shaderProgram.end();
 			batch.setShader(shaderProgram);
-			blurShader.capture();
+			// blurShader.capture();
 		} else {
 			batch.setShader(null);
 		}
@@ -364,14 +385,25 @@ public class Venture extends com.badlogic.gdx.Game implements
 			tileSprites.get(i).draw(batch);
 		}
 
+
+		for (int i = 0; i < cursorSprites.size(); i++) {
+			cursorSprites.get(i).draw(batch);
+		}
+//
+//        for (int i = 0; i < tileShapeSprites.size(); i++) {
+//            tileShapeSprites.get(i).draw(batch);
+//        }
+
+
+
 		for (int i = 0; i < itemSprites.size(); i++) {
 			itemSprites.get(i).draw(batch);
 		}
 
 		batch.end();
-		if (enableShaders) {
-			blurShader.render();
-		}
+//		if (enableShaders) {
+//			blurShader.render();
+//		}
 
 		batch.begin();
 
@@ -385,15 +417,20 @@ public class Venture extends com.badlogic.gdx.Game implements
 
 			bloom.capture();
 			glowBatch.setProjectionMatrix(camera.combined);
+			glowBatch.enableBlending();
 			glowBatch.begin();
 
-			for (int i = 0; i < itemSprites.size(); i++) {
-				itemSprites.get(i).draw(glowBatch);
+            // glowBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_DST_COLOR);
+
+            for (int i = 0; i < itemGlowSprites.size(); i++) {
+                itemGlowSprites.get(i).draw(glowBatch);
+            }
+
+			for (int i = 0; i < tileShapeSprites.size(); i++) {
+				tileShapeSprites.get(i).draw(glowBatch);
 			}
 
-			for (int i = 0; i < itemGlowSprites.size(); i++) {
-				itemGlowSprites.get(i).draw(glowBatch);
-			}
+
 
 			glowBatch.end();
 			bloom.render();
@@ -413,7 +450,7 @@ public class Venture extends com.badlogic.gdx.Game implements
 			}
 		}
 		// I do this three times so that the logic is faster
-		if (playerFrame == 5) {
+		if (playerFrame == 3) {
 			playerFrame = 0;
 			entitySprites.clear();
 			for (String key : entities.keySet()) {
@@ -429,6 +466,7 @@ public class Venture extends com.badlogic.gdx.Game implements
 		player.updateLivingEntity(0.25f);
 		player.sprite.setPosition(player.getPosition().x,
 				player.getPosition().y);
+		// player.sprite.setColor(new Color(1f,0.25f,0.25f,1f));
 		camera.position.x = MathUtils
 				.clamp(player.position.x,
 						Constants.WORLDEDGEMARGIN + camera.viewportWidth / 2,
@@ -479,13 +517,15 @@ public class Venture extends com.badlogic.gdx.Game implements
 		// world.update((int) (camera.position.x-(camera.viewportWidth/2)),(int)
 		// (camera.position.y-(camera.viewportHeight/2)),(int)camera.viewportWidth,(int)
 		// camera.viewportHeight);
-		if (!oddFrame) {
-			oddFrame = true;
-			return;
-		}
-		oddFrame = false;
+//		if (!oddFrame) {
+//			oddFrame = true;
+//			return;
+//		}
+//		oddFrame = false;
 
+		cursorSprites.clear();
 		tileSprites.clear();
+        tileShapeSprites.clear();
 
 		Vector2 startingTile = new Vector2(
 				(int) (camera.position.x - camera.viewportWidth)
@@ -501,10 +541,24 @@ public class Venture extends com.badlogic.gdx.Game implements
 		for (int x = (int) startingTile.x; x <= lastTile.x; x++) {
 			for (int y = (int) startingTile.y; y <= lastTile.y; y++)
 				if (world.get(0).tileAt(x, y).isSolid()) {
+                    double distance = Math.sqrt((x - player.position.x
+                            / Constants.TILESIZE)
+                            * (x - player.position.x / Constants.TILESIZE)
+                            + (y - player.position.y / Constants.TILESIZE)
+                            * (y - player.position.y / Constants.TILESIZE));
+                    distance = distance / (60*zoom);
+                    distance = Math.min(distance, 1f);
+
+                    double lightDistance = lightFalloff(distance, 0.01);
+
+                    boolean overexposed = distance < 0.20;
+
+                    short type = world.get(0).tileAt(x, y)
+                            .getType();
+
 					world.get(0).updateTile(x, y);
 					TextureRegion tileRegion = new TextureRegion(
-							res.getTileTexture(world.get(0).tileAt(x, y)
-									.getType()),
+                            res.getTileTexture(type),
 							world.get(0).tileTexX(x, y) * 9, world.get(0)
 									.tileTexY(x, y) * 9, 8, 8);
 					tileRegion.getTexture().setFilter(TextureFilter.Linear,
@@ -514,17 +568,43 @@ public class Venture extends com.badlogic.gdx.Game implements
 							* Constants.TILESIZE);
 					sprite.setSize(Constants.TILESIZE, Constants.TILESIZE);
 					sprite.setScale(1.05f);
-					double distance = Math.sqrt((x - player.position.x
-							/ Constants.TILESIZE)
-							* (x - player.position.x / Constants.TILESIZE)
-							+ (y - player.position.y / Constants.TILESIZE)
-							* (y - player.position.y / Constants.TILESIZE));
-					distance = distance / 15;
-					distance = Math.min(distance, 0.95f);
-					distance = Math.max(0.5, distance);
-					sprite.setColor(new Color(1-(float) distance,
-							1-(float) distance, 1-(float) distance, 1f));
-					tileSprites.add(sprite);
+
+					final Color white = new Color(0.999f,0.999f,0.999f,1);
+
+                    Color redHardcodedColor = new Color(0.8f, 0.1f, 0.1f, 1);
+                    Color defaultTileColor = new Color(0.0015f, 0.005f,0.06f, 1);
+
+					if(overexposed) {
+                        TextureRegion tileShapeRegion = new TextureRegion(
+                                res.getTileShapeTexture(type),
+                                world.get(0).tileTexX(x, y) * 9, world.get(0)
+                                .tileTexY(x, y) * 9, 8, 8);
+                        tileShapeRegion.getTexture().setFilter(TextureFilter.Linear,
+                                TextureFilter.Nearest);
+                        Sprite shapeSprite = new Sprite(tileShapeRegion);
+                        shapeSprite.setPosition(x * Constants.TILESIZE, y
+                                * Constants.TILESIZE);
+                        shapeSprite.setSize(Constants.TILESIZE, Constants.TILESIZE);
+
+                        double overexposedDistance = 1-Interpolation.exp10Out.apply((float) (distance*60));
+
+                        Color falloffColor = new Color(0xffffffff);
+                        Color tileShapeColor = new Color(falloffColor.r, falloffColor.g, falloffColor.b, (float) overexposedDistance);
+
+                        shapeSprite.setColor(tileShapeColor);
+
+                        tileShapeSprites.add(shapeSprite);
+
+						sprite.setColor(redHardcodedColor.lerp(defaultTileColor, 1-(float) lightDistance));
+                    } else if(distance < 1f) {
+						sprite.setColor(redHardcodedColor.lerp(defaultTileColor, 1-(float) lightDistance));
+					} else {
+						sprite.setColor(defaultTileColor);
+					}
+
+                    // sprite.setColor(new Color(1f,1f,1f, 10f));
+
+                    tileSprites.add(sprite);
 					// System.out.println(x+" "+y);
 				}
 			// System.out.println(x);
@@ -537,7 +617,36 @@ public class Venture extends com.badlogic.gdx.Game implements
 		// item.setScale(2f);
 		// itemSprites.add(item);
 		// }
+
+		int cursorX = (int) camera.unproject(new Vector3(touchPos, 0)).x / Constants.TILESIZE;
+		int cursorY = (int) (camera.unproject(new Vector3(touchPos, 0)).y / Constants.TILESIZE);
+
+		for(int x = cursorX; x <= cursorX + 1; x++) {
+			for(int y = cursorY; y <= cursorY + 1; y++) {
+				TextureRegion tileRegion = new TextureRegion(
+						res.getTileShapeTexture(2),
+						1 * 9, 1 * 9, 8, 8);
+				tileRegion.getTexture().setFilter(TextureFilter.Linear,
+						TextureFilter.Nearest);
+				Sprite cursorSprite = new Sprite(tileRegion);
+				cursorSprite.setPosition(x * Constants.TILESIZE, y
+						* Constants.TILESIZE);
+				cursorSprite.setSize(Constants.TILESIZE, Constants.TILESIZE);
+				
+				cursorSprite.setAlpha(0.5f);
+
+				cursorSprites.add(cursorSprite);
+			}
+		}
 	}
+
+
+    public static double lightFalloff(double distance, double decay) {
+        double falloff = Math.pow(decay, distance);
+
+        return falloff;
+
+    }
 
 	@Override
 	public void pause() {
@@ -637,6 +746,9 @@ public class Venture extends com.badlogic.gdx.Game implements
 		@Override
 		public boolean keyUp(int keycode) {
 			switch (keycode) {
+			case Keys.SPACE:
+				player.jumping = false;
+				break;
 			case Keys.W:
 				movingy = false;
 				directiony = true;
@@ -674,26 +786,28 @@ public class Venture extends com.badlogic.gdx.Game implements
 				int button) {
 			touchPos.set(screenX, screenY);
 			touch = true;
-			rightclick = (button == 1) ? true : false;
+			rightClick = button == 1;
 			player.swingingSword = true;
-			return false;
+			return true;
 		}
 
 		@Override
 		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 			touch = false;
-			return false;
+			return true;
 		}
 
 		@Override
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
 			touchPos.set(screenX, screenY);
 			touch = true;
-			return false;
+			return true;
 		}
+
 
 		@Override
 		public boolean mouseMoved(int screenX, int screenY) {
+			touchPos.set(screenX, screenY);
 			return false;
 		}
 

@@ -1,6 +1,6 @@
 package com.dc0d.iiridarts.venture.client;
 
-import bloom.bloomshaders.BloomShaderLoader;
+import bloom.BloomShaderLoader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;

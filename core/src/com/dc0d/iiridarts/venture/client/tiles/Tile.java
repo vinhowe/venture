@@ -24,6 +24,8 @@ public class Tile {
 	private byte byte1;
 	private byte byte2;
 	private byte byte3;
+
+	private boolean isFalling;
 	
 	private byte texX;
 	private byte texY;
@@ -46,6 +48,7 @@ public class Tile {
 		this.wallType = wallType;
 		this.texX = (byte) texCoords.x;
 		this.texY = (byte) texCoords.y;
+		this.isFalling = false;
 		byte1 = 0;
 		byte2 = 0;
 		byte3 = 0;
@@ -62,6 +65,19 @@ public class Tile {
 
 	public short getType() {
 		return type;
+	}
+
+	// Returns whether other tiles can connect to this one
+	public boolean isStatic() {
+		return isSolid() && !isFalling;
+	}
+
+	public boolean isFalling() {
+		return isFalling;
+	}
+
+	public void setFalling(boolean isFalling) {
+		this.isFalling = isFalling;
 	}
 
 	public void setType(short type) {

@@ -24,18 +24,18 @@ public abstract class EntityLiving extends Entity {
 	short type;
 	boolean isDead = false; //We dispose of dead things. Sorry.
 	int health; // We use an integer so we can bit shift and find special debuffs.
-	boolean jump = false; // Is our entity on the ground and able to jump?
+	boolean canJump = false; // Is our entity on the ground and able to canJump?
 	boolean canFly = false; // Is our entity a flying animal or something magical?
-	boolean hdir = false;
+	boolean flipped = false;
 	byte vdir = 1;
 	boolean canWalk = false;
 	boolean walk = false;
 	boolean run = false;
-	public boolean jumping = false;
+	boolean jumping = false;
 	
     private static final int        FRAME_COLS = 4;
 	
-    Animation                       animation;
+    Animation<TextureRegion>                       animation;
     Texture                         animationSheet;
     TextureRegion[]                 animationFrames;
     TextureRegion                   currentFrame;
@@ -60,7 +60,7 @@ public abstract class EntityLiving extends Entity {
                 animationFrames[index++] = tmp[i][j];
             }
         }
-		animation = new Animation(0.25f, animationFrames);
+		animation = new Animation<TextureRegion>(0.25f, animationFrames);
 		stateTime += Gdx.graphics.getDeltaTime();
 		currentFrame = animation.getKeyFrame(stateTime, true);
 	}

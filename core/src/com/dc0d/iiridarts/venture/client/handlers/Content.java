@@ -31,8 +31,9 @@ public class Content {
 	 * Stored textures to be used randomly. We now use individual arrays to for this
 	 */
 	private HashMap<String, ArrayList<TextureRegion>> randtextures;
-	private ArrayList<Texture> tiletextures;
-	private ArrayList<Texture> itemtextures;
+	private ArrayList<Texture> tileTextures;
+	private ArrayList<Texture> tileShapeTextures;
+	private ArrayList<Texture> itemTextures;
 	private HashMap<Integer, Texture> itemGlowtextures;
 	private HashMap<String, Music> music;
 	private HashMap<String, Sound> sounds;
@@ -41,8 +42,9 @@ public class Content {
 	public Content() {
 		textures = new HashMap<String, Texture>();
 		randtextures = new HashMap<String, ArrayList<TextureRegion>>();
-		tiletextures = new ArrayList<Texture>();
-		itemtextures = new ArrayList<Texture>();
+		tileTextures = new ArrayList<Texture>();
+		tileShapeTextures = new ArrayList<Texture>();
+		itemTextures = new ArrayList<Texture>();
 		music = new HashMap<String, Music>();
 		sounds = new HashMap<String, Sound>();
 		
@@ -107,7 +109,7 @@ public class Content {
 	public void loadItemTextures() {
 		for (int i = 1; i <= Constants.ITEMS; i++){
 		Texture tex = new Texture(Gdx.files.internal(Constants.ITEMDIR+"/item_"+i+".png"));
-		itemtextures.add(tex);
+		itemTextures.add(tex);
 		}
 	}
 	
@@ -118,7 +120,7 @@ public class Content {
 	 */
 	
 	public Texture getItemTexture(int id) {
-		return itemtextures.get(id-1);
+		return itemTextures.get(id-1);
 	}
 	
 	/**
@@ -128,7 +130,14 @@ public class Content {
 	public void loadTileTextures() {
 		for (int i = 1; i <= Constants.TILETYPES; i++){
 		Texture tex = new Texture(Gdx.files.internal(Constants.TILEDIR+"/tile_"+i+".png"));
-		tiletextures.add(tex);
+		tileTextures.add(tex);
+		}
+	}
+
+	public void loadTileShapeTextures() {
+		for (int i = 1; i <= Constants.TILETYPES; i++){
+			Texture tex = new Texture(Gdx.files.internal(Constants.TILEDIR+"/tile_"+i+"_shape.png"));
+			tileShapeTextures.add(tex);
 		}
 	}
 	
@@ -139,9 +148,19 @@ public class Content {
 	 */
 	
 	public Texture getTileTexture(int id) {
-		return tiletextures.get(id-1);
+		return tileTextures.get(id-1);
 	}
-	
+
+	/**
+	 * Returns tile texture from texture hashmap
+	 * @param id
+	 * @return
+	 */
+
+	public Texture getTileShapeTexture(int id) {
+		return tileShapeTextures.get(id-1);
+	}
+
 	/**
 	 * Loads all item glow textures from tiles directory into com.badlogic.gdx.graphics.Texture hashmap
 	 */
