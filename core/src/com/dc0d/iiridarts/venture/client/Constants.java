@@ -16,8 +16,8 @@ public final class Constants {
 	
 	public static final int TILETYPES = 2;
 	public static final int ITEMS = 3;
-	public static int TILESIZE = 16;
-	public static final int WORLDEDGEMARGIN = 25*TILESIZE;
+	public static int TILE_SIZE = 16;
+	public static final int WORLDEDGEMARGIN = 25* TILE_SIZE;
 	public static final int NETWORKTIMEOUT = 5000;
 	
 	public static final String ASSETSDIR = "assets";

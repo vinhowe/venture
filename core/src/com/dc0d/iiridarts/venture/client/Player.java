@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dc0d.iiridarts.venture.client.handlers.Utilities;
@@ -35,10 +36,10 @@ public class Player extends EntityLiving {
     public String name;
     
     boolean swingingSword = false;
-    short swingingSwordRampPos = 0;
+    float swingingSwordRampPos = 0;
 	
 	public Player(World world, boolean canFly, int x, int y, boolean isRemote) {
-		super(world, (int)(16*1.1), (int)(24*1.1), isRemote, (byte) 1);
+		super(world, (int)(16*1.1), (int)(24*1.1), "entity_2", isRemote, (byte) 1);
 		entityKey = new EntityKey(world.venture, (byte)2, (byte) 0);
 		sprite = new Sprite();
 		sprite.setSize(this.dimensions.x*1.5f, this.dimensions.y*1.5f);
@@ -80,7 +81,11 @@ public class Player extends EntityLiving {
 
 		float verticalSpeed = world.venture.gravity ? 60 : 10;
 
-
+		if(canFly && !canJump) {
+			setAnimationTexture(world.venture.res.getTexture("entity_2_flying").getTextureData());
+		} else {
+			setAnimationTexture(world.venture.res.getTexture("entity_2").getTextureData());
+		}
 
 		if(world.venture.movingx){
 
@@ -88,7 +93,6 @@ public class Player extends EntityLiving {
 			if(canWalk) {
 				walk = true;
 			}
-
 
 
 			float acceleration = run ? runAcceleration : walkAcceleration;
@@ -138,57 +142,43 @@ public class Player extends EntityLiving {
 		
         walk = false;
         //FIXME Use dynamic item textures instead of just debugging with pencil
-        if(!flipped){
- 	        itemSprite.setOrigin(0f, 0f);
-	        itemSprite.setPosition(this.position.x+(this.sprite.getWidth()/1.25f), this.position.y+(this.sprite.getHeight()/1.90f));
-	        itemSprite.setFlip(false, false);
-	        if(itemGlowSprite != null) {
-				itemGlowSprite.setOrigin(0f, 0f);
-				itemGlowSprite.setPosition(this.position.x + (this.sprite.getWidth() / 1.25f), this.position.y + (this.sprite.getHeight() / 1.90f));
-				itemGlowSprite.setFlip(false, false);
-			}
-	        if(itemSprite.getRotation() > -60 && swingingSword){
-	        	itemSprite.rotate(-2.5f*(swingingSwordRampPos*0.15f));
-				if(itemGlowSprite != null) {
-					itemGlowSprite.rotate(-2.5f * (swingingSwordRampPos * 0.15f));
-				}
-	        	swingingSwordRampPos++;
-	        	//itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
-	        } else {
-	        	swingingSword = false;
-	        	itemSprite.setRotation(0);
-	        	if(itemGlowSprite != null) {
-					itemGlowSprite.setRotation(0);
-				}
-	        	swingingSwordRampPos = 0;
-	        	//itemSprite.setAlpha(0.90f);
-	        }
-        } else {
- 	        itemSprite.setOrigin(itemSprite.getWidth(), 0f);
-        	itemSprite.setPosition(this.position.x-(this.sprite.getWidth()/1.25f), this.position.y+(this.sprite.getHeight()/1.90f));
-        	itemSprite.setFlip(true, false);
+
+		float flipFactor = flipped ? 1 : 0;
+		float flipSign = flipped ? -1 : 1;
+
+		Vector2 itemPosition = new Vector2(this.position.x + (this.sprite.getWidth()/1.25f)*flipSign, this.position.y + (this.sprite.getHeight()/1.90f));
+
+		itemSprite.setOrigin(flipFactor * itemSprite.getWidth(), 0f);
+		itemSprite.setPosition(itemPosition.x, itemPosition.y);
+		itemSprite.setFlip(flipped, false);
+		if(itemGlowSprite != null) {
+			itemGlowSprite.setOrigin(flipFactor * itemGlowSprite.getWidth(), 0f);
+			itemGlowSprite.setPosition(itemPosition.x, itemPosition.y);
+			itemGlowSprite.setFlip(flipped, false);
+		}
+		if(swingingSwordRampPos < 1 && swingingSword){
+			float degreesToRotate = 150f*-flipSign;
+			float rampPos = swingingSwordRampPos < 0.5 ? swingingSwordRampPos : 1 - Interpolation.pow2Out.apply(swingingSwordRampPos);
+
+			float rotation = degreesToRotate * rampPos;
+
+			itemSprite.setRotation(rotation);
 			if(itemGlowSprite != null) {
-				itemGlowSprite.setOrigin(itemGlowSprite.getWidth(), 0f);
-				itemGlowSprite.setPosition(this.position.x - (this.sprite.getWidth() / 1.25f), this.position.y + (this.sprite.getHeight() / 1.90f));
-				itemGlowSprite.setFlip(true, false);
+				itemGlowSprite.setRotation(rotation);
 			}
-	        if(itemSprite.getRotation() < 60 && swingingSword){
-	        	itemSprite.rotate(2.5f*(swingingSwordRampPos*0.15f));
-				if(itemGlowSprite != null) {
-					itemGlowSprite.rotate(2.5f * (swingingSwordRampPos * 0.15f));
-				}
-	        	swingingSwordRampPos++;
-	        	//itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
-	        } else {
-	        	swingingSword = false;
-	        	itemSprite.setRotation(0);
-				if(itemGlowSprite != null) {
-					itemGlowSprite.setRotation(0);
-				}
-	        	swingingSwordRampPos = 0;
-	        	//itemSprite.setAlpha(0.15f);
-	        }
-        }
+
+			swingingSwordRampPos+=0.1f;
+
+			//itemSprite.setAlpha((float) (1f-(swingingSwordRampPos*0.01)));
+		} else {
+			swingingSword = false;
+			itemSprite.setRotation(0);
+			if(itemGlowSprite != null) {
+				itemGlowSprite.setRotation(0);
+			}
+			swingingSwordRampPos = 0;
+			//itemSprite.setAlpha(0.15f);
+		}
 
     }
         
@@ -216,8 +206,8 @@ public class Player extends EntityLiving {
 		//TODO Make different tiles take longer to destroy and some unbreakable
 		int reach = 400;
 
-		if((int)(position.x/Constants.TILESIZE) - reach < x && (int)(position.x/Constants.TILESIZE) + reach > x &&
-				(int)(position.y/Constants.TILESIZE) - reach < y && (int)(position.y/Constants.TILESIZE) + reach > y){
+		if((int)(position.x/Constants.TILE_SIZE) - reach < x && (int)(position.x/Constants.TILE_SIZE) + reach > x &&
+				(int)(position.y/Constants.TILE_SIZE) - reach < y && (int)(position.y/Constants.TILE_SIZE) + reach > y){
 			if(tileBreakBuffer.containsKey(new Vector2(x, y))) {
 				if(tileBreakBuffer.get(new Vector2(x, y)).shortValue() < 100){
 					tileBreakBuffer.put(new Vector2(x, y), new Short((short) ((tileBreakBuffer.get(new Vector2(x, y)).shortValue()+damage))));
@@ -262,7 +252,7 @@ public class Player extends EntityLiving {
 		{
 			//Moving Left
 	        if (velocity.x < 0 || bodyforce.x < 0){
-	        	while(world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()/Constants.TILESIZE)+1).isSolid() || world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getTop()/Constants.TILESIZE)-1).isSolid()){
+	        	while(world.tileAt((int)getLeft()/Constants.TILE_SIZE, (int)(getBottom()/Constants.TILE_SIZE)+1).isSolid() || world.tileAt((int)getLeft()/Constants.TILE_SIZE, (int)(getTop()/Constants.TILE_SIZE)-1).isSolid()){
 	        		position.x += (int)(getLeft())-getLeft()+1;
 	        		velocity.x = 0;
 	        		bodyforce.x = 0;
@@ -271,7 +261,7 @@ public class Player extends EntityLiving {
 	        	}
 	    	//Moving Right
 	        } else if (velocity.x > 0 || bodyforce.x > 0){
-	        	while(world.tileAt((int)(getRight()/Constants.TILESIZE), (int)(getBottom()/Constants.TILESIZE)+1).isSolid() || world.tileAt((int)(getRight()/Constants.TILESIZE), (int)(getTop()/Constants.TILESIZE)-1).isSolid()){
+	        	while(world.tileAt((int)(getRight()/Constants.TILE_SIZE), (int)(getBottom()/Constants.TILE_SIZE)+1).isSolid() || world.tileAt((int)(getRight()/Constants.TILE_SIZE), (int)(getTop()/Constants.TILE_SIZE)-1).isSolid()){
 	        		position.x -= (int)(getRight())-getRight()+1;
 	        		velocity.x = 0;
 	        		bodyforce.x = 0;
@@ -286,8 +276,8 @@ public class Player extends EntityLiving {
 		{   
 			//Moving Down
 	        if (velocity.y < 0){
-	        	while(world.tileAt((int)getLeft()/Constants.TILESIZE, (int)getBottom()/Constants.TILESIZE).isSolid() || 
-	        			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)getBottom()/Constants.TILESIZE).isSolid()||world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)getBottom()/Constants.TILESIZE).isSolid())
+	        	while(world.tileAt((int)getLeft()/Constants.TILE_SIZE, (int)getBottom()/Constants.TILE_SIZE).isSolid() || 
+	        			world.tileAt((int)(getRight())/Constants.TILE_SIZE, (int)getBottom()/Constants.TILE_SIZE).isSolid()||world.tileAt((int)(getMidX())/Constants.TILE_SIZE, (int)getBottom()/Constants.TILE_SIZE).isSolid())
 	        	{
 	        		position.y += (int)(getBottom())-getBottom()+1;
 	        		velocity.y = 0;
@@ -295,42 +285,42 @@ public class Player extends EntityLiving {
 	        	}
 	    	//Moving Up
 	        } else if (velocity.y > 0){
-	        	while(world.tileAt((int)(getLeft()/Constants.TILESIZE), ((int)getTop()/Constants.TILESIZE)).isSolid() ||
-	        			world.tileAt((int)(getRight()/Constants.TILESIZE), ((int)getTop()/Constants.TILESIZE)).isSolid())
+	        	while(world.tileAt((int)(getLeft()/Constants.TILE_SIZE), ((int)getTop()/Constants.TILE_SIZE)).isSolid() ||
+	        			world.tileAt((int)(getRight()/Constants.TILE_SIZE), ((int)getTop()/Constants.TILE_SIZE)).isSolid())
 				{
 	        		position.y -= (int)(getTop())-getTop()+1;
 	        		velocity.y = 0;
 	        	}
 	        }
-	        if(world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()-1)/Constants.TILESIZE).isSolid() || 
-	    			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)(getBottom()-1)/Constants.TILESIZE).isSolid()||
-	    			world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)(getBottom()-1)/Constants.TILESIZE).isSolid()||
-	    			world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()-4)/Constants.TILESIZE).isSolid() || 
-	    			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)(getBottom()-4)/Constants.TILESIZE).isSolid()||
-	    			world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)(getBottom()-4)/Constants.TILESIZE).isSolid()||
-	    			world.tileAt((int)getLeft()/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid() || 
-	    			world.tileAt((int)(getRight())/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid()||
-	    			world.tileAt((int)(getMidX())/Constants.TILESIZE, (int)(getBottom()+1)/Constants.TILESIZE).isSolid()){
+	        if(world.tileAt((int)getLeft()/Constants.TILE_SIZE, (int)(getBottom()-1)/Constants.TILE_SIZE).isSolid() || 
+	    			world.tileAt((int)(getRight())/Constants.TILE_SIZE, (int)(getBottom()-1)/Constants.TILE_SIZE).isSolid()||
+	    			world.tileAt((int)(getMidX())/Constants.TILE_SIZE, (int)(getBottom()-1)/Constants.TILE_SIZE).isSolid()||
+	    			world.tileAt((int)getLeft()/Constants.TILE_SIZE, (int)(getBottom()-4)/Constants.TILE_SIZE).isSolid() || 
+	    			world.tileAt((int)(getRight())/Constants.TILE_SIZE, (int)(getBottom()-4)/Constants.TILE_SIZE).isSolid()||
+	    			world.tileAt((int)(getMidX())/Constants.TILE_SIZE, (int)(getBottom()-4)/Constants.TILE_SIZE).isSolid()||
+	    			world.tileAt((int)getLeft()/Constants.TILE_SIZE, (int)(getBottom()+1)/Constants.TILE_SIZE).isSolid() || 
+	    			world.tileAt((int)(getRight())/Constants.TILE_SIZE, (int)(getBottom()+1)/Constants.TILE_SIZE).isSolid()||
+	    			world.tileAt((int)(getMidX())/Constants.TILE_SIZE, (int)(getBottom()+1)/Constants.TILE_SIZE).isSolid()){
 	        	canJump = true;
 	        }
 		}
 	
-		/*collision = doCollision(position.x, position.y, velocity.x, velocity.y, dimensions.x, dimensions.y, Constants.TILESIZE);
+		/*collision = doCollision(position.x, position.y, velocity.x, velocity.y, dimensions.x, dimensions.y, Constants.TILE_SIZE);
 	    
 	    
 		velocity.x = MathUtils.clamp(collision.width, -maxVelocity, maxVelocity) * drag;
 	    velocity.y = MathUtils.clamp(collision.height, -maxVelocity, maxVelocity) * drag;*/
 		//System.out.println(velocity.x);
-		if(getTop() >= (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN * drag){
+		if(getTop() >= (Constants.mediumMapDimesions.y*Constants.TILE_SIZE)-Constants.WORLDEDGEMARGIN * drag){
 			velocity.y = MathUtils.clamp(velocity.y, -maxVelocity, 0);
 		} else if (position.y == Constants.WORLDEDGEMARGIN){
 			velocity.y = MathUtils.clamp(velocity.y, 0, maxVelocity) * drag;	
 		}
-		position.x = MathUtils.clamp((position.x + (velocity.x) + bodyforce.x), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.x);
-	    position.y = MathUtils.clamp((position.y + (velocity.y * (timestep)) + bodyforce.y), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.y);
+		position.x = MathUtils.clamp((position.x + (velocity.x) + bodyforce.x), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILE_SIZE)-Constants.WORLDEDGEMARGIN-dimensions.x);
+	    position.y = MathUtils.clamp((position.y + (velocity.y * (timestep)) + bodyforce.y), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILE_SIZE)-Constants.WORLDEDGEMARGIN-dimensions.y);
 		} else { 
-	    	position.x = MathUtils.clamp((position.x + (velocity.x) + bodyforce.x), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.x);
-	        position.y = MathUtils.clamp((position.y + (velocity.y * (timestep)) + bodyforce.y), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILESIZE)-Constants.WORLDEDGEMARGIN-dimensions.y);
+	    	position.x = MathUtils.clamp((position.x + (velocity.x) + bodyforce.x), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.x*Constants.TILE_SIZE)-Constants.WORLDEDGEMARGIN-dimensions.x);
+	        position.y = MathUtils.clamp((position.y + (velocity.y * (timestep)) + bodyforce.y), Constants.WORLDEDGEMARGIN, (Constants.mediumMapDimesions.y*Constants.TILE_SIZE)-Constants.WORLDEDGEMARGIN-dimensions.y);
 		}	
 	}
 }

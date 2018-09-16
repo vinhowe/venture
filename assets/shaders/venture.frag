@@ -18,56 +18,72 @@ varying vec2 v_texCoord0;
 uniform vec2 screenSize;
 
 uniform sampler2D u_texture;
-uniform vec4 v_time;
 
-uniform float brightness = 2;
+
+// uniform float brightness = 1;
+
+uniform float lightDistance = 0;
+uniform float intensity = 1;
+uniform vec2 mousePos;
+
+uniform float lightCount = 0;
 
 const float RADIUS = 0.9;
 
-const float SOFTNESS = 1;
+const float SOFTNESS = 0.25;
 
+uniform float lightRadius = 500;
 
+struct PointLight {
+    vec2 position;
 
-uniform float blurSize;
+    float intensity;
+    float radius;
 
-uniform float grayScaleScale;
+    vec3 color;
+};
+#define NR_POINT_LIGHTS 64
+uniform PointLight pointLights[NR_POINT_LIGHTS];
 
-uniform vec2 center = vec2(1920/2, 1080/2);
-uniform float radius = 500;
-uniform float scale = 500;
+vec3 CalcPointLight(PointLight light, vec3 color, vec3 ambient) {
 
-float random(float p) {
-  return fract(sin(p)*100000.);
-}
+    float distance = distance(light.position, gl_FragCoord.xy);
 
-float noise(vec2 p) {
-  return random(p.x*10000. + p.y*10000.);
+    float att = clamp(1.0 - distance/light.radius, 0.0, 1.0); att *= att;
+
+    vec3 diffuse = att * light.color * light.intensity;
+
+    return diffuse+ambient;
 }
 
 void main() {
-    vec2 position = (gl_FragCoord.xy / screenSize.xy) - vec2(0.5);
-    vec2 p = position;
-	//vec3 color = texture2D(u_texture, v_texCoords).rgb;
+    vec2 centerPosition = (gl_FragCoord.xy / screenSize.xy) - vec2(0.5);
 
-    vec4 texColor = vec4(0.0); // texture2D(u_texture, v_texCoord0)
-    texColor = texture2D(u_texture, v_texCoord0);
-
-    vec4 timedColor = (v_color + 1);
-
-
-    float len = length(position);
+    float len = length(centerPosition);
 
     float vignette = smoothstep(RADIUS, RADIUS-SOFTNESS, len);
 
-    texColor.rgb = v_color.rgb * mix(texColor.rgb, texColor.rgb * vignette, 0.5);
 
-	float grayscaleMix = ((texColor.r + texColor.g + texColor.b) / 3);
 
-	vec3 grayscale = vec3(mix(texColor.r, grayscaleMix, 0.25)/15, mix(texColor.g*texColor.b, grayscaleMix, 0.75)/2.5, texColor.b*0.75);
+     // texColor.rgb = v_color.rgb * texColor.rgb * vignette;
 
-	vec3 gray = mix(texColor.rgb, grayscale.rgb, 1);
+    //	float gcaleMix = ((texColor.r + texColor.g + texColor.b) / 3);rays
+    //	vec3 grayscale = vec3(mix(texColor.r, grayscaleMix, 0.25)/15, mix(texColor.g*texColor.b, grayscaleMix, 0.75)/2.5, texColor.b*0.75);
 
-	vec3 final = mix(texColor.rgb, gray, 0);
+	// vec3 gray = mix(texColor.rgb, grayscale.rgb, 1);
 
-    gl_FragColor = vec4(final*1.5, texColor.a);
+    vec3 ambientColor = vec3(0,0,1);
+    float ambientIntensity = 0.1;
+    vec3 ambient = ambientColor * ambientIntensity;
+
+	vec4 final = v_color * texture2D(u_texture, v_texCoord0);
+
+	vec3 lightedColor = vec3(0,0,0);
+
+	for(int i = 0; i < lightCount; i++) {
+	    lightedColor += final.rgb*CalcPointLight(pointLights[i], final.rgb, ambient);
+    }
+
+    gl_FragColor = vec4(lightedColor, final.a);
 }
+

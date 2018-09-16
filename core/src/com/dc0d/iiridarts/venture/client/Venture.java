@@ -7,6 +7,7 @@
 package com.dc0d.iiridarts.venture.client;
 
 import java.io.IOException;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.ConsoleHandler;
@@ -19,11 +20,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.FPSLogger;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -35,6 +32,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker.Settings;
+import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.dc0d.iiridarts.venture.client.handlers.Content;
@@ -148,6 +146,7 @@ public class Venture extends com.badlogic.gdx.Game implements
 			res.loadItemGlowTextures();
 			res.loadTexture("assets/images/backgrounds/bg.png");
 			res.loadTexture("assets/images/entities/entity_2.png");
+			res.loadTexture("assets/images/entities/entity_2_flying.png");
 			res.loadTexture("assets/images/cursor.png");
 			// MotionBlur Shader background colors
 			// bloom.setClearColor(Constants.daySkyColor.r,
@@ -189,8 +188,8 @@ public class Venture extends com.badlogic.gdx.Game implements
 		camera.update();
 		zoom = 1F;
 		viewport = new ScreenViewport(camera);
-		player = new Player(world.get(0), false, 400 * Constants.TILESIZE,
-				501 * Constants.TILESIZE, true);
+		player = new Player(world.get(0), false, 400 * Constants.TILE_SIZE,
+				501 * Constants.TILE_SIZE, true);
 		logger = Logger.getLogger("Venture");
 		handler = new ConsoleHandler();
 		bg1pos = new Vector2(0, 0);
@@ -269,12 +268,12 @@ public class Venture extends com.badlogic.gdx.Game implements
 		viewport.update(width, height);
 		camera.position.x = MathUtils.clamp(camera.position.x,
 				camera.viewportWidth / 2 + Constants.WORLDEDGEMARGIN,
-				(Constants.mediumMapDimesions.x * Constants.TILESIZE)
+				(Constants.mediumMapDimesions.x * Constants.TILE_SIZE)
 						- (camera.viewportWidth / 2)
 						- Constants.WORLDEDGEMARGIN);
 		camera.position.y = MathUtils.clamp(camera.position.y,
 				camera.viewportHeight / 2 + Constants.WORLDEDGEMARGIN,
-				(Constants.mediumMapDimesions.y * Constants.TILESIZE)
+				(Constants.mediumMapDimesions.y * Constants.TILE_SIZE)
 						- (camera.viewportHeight / 2)
 						- Constants.WORLDEDGEMARGIN);
 		// camera = new OrthographicCamera(width, height);
@@ -313,24 +312,24 @@ public class Venture extends com.badlogic.gdx.Game implements
 
 			player.modifyTileDamage(
 					(int) camera.unproject(new Vector3(touchPos, 0)).x
-							/ Constants.TILESIZE,
+							/ Constants.TILE_SIZE,
 					(int) camera.unproject(new Vector3(touchPos, 0)).y
-							/ Constants.TILESIZE, damage);
+							/ Constants.TILE_SIZE, damage);
             player.modifyTileDamage(
                     (int) camera.unproject(new Vector3(touchPos, 0)).x
-                            / Constants.TILESIZE,
+                            / Constants.TILE_SIZE,
                     (int) (camera.unproject(new Vector3(touchPos, 0)).y
-                            / Constants.TILESIZE)+1, damage);
+                            / Constants.TILE_SIZE)+1, damage);
 			player.modifyTileDamage(
 					(int) (camera.unproject(new Vector3(touchPos, 0)).x
-							/ Constants.TILESIZE) + 1,
+							/ Constants.TILE_SIZE) + 1,
 					(int) (camera.unproject(new Vector3(touchPos, 0)).y
-							/ Constants.TILESIZE)+1, damage);
+							/ Constants.TILE_SIZE)+1, damage);
 			player.modifyTileDamage(
 					(int) (camera.unproject(new Vector3(touchPos, 0)).x
-							/ Constants.TILESIZE) + 1,
+							/ Constants.TILE_SIZE) + 1,
 					(int) (camera.unproject(new Vector3(touchPos, 0)).y
-							/ Constants.TILESIZE), damage);
+							/ Constants.TILE_SIZE), damage);
 		}
 		bg3pos.x += Gdx.graphics.getDeltaTime() * 1.5;
 		bg2pos.x += Gdx.graphics.getDeltaTime() * 1;
@@ -365,25 +364,52 @@ public class Venture extends com.badlogic.gdx.Game implements
 					cameraPosDiff.y / 6);
 			blurShader.setClearColor(0, 0, 0, 1f);
 			// System.out.println(10-zoom);
+
 			shaderProgram.begin();
-			shaderProgram.setUniformf("v_time", (cameraDiffMax / 10) % 10,
-					(cameraDiffMax / 10) % 10, (cameraDiffMax / 10) % 10,
-					(cameraDiffMax / 10) % 10);
-			shaderProgram.setUniformf("grayScaleScale", Math.min(zoom / 5, 1));
-			shaderProgram.setUniformf("random", (float) Math.random(),
-					(float) Math.random(), (float) Math.random(),
-					(float) Math.random());
+
+			int lightCount = 12;
+
+			shaderProgram.setUniformf("mousePos", touchPos);
+			shaderProgram.setUniformf("lightCount", lightCount);
+
+			for (int i = 0; i < lightCount; i++) {
+				shaderProgram.setUniformf("pointLights["+i+"].position", new Vector2((float)Math.random()*Gdx.graphics.getWidth(), (float)Math.random()*Gdx.graphics.getHeight()));
+				shaderProgram.setUniformf("pointLights["+i+"].intensity", zoom/40);
+				shaderProgram.setUniformf("pointLights["+i+"].radius", zoom*1000);
+				shaderProgram.setUniformf("pointLights["+i+"].color", new Vector3(1f,1f,1f));
+			}
+
+
 			shaderProgram.end();
 			batch.setShader(shaderProgram);
-			// blurShader.capture();
+			bloom.setBloomIntesity(0.5f);
+			bloom.capture();
 		} else {
 			batch.setShader(null);
 		}
+
 		batch.begin();
 
+
+
 		for (int i = 0; i < tileSprites.size(); i++) {
+//			if(enableShaders) {
+//				Sprite sprite = tileSprites.get(i);
+//				Vector2 position = new Vector2(sprite.getX()/Constants.TILE_SIZE, sprite.getY()/Constants.TILE_SIZE);
+//				Vector2 lightPosition = new Vector2(player.getPosition().x/Constants.TILE_SIZE, player.getPosition().y/Constants.TILE_SIZE);
+//				//logger.log(Level.FINE, String.valueOf(position.dst(lightPosition)));
+//				float lightDistance = position.dst(lightPosition);
+////				shaderProgram.setUniformf("physicalPos", position);
+////				shaderProgram.setUniformf("lightPos", lightPosition);
+//				shaderProgram.begin();
+//				shaderProgram.setUniformf("lightDistance", lightDistance);
+//				shaderProgram.end();
+//			}
+
 			tileSprites.get(i).draw(batch);
+
 		}
+
 
 
 		for (int i = 0; i < cursorSprites.size(); i++) {
@@ -401,9 +427,7 @@ public class Venture extends com.badlogic.gdx.Game implements
 		}
 
 		batch.end();
-//		if (enableShaders) {
-//			blurShader.render();
-//		}
+
 
 		batch.begin();
 
@@ -414,7 +438,12 @@ public class Venture extends com.badlogic.gdx.Game implements
 		batch.end();
 
 		if (enableShaders) {
+			bloom.render();
+		}
 
+
+		if (enableShaders) {
+			bloom.setBloomIntesity(7.5f);
 			bloom.capture();
 			glowBatch.setProjectionMatrix(camera.combined);
 			glowBatch.enableBlending();
@@ -426,9 +455,9 @@ public class Venture extends com.badlogic.gdx.Game implements
                 itemGlowSprites.get(i).draw(glowBatch);
             }
 
-			for (int i = 0; i < tileShapeSprites.size(); i++) {
-				tileShapeSprites.get(i).draw(glowBatch);
-			}
+//			for (int i = 0; i < tileShapeSprites.size(); i++) {
+//				tileShapeSprites.get(i).draw(glowBatch);
+//			}
 
 
 
@@ -470,23 +499,23 @@ public class Venture extends com.badlogic.gdx.Game implements
 		camera.position.x = MathUtils
 				.clamp(player.position.x,
 						Constants.WORLDEDGEMARGIN + camera.viewportWidth / 2,
-						((Constants.mediumMapDimesions.x * Constants.TILESIZE) - Constants.WORLDEDGEMARGIN)
+						((Constants.mediumMapDimesions.x * Constants.TILE_SIZE) - Constants.WORLDEDGEMARGIN)
 								- (camera.viewportWidth / 2));
 		camera.position.y = MathUtils.clamp(player.position.y,
 				camera.viewportHeight / 2 + Constants.WORLDEDGEMARGIN,
-				(Constants.mediumMapDimesions.y * Constants.TILESIZE)
+				(Constants.mediumMapDimesions.y * Constants.TILE_SIZE)
 						- Constants.WORLDEDGEMARGIN
 						- (camera.viewportHeight / 2));
 		// TODO Figure out camera bobbing dynamic
 		// camera.position.y -= cameraBob/20;
 		scamera.position.x = MathUtils.clamp(player.position.x,
 				camera.viewportWidth / 2 + Constants.WORLDEDGEMARGIN,
-				(Constants.mediumMapDimesions.x * Constants.TILESIZE)
+				(Constants.mediumMapDimesions.x * Constants.TILE_SIZE)
 						- (camera.viewportWidth / 2)
 						- Constants.WORLDEDGEMARGIN);
 		scamera.position.y = MathUtils.clamp(player.position.y,
 				camera.viewportHeight / 2 + Constants.WORLDEDGEMARGIN,
-				(Constants.mediumMapDimesions.y * Constants.TILESIZE)
+				(Constants.mediumMapDimesions.y * Constants.TILE_SIZE)
 						- (camera.viewportHeight / 2)
 						- Constants.WORLDEDGEMARGIN);
 
@@ -529,23 +558,23 @@ public class Venture extends com.badlogic.gdx.Game implements
 
 		Vector2 startingTile = new Vector2(
 				(int) (camera.position.x - camera.viewportWidth)
-						/ Constants.TILESIZE,
+						/ Constants.TILE_SIZE,
 				(int) (camera.position.y - camera.viewportHeight)
-						/ Constants.TILESIZE);
+						/ Constants.TILE_SIZE);
 
 		Vector2 lastTile = new Vector2((int) startingTile.x
-				+ ((camera.viewportWidth * 2) / Constants.TILESIZE),
+				+ ((camera.viewportWidth * 2) / Constants.TILE_SIZE),
 				(int) startingTile.y
-						+ ((camera.viewportHeight * 2) / Constants.TILESIZE));
+						+ ((camera.viewportHeight * 2) / Constants.TILE_SIZE));
 
 		for (int x = (int) startingTile.x; x <= lastTile.x; x++) {
 			for (int y = (int) startingTile.y; y <= lastTile.y; y++)
 				if (world.get(0).tileAt(x, y).isSolid()) {
                     double distance = Math.sqrt((x - player.position.x
-                            / Constants.TILESIZE)
-                            * (x - player.position.x / Constants.TILESIZE)
-                            + (y - player.position.y / Constants.TILESIZE)
-                            * (y - player.position.y / Constants.TILESIZE));
+                            / Constants.TILE_SIZE)
+                            * (x - player.position.x / Constants.TILE_SIZE)
+                            + (y - player.position.y / Constants.TILE_SIZE)
+                            * (y - player.position.y / Constants.TILE_SIZE));
                     distance = distance / (60*zoom);
                     distance = Math.min(distance, 1f);
 
@@ -564,9 +593,9 @@ public class Venture extends com.badlogic.gdx.Game implements
 					tileRegion.getTexture().setFilter(TextureFilter.Linear,
 							TextureFilter.Nearest);
 					Sprite sprite = new Sprite(tileRegion);
-					sprite.setPosition(x * Constants.TILESIZE, y
-							* Constants.TILESIZE);
-					sprite.setSize(Constants.TILESIZE, Constants.TILESIZE);
+					sprite.setPosition(x * Constants.TILE_SIZE, y
+							* Constants.TILE_SIZE);
+					sprite.setSize(Constants.TILE_SIZE, Constants.TILE_SIZE);
 					sprite.setScale(1.05f);
 
 					final Color white = new Color(0.999f,0.999f,0.999f,1);
@@ -574,7 +603,7 @@ public class Venture extends com.badlogic.gdx.Game implements
                     Color redHardcodedColor = new Color(0.8f, 0.1f, 0.1f, 1);
                     Color defaultTileColor = new Color(0.0015f, 0.005f,0.06f, 1);
 
-					if(overexposed) {
+/*					if(overexposed) {
                         TextureRegion tileShapeRegion = new TextureRegion(
                                 res.getTileShapeTexture(type),
                                 world.get(0).tileTexX(x, y) * 9, world.get(0)
@@ -582,9 +611,9 @@ public class Venture extends com.badlogic.gdx.Game implements
                         tileShapeRegion.getTexture().setFilter(TextureFilter.Linear,
                                 TextureFilter.Nearest);
                         Sprite shapeSprite = new Sprite(tileShapeRegion);
-                        shapeSprite.setPosition(x * Constants.TILESIZE, y
-                                * Constants.TILESIZE);
-                        shapeSprite.setSize(Constants.TILESIZE, Constants.TILESIZE);
+                        shapeSprite.setPosition(x * Constants.TILE_SIZE, y
+                                * Constants.TILE_SIZE);
+                        shapeSprite.setSize(Constants.TILE_SIZE, Constants.TILE_SIZE);
 
                         double overexposedDistance = 1-Interpolation.exp10Out.apply((float) (distance*60));
 
@@ -600,7 +629,7 @@ public class Venture extends com.badlogic.gdx.Game implements
 						sprite.setColor(redHardcodedColor.lerp(defaultTileColor, 1-(float) lightDistance));
 					} else {
 						sprite.setColor(defaultTileColor);
-					}
+					}*/
 
                     // sprite.setColor(new Color(1f,1f,1f, 10f));
 
@@ -618,8 +647,8 @@ public class Venture extends com.badlogic.gdx.Game implements
 		// itemSprites.add(item);
 		// }
 
-		int cursorX = (int) camera.unproject(new Vector3(touchPos, 0)).x / Constants.TILESIZE;
-		int cursorY = (int) (camera.unproject(new Vector3(touchPos, 0)).y / Constants.TILESIZE);
+		int cursorX = (int) camera.unproject(new Vector3(touchPos, 0)).x / Constants.TILE_SIZE;
+		int cursorY = (int) (camera.unproject(new Vector3(touchPos, 0)).y / Constants.TILE_SIZE);
 
 		for(int x = cursorX; x <= cursorX + 1; x++) {
 			for(int y = cursorY; y <= cursorY + 1; y++) {
@@ -629,10 +658,10 @@ public class Venture extends com.badlogic.gdx.Game implements
 				tileRegion.getTexture().setFilter(TextureFilter.Linear,
 						TextureFilter.Nearest);
 				Sprite cursorSprite = new Sprite(tileRegion);
-				cursorSprite.setPosition(x * Constants.TILESIZE, y
-						* Constants.TILESIZE);
-				cursorSprite.setSize(Constants.TILESIZE, Constants.TILESIZE);
-				
+				cursorSprite.setPosition(x * Constants.TILE_SIZE, y
+						* Constants.TILE_SIZE);
+				cursorSprite.setSize(Constants.TILE_SIZE, Constants.TILE_SIZE);
+
 				cursorSprite.setAlpha(0.5f);
 
 				cursorSprites.add(cursorSprite);
@@ -711,8 +740,8 @@ public class Venture extends com.badlogic.gdx.Game implements
 				player.canFly = !player.canFly;
 				break;
 			case Keys.F3:
-				player.setPosition(400 * Constants.TILESIZE,
-						501 * Constants.TILESIZE);
+				player.setPosition(400 * Constants.TILE_SIZE,
+						501 * Constants.TILE_SIZE);
 				break;
 			case Keys.F4:
 				gravity = !gravity;

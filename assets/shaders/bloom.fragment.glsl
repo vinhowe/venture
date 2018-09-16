@@ -19,5 +19,5 @@ void main()
 	vec3 original = texture2D(u_texture0, v_texCoords).rgb;
 	vec3 bloom = texture2D(u_texture1, v_texCoords).rgb * BloomIntensity; 	
     original = OriginalIntensity * (original - original * bloom);	 	
- 	gl_FragColor.rgb =  original + (bloom)*2;
+ 	gl_FragColor.rgb =  original + (bloom);
 }
