@@ -1,6 +1,8 @@
+**Note: This is an archive of a project, left as-is for my reference.**
+
 # README #
 
-Repository for the Venture game project by Oxide Arts.
+Repository for the Venture game project
 
 ### Project Venture ###
 
